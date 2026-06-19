@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 shadow-glow">
+  <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+    <h3 class="text-xl font-extrabold text-white">Security Analyst Dashboard</h3>
+    <span class="text-sm text-slate-400">SOC Operator: Admin User</span>
+  </div>
+  <div class="mt-5 grid gap-5 xl:grid-cols-[1fr_1.05fr]">
+    <div class="rounded-[28px] border border-amber-300/20 bg-gradient-to-br from-amber-300/10 via-white/5 to-slate-950/80 p-6">
+      <div class="inline-flex rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-amber-100">Medium</div>
+      <h4 class="mt-4 text-3xl font-extrabold tracking-tight text-white">Web Discovery Attack</h4>
+      <p class="mt-3 max-w-xl text-sm leading-7 text-slate-300">Automated directory enumeration detected on admin endpoints.</p>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Source IP</span><strong class="mt-3 block text-xl font-bold text-white">{{ summary.source_ip }}</strong></div>
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">First detected</span><strong class="mt-3 block text-xl font-bold text-white">{{ summary.first_detected }}</strong></div>
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Event ID</span><strong class="mt-3 block text-xl font-bold text-white">{{ summary.event_id }}</strong></div>
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Duration</span><strong class="mt-3 block text-xl font-bold text-white">{{ summary.duration }}</strong></div>
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">URLs Attempted</span><strong class="mt-3 block text-xl font-bold text-white">{{ summary.urls_attempted }}</strong></div>
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Blocked Requests</span><strong class="mt-3 block text-xl font-bold text-white">{{ summary.blocked_requests }}</strong></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

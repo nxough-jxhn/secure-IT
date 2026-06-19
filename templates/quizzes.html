@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 shadow-glow">
+  <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+    <h3 class="text-xl font-extrabold text-white">Knowledge Quiz</h3>
+    <span class="text-sm text-slate-400">End of module check</span>
+  </div>
+  <div class="mt-5 rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-300/10 to-emerald-300/10 p-6">
+    <p class="text-lg font-semibold text-white">Which behavior best protects a school account?</p>
+    <ul class="mt-5 space-y-3 text-sm text-slate-200">
+      <li class="rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">Sharing your password with a classmate</li>
+      <li class="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 font-semibold text-emerald-50">Using a unique password and enabling MFA</li>
+      <li class="rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">Writing your password on a sticky note</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

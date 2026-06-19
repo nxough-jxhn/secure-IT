@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 shadow-glow">
+  <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+    <h3 class="text-xl font-extrabold text-white">Simulation Module</h3>
+    <span class="text-sm text-slate-400">Practice scenarios</span>
+  </div>
+  <div class="mt-5 grid gap-4 xl:grid-cols-3">
+    <article class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">Scenario 01</div>
+      <h4 class="text-lg font-bold text-white">Phishing Detection</h4>
+      <p class="mt-2 text-sm leading-6 text-slate-300">Identify fake emails and suspicious links before opening them.</p>
+    </article>
+    <article class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">Scenario 02</div>
+      <h4 class="text-lg font-bold text-white">Password Strength Checker</h4>
+      <p class="mt-2 text-sm leading-6 text-slate-300">Test weak passwords and learn what makes a stronger one.</p>
+    </article>
+    <article class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">Scenario 03</div>
+      <h4 class="text-lg font-bold text-white">Social Engineering</h4>
+      <p class="mt-2 text-sm leading-6 text-slate-300">Choose the safest response to urgent requests from unknown people.</p>
+    </article>
+  </div>
+</section>
+
+<section class="mt-5 rounded-[28px] border border-white/10 bg-slate-950/70 p-6 shadow-glow">
+  <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+    <h3 class="text-xl font-extrabold text-white">URL Discovery Attack</h3>
+    <span class="text-sm text-slate-400">Latest attempts</span>
+  </div>
+  <div class="mt-5 overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80">
+    {% for attempt in recent_attempts %}
+    <div class="border-b border-white/5 px-5 py-3 font-mono text-sm text-slate-200 last:border-b-0">{{ attempt }}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
