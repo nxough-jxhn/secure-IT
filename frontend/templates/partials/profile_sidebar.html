@@ -1,0 +1,75 @@
+<aside class="dash-sidebar" id="profile-sidebar" aria-label="Profile and navigation">
+  <section class="dash-sidebar__identity">
+    <div class="dash-namecard">
+      <div class="dash-namecard__frame">
+        <div class="dash-namecard__art" aria-hidden="true"></div>
+        {% if namecard.profile_picture %}
+        <img
+          class="dash-namecard__avatar"
+          src="{{ namecard.profile_picture if namecard.profile_picture.startswith('http') else url_for('static', filename=namecard.profile_picture) }}"
+          alt=""
+        >
+        {% else %}
+        <div class="dash-namecard__avatar dash-namecard__avatar--initials">{{ namecard.initials or display_name[:2]|upper }}</div>
+        {% endif %}
+        <p class="dash-namecard__name">{{ namecard.title or display_name }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="dash-sidebar__meta">
+    <p class="dash-sidebar__level">{{ namecard.level_label or ('Level — ' ~ profile.level) }}</p>
+    <p class="dash-sidebar__detail">{{ namecard.subtitle or year_level or 'Active learner' }}</p>
+  </section>
+
+  <section class="dash-sidebar__stats" aria-label="Quick stats">
+    <div class="dash-stat-pill">
+      <span class="dash-stat-pill__value">{{ profile.points }}</span>
+      <span class="dash-stat-pill__label">Points</span>
+    </div>
+    <div class="dash-stat-pill">
+      <span class="dash-stat-pill__value">{{ profile.badges|length }}</span>
+      <span class="dash-stat-pill__label">Badges</span>
+    </div>
+    <div class="dash-stat-pill">
+      <span class="dash-stat-pill__value">{{ module_status.completed }}</span>
+      <span class="dash-stat-pill__label">Modules</span>
+    </div>
+    <div class="dash-stat-pill">
+      <span class="dash-stat-pill__value">{% if rank %}#{{ rank }}{% else %}—{% endif %}</span>
+      <span class="dash-stat-pill__label">Rank</span>
+    </div>
+  </section>
+
+  <section class="dash-sidebar__level">
+    <div class="dash-sidebar__level-meta">
+      <span>{{ level_progress.current_points }} pts</span>
+      <span>{{ level_progress.next_threshold }} pts</span>
+    </div>
+    <div class="dash-progress">
+      <div class="dash-progress__bar" style="width: {{ level_progress.percent_in_level }}%;"></div>
+    </div>
+  </section>
+
+  <nav class="dash-nav" aria-label="Training navigation">
+    <a href="{{ url_for('dashboard_page') }}" class="dash-nav__link {% if active_page == 'dashboard' %}is-active{% endif %}">Dashboard</a>
+    <a href="{{ url_for('simulations_page') }}" class="dash-nav__link {% if active_page == 'simulations' %}is-active{% endif %}">
+      Simulations
+      {% if pending_missions and pending_missions > 0 %}
+      <span class="dash-nav__badge">{{ pending_missions if pending_missions < 10 else '9+' }}</span>
+      {% endif %}
+    </a>
+    <a href="{{ url_for('quizzes_page') }}" class="dash-nav__link {% if active_page == 'quizzes' %}is-active{% endif %}">Quizzes</a>
+    <span class="dash-nav__link dash-nav__link--muted">Leaderboard</span>
+    <span class="dash-nav__link dash-nav__link--muted">Community</span>
+    <span class="dash-nav__link dash-nav__link--muted">Certificates</span>
+    <span class="dash-nav__link dash-nav__link--muted">Namecard Gallery</span>
+  </nav>
+
+  <div class="dash-sidebar__account">
+    <a href="{{ url_for('profile_page') }}" class="dash-nav__link">Edit profile</a>
+    <form action="{{ url_for('logout_page') }}" method="post" style="margin:0;">
+      <button type="submit" class="dash-nav__link dash-nav__link--logout" style="background:none;border:0;padding:0;cursor:pointer;width:100%;text-align:left;">Logout</button>
+    </form>
+  </div>
+</aside>

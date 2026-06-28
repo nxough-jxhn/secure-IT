@@ -1,0 +1,993 @@
+/* ══════════════════════════════════════════
+   Phishing Easy Simulation — 3-Column Layout
+══════════════════════════════════════════ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.phish-sim {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+/* ── Three-column layout ── */
+.phish-sim__layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  height: 100vh;
+  gap: 0;
+}
+
+/* ══════════════════════════════════════════
+   LEFT SIDEBAR — Simulation Info
+══════════════════════════════════════════ */
+
+.phish-sidebar {
+  background: #0f0f0f;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 32px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.phish-sidebar__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phish-sidebar__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.phish-sidebar__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.phish-sidebar__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 5f6368px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.phish-sidebar__badge--beginner {
+  background: rgba(0,255,159,0.12);
+  border: 1px solid rgba(0,255,159,0.25);
+  color: #00ff9f;
+}
+
+.phish-sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phish-sidebar__section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5f6368;
+}
+
+.phish-sidebar__text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #bbb;
+}
+
+.phish-sidebar__timer {
+  font-family: 'Courier New', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #00ff9f;
+}
+
+.phish-sidebar__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phish-sidebar__list li {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #bbb;
+  padding-left: 20px;
+  position: relative;
+}
+
+.phish-sidebar__list li::before {
+  content: '•';
+  position: absolute;
+  left: 6px;
+  color: #00ff9f;
+}
+
+.phish-sidebar__report {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.1);
+  text-decoration: none;
+  color: #f87171;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-top: auto;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.phish-sidebar__report:hover {
+  border-color: rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.16);
+  transform: translateY(-1px);
+}
+
+.phish-sidebar__report span {
+  font-size: 1.0625rem;
+}
+
+/* ══════════════════════════════════════════
+   CENTER — Email Simulation
+══════════════════════════════════════════ */
+
+.phish-email {
+  background: #141414;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.phish-email__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #0f0f0f;
+}
+
+.phish-email__icon {
+  font-size: 1.25rem;
+}
+
+.phish-email__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Gmail simulation container */
+.gmail-sim {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* Gmail header */
+.gmail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.gmail-header__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gmail-header__menu {
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #5f6368;
+}
+
+.gmail-header__logo {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #ea4335;
+}
+
+.gmail-header__search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #eaf1fb;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.gmail-header__search-icon,
+.gmail-header__filter {
+  color: #5f6368;
+  font-size: 0.875rem;
+}
+
+.gmail-header__search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #202124;
+  font-size: 0.875rem;
+}
+
+.gmail-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.gmail-header__icon {
+  color: #5f6368;
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+.gmail-header__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #4285f4;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #fff;
+}
+
+/* Gmail toolbar */
+.gmail-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.gmail-toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gmail-toolbar__back {
+  font-size: 1.25rem;
+  color: #5f6368;
+  cursor: pointer;
+}
+
+.gmail-toolbar__icon {
+  font-size: 1rem;
+  color: #5f6368;
+  cursor: pointer;
+}
+
+/* Gmail email content */
+.gmail-email {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.gmail-email__subject-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.gmail-email__subject {
+  font-size: 1.375rem;
+  font-weight: 500;
+  color: #202124;
+  margin: 0;
+  flex: 1;
+  position: relative;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.gmail-email__subject:hover {
+  background: #f1f3f4;
+}
+
+.gmail-email__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gmail-email__tag {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #e8eaed;
+  font-size: 0.75rem;
+  color: #3c4043;
+}
+
+.gmail-email__icon {
+  color: #5f6368;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Sender info */
+.gmail-email__sender {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.gmail-email__sender-left {
+  display: flex;
+  gap: 12px;
+}
+
+.gmail-email__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #9aa0a6;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.gmail-email__from {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.gmail-email__name {
+  font-weight: 600;
+  color: #202124;
+  font-size: 0.9375rem;
+}
+
+.gmail-email__address {
+  background: transparent;
+  border: none;
+  color: #5f6368;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.gmail-email__address:hover {
+  background: #f1f3f4;
+}
+
+.gmail-email__to {
+  font-size: 0.8125rem;
+  color: #5f6368;
+}
+
+.gmail-email__time {
+  font-size: 0.8125rem;
+  color: #5f6368;
+}
+
+/* Email body */
+.gmail-email__body {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #3c4043;
+}
+
+.gmail-email__body-line {
+  margin-bottom: 16px;
+}
+
+.gmail-email__subject-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.gmail-email__subject-btn:hover {
+  background: f1f3f404;
+}
+
+.gmail-email__body-hotspot {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
+}
+
+.gmail-email__body-hotspot:hover {
+  background: #f1f3f4;
+}
+
+/* Numbered flag badges on hotspots */
+.phish-flag-num {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.2);
+  border: 1px solid rgba(239,68,68,0.5);
+  color: #f87171;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  vertical-align: middle;
+}
+
+.phish-hotspot.is-reviewed .phish-flag-num {
+  background: rgba(0,255,159,0.15);
+  border-color: rgba(0,255,159,0.4);
+  color: #00ff9f;
+}
+
+/* Red outline on unreviewd hotspot */
+.phish-hotspot:not(.is-reviewed) {
+  outline: 1px solid rgba(239,68,68,0.35);
+  border-radius: 6px;
+}
+
+.phish-hotspot.is-reviewed {
+  outline: 1px solid rgba(0,255,159,0.3);
+}
+
+.gmail-email__link {
+  color: #1a73e8;
+  text-decoration: underline;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gmail-email__link:hover {
+  background: rgba(26,115,232,0.08);
+
+}
+
+.gmail-email__footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: #5f6368;
+  font-size: 0.875rem;
+}
+
+.gmail-email__logo {
+  font-size: 1.5rem;
+}
+
+/* Gmail hint bar */
+.gmail-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #e6f4ea;
+  border-top: 1px solid #c3e6cb;
+}
+
+.gmail-hint__icon {
+  font-size: 1.25rem;
+}
+
+.gmail-hint__text {
+  font-weight: 700;
+  color: #0d8a4f;
+  font-size: 0.875rem;
+}
+
+.gmail-hint__desc {
+  font-size: 0.8125rem;
+  color: #3c4043;
+  flex: 1;
+}
+
+.gmail-hint__btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #00c97c;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.gmail-hint__btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.gmail-hint__btn:disabled {
+  background: #c8d6cd;
+  color: #8a948e;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* ══════════════════════════════════════════
+   RIGHT SIDEBAR — Indicators
+══════════════════════════════════════════ */
+
+.phish-indicators {
+  background: #0f0f0f;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.phish-indicators__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.phish-indicators__icon {
+  font-size: 1.5rem;
+}
+
+.phish-indicators__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.phish-indicators__count {
+  font-size: 0.75rem;
+  color: #00ff9f;
+  font-weight: 600;
+}
+
+/* Indicator items */
+.phish-indicators__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phish-indicator {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.phish-indicator.is-reviewed {
+  border-color: rgba(0,255,159,0.25);
+  background: rgba(0,255,159,0.04);
+}
+
+.phish-indicator__number {
+  flex: 0 0 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5f6368;
+}
+
+.phish-indicator.is-reviewed .phish-indicator__number {
+  background: #00ff9f;
+  color: #0a0a0a;
+}
+
+.phish-indicator__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phish-indicator__title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.phish-indicator__desc {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #5f6368;
+}
+
+.phish-indicator__icon {
+  font-size: 1.25rem;
+}
+
+.phish-indicator.is-reviewed .phish-indicator__icon {
+  opacity: 0.5;
+}
+
+/* Verdict section */
+.phish-verdict {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phish-verdict__title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.phish-verdict__subtitle {
+  font-size: 0.8125rem;
+  color: #5f6368;
+  line-height: 1.5;
+}
+
+.phish-verdict__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.phish-verdict__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.phish-verdict__btn--legit {
+  background: rgba(0,255,159,0.08);
+  border-color: rgba(0,255,159,0.25);
+  color: #00ff9f;
+}
+
+.phish-verdict__btn--legit:hover {
+  background: rgba(0,255,159,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,255,159,0.2);
+}
+
+.phish-verdict__btn--phish {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.25);
+  color: #f87171;
+}
+
+.phish-verdict__btn--phish:hover {
+  background: rgba(239,68,68,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+}
+
+.phish-verdict__icon {
+  font-size: 1.125rem;
+}
+
+/* ══════════════════════════════════════════
+   MODAL — Indicator Details
+══════════════════════════════════════════ */
+
+.phish-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none; /* let clicks fall through when hidden */
+}
+
+.phish-modal[hidden] {
+  display: none;
+}
+
+.phish-modal:not([hidden]) {
+  pointer-events: auto;
+}
+
+.phish-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+
+.phish-exit {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(15,15,15,0.9);
+  backdrop-filter: blur(6px);
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.phish-exit:hover {
+  border-color: rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.1);
+  color: #f87171;
+}
+
+.phish-exit__icon {
+  font-size: 1rem;
+}
+
+.phish-modal__dialog {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: 90vh;
+  background: #1a1a1a;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 36px 40px;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.phish-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #5f6368;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.phish-modal__close:hover {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border-color: rgba(239,68,68,0.3);
+}
+
+.phish-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.phish-modal__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 5f6368px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #f87171;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.phish-modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.phish-modal__desc {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #bbb;
+  margin: 0;
+}
+
+.phish-modal__compare {
+  display: flex;
+  gap: 16px;
+}
+
+.phish-modal__box {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.phish-modal__box--wrong {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.28);
+}
+
+.phish-modal__box--correct {
+  background: rgba(0,255,159,0.08);
+  border-color: rgba(0,255,159,0.28);
+}
+
+.phish-modal__label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.phish-modal__box--wrong .phish-modal__label {
+  color: #fca5a5;
+}
+
+.phish-modal__box--correct .phish-modal__label {
+  color: #5eead4;
+}
+
+.phish-modal__text {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #f5f5f5;
+  margin: 0;
+  text-align: left;
+}
+
+.phish-modal__tip {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(66,133,244,0.08);
+  border: 1px solid rgba(66,133,244,0.2);
+}
+
+.phish-modal__tip-icon {
+  font-size: 1.25rem;
+  color: #4285f4;
+}
+
+.phish-modal__tip-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .phish-sim__layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  
+  .phish-sidebar {
+    display: none;
+  }
+  
+  .phish-indicators {
+    order: -1;
+    border-left: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    max-height: 200px;
+  }
+}

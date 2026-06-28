@@ -1,0 +1,27 @@
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <span class="site-footer__logo" aria-hidden="true">S</span>
+      <div>
+        <div class="site-footer__name">Secure-IT</div>
+        <p class="site-footer__tagline">Gamified cybersecurity awareness for students.</p>
+      </div>
+    </div>
+
+    <div class="site-footer__links">
+      <a href="{{ url_for('landing_page') }}">Home</a>
+      {% if is_logged_in %}
+      <a href="{{ url_for('simulations_page') }}">Modules</a>
+      <a href="{{ url_for('profile_page') }}">Profile</a>
+      {% else %}
+      <a href="{{ url_for('login_page') }}">Login</a>
+      {% endif %}
+    </div>
+
+    <div class="site-footer__meta">
+      <span>&copy; {{ year }} Secure-IT</span>
+      <span class="site-footer__dot" aria-hidden="true">·</span>
+      <span>Built for cyber defense training</span>
+    </div>
+  </div>
+</footer>

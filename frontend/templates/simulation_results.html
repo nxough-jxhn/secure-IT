@@ -1,0 +1,371 @@
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulations.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+{% endblock %}
+
+{% block page_ambient %}{% endblock %}
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+<div class="deb-layout">
+
+  <!-- ═══════════════ LEFT: Mission Info ═══════════════ -->
+  <aside class="deb-sidebar">
+    <div class="deb-sidebar__top">
+      <span class="deb-sidebar__label">SIMULATION</span>
+      <h1 class="deb-sidebar__title">{{ mission.name }}</h1>
+      <span class="deb-sidebar__badge deb-sidebar__badge--{{ (mission.difficulty or 'hard') | lower }}">
+        {{ mission.difficulty or 'HARD' }}
+      </span>
+    </div>
+
+    <div class="deb-sidebar__section">
+      <h3 class="deb-sidebar__section-title">OBJECTIVE</h3>
+      <p class="deb-sidebar__text">Identify the red flags in this email to determine if it is legitimate or a phishing attempt.</p>
+    </div>
+
+    <div class="deb-sidebar__section">
+      <h3 class="deb-sidebar__section-title">TIME ELAPSED</h3>
+      <div class="deb-sidebar__timer">{{ time_display }}</div>
+    </div>
+
+    <div class="deb-sidebar__section">
+      <h3 class="deb-sidebar__section-title">MISSION PROGRESS</h3>
+      <div class="deb-progress">
+        <div class="deb-progress__row">
+          <span class="deb-progress__pct">100%</span>
+          <span class="deb-progress__count">Completed</span>
+        </div>
+        <div class="deb-progress__bar">
+          <div class="deb-progress__fill" style="width:100%"></div>
+        </div>
+        {% if result.flags_found %}
+        <span class="deb-progress__flags">{{ result.flags_found|length }} / {{ result.flags_found|length }} signs flagged</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="deb-sidebar__section">
+      <h3 class="deb-sidebar__section-title">OUTCOME</h3>
+      <ul class="deb-outcome-list">
+        <li class="deb-outcome is-good">
+          <span class="deb-outcome__check">✓</span>
+          {{ result.good_decisions|length if result.good_decisions else 0 }} correct action{{ '' if (result.good_decisions|length if result.good_decisions else 0) == 1 else 's' }}
+        </li>
+        <li class="deb-outcome {{ 'is-bad' if result.mistakes else 'is-good' }}">
+          <span class="deb-outcome__check">{{ '✕' if result.mistakes else '✓' }}</span>
+          {{ result.mistakes|length if result.mistakes else 0 }} mistake{{ '' if (result.mistakes|length if result.mistakes else 0) == 1 else 's' }}
+        </li>
+      </ul>
+    </div>
+
+    <a href="{{ url_for('simulations_page') }}" class="deb-exit-btn">
+      ← Simulations Page
+    </a>
+  </aside>
+
+  <!-- ═══════════════ CENTER: Debrief ═══════════════ -->
+  <main class="deb-main">
+
+    <div class="deb-main__topbar">
+      <span class="deb-main__topbar-icon">✉</span>
+      <span class="deb-main__topbar-label">Email Simulation</span>
+    </div>
+
+    <header class="deb-header">
+      <div class="deb-header__row">
+        <h2 class="deb-header__title">Mission debrief</h2>
+        <span class="deb-header__complete">
+          <svg viewBox="0 0 24 24" class="deb-header__complete-icon"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#00ff9f"/></svg>
+          Mission completed
+        </span>
+        <span class="deb-header__time">
+          <svg viewBox="0 0 24 24" class="deb-header__time-icon"><circle cx="12" cy="12" r="9" fill="none" stroke="#9ca3af" stroke-width="1.6"/><path d="M12 7v5l3 2" fill="none" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/></svg>
+          {{ time_display }}
+        </span>
+      </div>
+      <p class="deb-header__sub">Performance report for {{ mission.name }}</p>
+    </header>
+
+    <!-- Score panel -->
+<section class="deb-scorepanel">
+  <div class="deb-stat-block">
+    <div class="deb-ring-wrap">
+      <svg class="deb-ring" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+        <circle cx="70" cy="70" r="60" fill="none" stroke="#00ff9f" stroke-width="10"
+                stroke-dasharray="{{ (result.score * 376.99) / 100 }} 376.99"
+                stroke-linecap="round" transform="rotate(-90 70 70)"/>
+      </svg>
+      <div class="deb-ring__text">
+        <span class="deb-ring__value">{{ result.score }}%</span>
+        <span class="deb-ring__label">SCORE</span>
+      </div>
+    </div>
+    <p class="deb-stat-block__caption">
+      {% if result.score >= 90 %}Excellent! You identified nearly every threat.
+      {% elif result.score >= 70 %}Great job! You identified most of the threats.
+      {% elif result.score >= 40 %}Good effort. Review the missed signs below.
+      {% else %}Keep practicing — review the recommendations below.
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="deb-centerstat">
+    <span class="deb-centerstat__points">+{{ result.points_earned }}</span>
+    <span class="deb-centerstat__points-label">POINTS EARNED</span>
+    <div class="deb-centerstat__divider"></div>
+    <span class="deb-centerstat__rank">{% if rank %}#{{ rank }}{% else %}—{% endif %}</span>
+    <span class="deb-centerstat__rank-label">CURRENT RANK</span>
+  </div>
+
+  <div class="deb-stat-block">
+    <div class="deb-ring-wrap">
+      <svg class="deb-ring deb-ring--blue" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+        <circle cx="70" cy="70" r="60" fill="none" stroke="#46d6ff" stroke-width="10"
+                stroke-dasharray="280 376.99" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+      </svg>
+      <div class="deb-ring__text">
+        <span class="deb-ring__value deb-ring__value--blue">{{ profile.level }}</span>
+        <span class="deb-ring__label">LEVEL</span>
+      </div>
+    </div>
+    <p class="deb-stat-block__caption">Points earned this run bring you closer to your next level.</p>
+  </div>
+</section>
+
+    <div class="deb-scorepanel__caption">
+      <span class="deb-caption deb-caption--score">
+        {% if result.score >= 90 %}Excellent! You identified nearly every threat.
+        {% elif result.score >= 70 %}Great job! You identified most of the threats.
+        {% elif result.score >= 40 %}Good effort. Review the missed signs below.
+        {% else %}Keep practicing — review the recommendations below.
+        {% endif %}
+      </span>
+      <span class="deb-caption deb-caption--points">Points earned this run</span>
+    </div>
+
+    <!-- Success / Errors -->
+    <section class="deb-outcome-grid">
+      <div class="deb-outcome-card deb-outcome-card--success">
+        <div class="deb-outcome-card__head">
+          <svg viewBox="0 0 24 24" class="deb-outcome-card__icon"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#00ff9f"/></svg>
+          <span>SUCCESSFUL ACTION</span>
+        </div>
+        <svg class="deb-outcome-card__art" viewBox="0 0 80 90">
+          <rect x="14" y="6" width="52" height="78" rx="6" fill="#102822" stroke="rgba(0,255,159,0.3)" stroke-width="1.5"/>
+          <rect x="28" y="0" width="24" height="12" rx="3" fill="#163a30" stroke="rgba(0,255,159,0.35)" stroke-width="1.5"/>
+          <g stroke="#00ff9f" stroke-width="1.6" stroke-linecap="round" fill="none">
+            <circle cx="26" cy="28" r="6"/><path d="M23 28l2 2l4-4"/>
+            <circle cx="26" cy="48" r="6"/><path d="M23 48l2 2l4-4"/>
+            <circle cx="26" cy="68" r="6"/><path d="M23 68l2 2l4-4"/>
+          </g>
+          <line x1="38" y1="28" x2="58" y2="28" stroke="rgba(0,255,159,0.4)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="38" y1="48" x2="54" y2="48" stroke="rgba(0,255,159,0.4)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="38" y1="68" x2="58" y2="68" stroke="rgba(0,255,159,0.4)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h3 class="deb-outcome-card__title">
+          {% if result.good_decisions %}Well done! You took the right steps.{% else %}You completed the mission.{% endif %}
+        </h3>
+        <p class="deb-outcome-card__desc">
+          {% if result.good_decisions %}You followed security best practices and kept the organization safe.
+          {% else %}Replay the mission to practice stronger responses.{% endif %}
+        </p>
+      </div>
+
+      <div class="deb-outcome-card deb-outcome-card--error">
+        <div class="deb-outcome-card__head">
+          <svg viewBox="0 0 24 24" class="deb-outcome-card__icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#f87171"/></svg>
+          <span>ERRORS</span>
+        </div>
+        <svg class="deb-outcome-card__art" viewBox="0 0 80 90">
+          <rect x="14" y="10" width="52" height="40" rx="5" fill="#241313" stroke="rgba(248,113,113,0.3)" stroke-width="1.5"/>
+          <circle cx="20" cy="16" r="2" fill="#f87171"/><circle cx="27" cy="16" r="2" fill="#f87171"/><circle cx="34" cy="16" r="2" fill="#f87171"/>
+          <g transform="translate(40,52)">
+            <circle cx="0" cy="0" r="18" fill="none" stroke="#f87171" stroke-width="2.5"/>
+            <line x1="13" y1="13" x2="26" y2="26" stroke="#f87171" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M-6 -2 l4 4 l8 -9" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+          </g>
+        </svg>
+        <h3 class="deb-outcome-card__title">
+          {% if result.mistakes %}{{ result.mistakes|length }} mistake{{ '' if result.mistakes|length == 1 else 's' }} detected.{% else %}No major mistakes detected in this run.{% endif %}
+        </h3>
+        <p class="deb-outcome-card__desc">
+          {% if result.mistakes %}Review the items below to avoid these next time.
+          {% else %}Excellent! You didn't fall for any phishing traps.{% endif %}
+        </p>
+      </div>
+    </section>
+
+    {% if result.mistakes %}
+    <section class="deb-list-section deb-list-section--error">
+      <ul class="deb-action-list">
+        {% for item in result.mistakes %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <!-- {% if result.good_decisions %}
+    <section class="deb-list-section deb-list-section--success">
+      <ul class="deb-action-list">
+        {% for item in result.good_decisions %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %} -->
+
+{% if result.flags_found or result.skills_developed %}
+<section class="deb-chipsection-row">
+  {% if result.flags_found %}
+  <div class="deb-chipsection">
+    <h3 class="deb-chipsection__title">SIGNS YOU FLAGGED</h3>
+    <div class="deb-chips">
+      {% for flag in result.flags_found %}
+      <span class="deb-chip deb-chip--flag">
+        <svg viewBox="0 0 24 24" class="deb-chip__icon"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#00ff9f"/></svg>
+        {{ flag.replace('_', ' ') | title }}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if result.skills_developed %}
+  <div class="deb-chipsection">
+    <h3 class="deb-chipsection__title">SKILLS DEVELOPED</h3>
+    <div class="deb-chips">
+      {% for skill in result.skills_developed %}
+      <span class="deb-chip deb-chip--skill">
+        <svg viewBox="0 0 24 24" class="deb-chip__icon"><path d="M12 1l9 4v6c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V5l9-4z" fill="none" stroke="#7dd3fc" stroke-width="1.6"/></svg>
+        {{ skill }}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+    <!-- Recommendations
+    {% if result.recommendations %}
+    <section class="deb-section">
+      <h3 class="deb-section__title">SECURITY RECOMMENDATIONS</h3>
+      <div class="deb-rec-grid">
+        {% for tip in result.recommendations %}
+        <div class="deb-rec-card">
+          <svg viewBox="0 0 24 24" class="deb-rec-card__icon">
+            {% if loop.index0 == 0 %}
+            <circle cx="10" cy="10" r="7" fill="none" stroke="#00ff9f" stroke-width="2"/>
+            <line x1="15" y1="15" x2="21" y2="21" stroke="#00ff9f" stroke-width="2" stroke-linecap="round"/>
+            {% elif loop.index0 == 1 %}
+            <path d="M9 15a4 4 0 010-6l3-3a4 4 0 016 6l-1.5 1.5" fill="none" stroke="#46d6ff" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15 9a4 4 0 010 6l-3 3a4 4 0 01-6-6l1.5-1.5" fill="none" stroke="#46d6ff" stroke-width="2" stroke-linecap="round"/>
+            {% else %}
+            <path d="M5 21V4a1 1 0 011-1h11l-2 6 2 6H7" fill="none" stroke="#f87171" stroke-width="2" stroke-linejoin="round"/>
+            {% endif %}
+          </svg>
+          <div>
+            <h4 class="deb-rec-card__title">{{ tip.split('.')[0] }}{{ '.' if '.' in tip else '' }}</h4>
+            <p class="deb-rec-card__desc">{{ tip.split('.')[1:] | join('.') if '.' in tip else '' }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %} -->
+
+    <!-- Actions -->
+    <footer class="deb-actions">
+      <a href="{{ url_for('simulation_start_page', attack_id=mission.attack_id) }}" class="deb-btn deb-btn--secondary">
+        <svg viewBox="0 0 24 24" class="deb-btn__icon"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/></svg>
+        Replay mission
+      </a>
+      <a href="{{ url_for('simulation_quiz_page', attack_id=mission.attack_id) }}" class="deb-btn deb-btn--primary">
+        Proceed to quiz
+        <svg viewBox="0 0 24 24" class="deb-btn__icon"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" fill="currentColor"/></svg>
+      </a>
+    </footer>
+
+  </main>
+
+  <!-- ═══════════════ RIGHT: Profile ═══════════════ -->
+  <aside class="deb-profile">
+    <div class="deb-profile__avatar-wrap">
+      {% if namecard.profile_picture %}
+      <img class="deb-profile__avatar" src="{{ namecard.profile_picture if namecard.profile_picture.startswith('http') else url_for('static', filename=namecard.profile_picture) }}" alt="">
+      {% else %}
+      <div class="deb-profile__avatar deb-profile__avatar--initials">{{ namecard.initials or display_name[:2]|upper }}</div>
+      {% endif %}
+    </div>
+    <h3 class="deb-profile__name">{{ namecard.title or display_name }}</h3>
+
+    <div class="deb-profile__stat">
+      <span class="deb-profile__stat-label">TOTAL POINTS</span>
+      <div class="deb-profile__stat-row">
+        <span class="deb-profile__stat-value">{{ profile.points }}</span>
+        {% if profile_delta.points_earned %}
+        <span class="deb-profile__stat-delta">+{{ profile_delta.points_earned }} this run</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="deb-profile__stat">
+      <span class="deb-profile__stat-label">LEVEL</span>
+      <div class="deb-profile__stat-row">
+        <span class="deb-profile__stat-value">{{ profile.level }}</span>
+        {% if profile_delta.level_changed %}
+        <span class="deb-profile__stat-delta deb-profile__stat-delta--levelup">Level Up!</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="deb-profile__stat">
+      <span class="deb-profile__stat-label">RANK</span>
+      <div class="deb-profile__stat-row">
+        <span class="deb-profile__stat-value">{% if rank %}#{{ rank }}{% else %}—{% endif %}</span>
+        <span class="deb-profile__stat-delta {{ 'deb-profile__stat-delta--down' if profile_delta.rank_direction == 'down' }}">
+          {% if profile_delta.rank_direction == 'up' %}↑ Up{% elif profile_delta.rank_direction == 'down' %}↓ Down{% else %}Rank unchanged{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="deb-profile__progress">
+      <div class="deb-profile__progress-head">
+        <span>LEVEL PROGRESS</span>
+        <span>{{ level_progress.current_points }} / {{ level_progress.next_threshold }} pts</span>
+      </div>
+      <div class="deb-progressbar">
+        <div class="deb-progressbar__fill" style="width: {{ level_progress.percent_in_level }}%;"></div>
+      </div>
+    </div>
+
+    <div class="deb-profile__modules">
+      <div class="deb-profile__module-row">
+        <span>MODULES COMPLETED</span>
+        <strong>{{ module_status.completed }} / {{ module_status.total }}</strong>
+      </div>
+      <div class="deb-profile__module-row">
+        <span>BADGES EARNED</span>
+        <strong>{{ profile.badges|length }}</strong>
+      </div>
+    </div>
+
+    <div class="deb-eventfeed">
+      <span class="deb-eventfeed__title">EVENT FEED</span>
+      <div class="deb-eventfeed__item">
+        <span class="deb-eventfeed__icon">📨</span>
+        <span>New password-reset email received. Investigate carefully.</span>
+      </div>
+    </div>
+  </aside>
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}{% endblock %}

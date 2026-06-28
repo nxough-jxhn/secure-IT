@@ -1,0 +1,9 @@
+:root {
+  --color-primary: #00ff9f;       /* cyber green */
+  --color-secondary: #0a0a0a;     /* deep black */
+  --color-surface: #111827;       /* dark card bg */
+  --color-text: #e5e7eb;          /* light text */
+  --color-danger: #ef4444;        /* red for alerts */
+  --color-warning: #f59e0b;       /* amber for warnings */
+  --color-accent: #3b82f6;        /* blue accent */
+}

@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulations.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-easy.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sql-injection-hard.css') }}">
+<script>
+  // Runs before Tailwind CDN processes classes — strips the blue hero-grid gradient
+  document.documentElement.style.cssText = 'background:#07111f!important';
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.remove('bg-hero-grid');
+    document.body.style.background = '#07111f';
+    document.body.style.backgroundImage = 'none';
+  });
+</script>
+{% endblock %}
+{% block content %}
+<div class="range-grid-bg" aria-hidden="true">
+  <canvas id="range-grid-canvas"></canvas>
+</div>
+<div class="sqli-hard" id="sqli-hard-app">
+  <header class="workspace-header sqli-hard__header">
+    <div>
+      <div class="sim-badge">{{ mission.icon }} Hard simulation</div>
+      <h2 class="mt-2 text-xl font-extrabold text-white">{{ mission.mission_title }}</h2>
+    </div>
+    <div class="workspace-header-actions">
+      <button type="button" class="sqli-hard__flag-btn" id="flag-mode-btn" title="Click, then select a vulnerability sign on the login page">
+        🚩 Flag sign
+      </button>
+      <button type="button" class="sqli-hard__tool-btn" id="open-inspector-btn">🔍 Request inspector</button>
+      <span class="workspace-timer" id="mission-timer">00:00</span>
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="sim-secondary-btn text-sm">Exit lab</a>
+    </div>
+  </header>
+
+  <div class="workspace-layout sqli-hard__layout">
+    <aside class="workspace-sidebar">
+      <div class="workspace-panel">
+        <h3 class="workspace-panel-title">Mission progress</h3>
+        <div class="workspace-progress-meta">
+          <span id="progress-percent">0%</span>
+          <span id="progress-count">0 / 0 tasks</span>
+        </div>
+        <div class="sim-progress-bar mt-3">
+          <div class="sim-progress-fill" id="mission-progress-fill" style="width: 0%;"></div>
+        </div>
+        <p class="sqli-hard__flags-meta" id="flags-meta">0 / 5 signs flagged</p>
+      </div>
+
+      <div class="workspace-panel mt-4">
+        <h3 class="workspace-panel-title">Objectives</h3>
+        <ul class="workspace-objectives" id="objective-list">
+          {% for objective in mission.objectives %}
+          <li data-objective-index="{{ loop.index0 }}"><span class="obj-icon">☐</span> {{ objective }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="workspace-panel mt-4">
+        <h3 class="workspace-panel-title">Task log</h3>
+        <ul class="workspace-task-log" id="task-log">
+          <li class="text-slate-500">Investigate the login form to log progress.</li>
+        </ul>
+      </div>
+
+      <div class="workspace-panel mt-4">
+        <button type="button" class="sim-primary-btn w-full" id="submit-report-btn" disabled>
+          Submit incident report
+        </button>
+      </div>
+    </aside>
+
+    <main class="sqli-hard__main-wrap">
+      <div class="sqli-hard-browser" id="login-lab">
+        <div class="sqli-hard-browser__chrome">
+        <span class="sqli-hard-browser__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <div class="sqli-hard-browser__url" data-sign="url_hint" id="url-bar">
+          <span class="sqli-hard-browser__lock" aria-hidden="true">🔒</span>
+          <span id="url-bar-text"></span>
+        </div>
+      </div>
+
+      <div class="sqli-hard-stage" id="login-stage">
+        <section class="sqli-hard-login">
+          <header class="sqli-hard-login__head">
+            <span class="sqli-hard-login__logo" aria-hidden="true">🎓</span>
+            <h1 class="sqli-hard-login__title" id="form-title"></h1>
+            <p class="sqli-hard-login__subtitle">Sign in with your administrator credentials</p>
+          </header>
+
+          <div class="sqli-hard-login__legacy" data-sign="no_sanitization" id="legacy-notice"></div>
+
+          <form class="sqli-hard-login__form" id="login-form" autocomplete="off">
+            <label class="sqli-hard-field">
+              <span class="sqli-hard-field__label" id="username-label"></span>
+              <input
+                type="text"
+                id="username-input"
+                name="username"
+                placeholder="admin"
+                spellcheck="false"
+                data-sign="special_chars"
+              >
+            </label>
+
+            <label class="sqli-hard-field">
+              <span class="sqli-hard-field__label" id="password-label"></span>
+              <div class="sqli-hard-field__wrap" data-sign="no_input_limits">
+                <input type="password" id="password-input" name="password" placeholder="••••••••">
+              </div>
+            </label>
+
+            <div class="sqli-hard-login__error" id="sql-error" data-sign="sql_error_leak" hidden></div>
+
+            <p class="sqli-hard-login__form-error" id="login-error" hidden></p>
+
+            <button type="submit" class="sqli-hard-login__submit" id="submit-btn">Sign in</button>
+          </form>
+
+          <p class="sqli-hard-login__footer" id="form-footer"></p>
+        </section>
+      </div>
+
+      <section class="sqli-hard-dashboard" id="admin-dashboard" hidden>
+        <header class="sqli-hard-dashboard__head">
+          <div>
+            <p class="sqli-hard-dashboard__eyebrow" id="dash-subtitle"></p>
+            <h2 class="sqli-hard-dashboard__title" id="dash-title"></h2>
+            <p class="sqli-hard-dashboard__welcome" id="dash-welcome"></p>
+          </div>
+          <span class="sqli-hard-dashboard__badge">Bypass successful</span>
+        </header>
+        <div class="sqli-hard-dashboard__stats" id="dash-stats"></div>
+      </section>
+      </div><!-- end sqli-hard-browser -->
+    </main>
+
+    <aside class="workspace-events">
+      <div class="workspace-panel">
+        <h3 class="workspace-panel-title">Event feed</h3>
+        <ul class="event-feed" id="event-feed">
+          <li class="event-info">Legacy admin login endpoint loaded. Investigate carefully.</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Request Inspector drawer -->
+<div class="sqli-hard__drawer" id="inspector-drawer" hidden>
+  <div class="sqli-hard__drawer-backdrop" id="inspector-drawer-backdrop"></div>
+  <aside class="sqli-hard__drawer-panel" role="dialog" aria-labelledby="inspector-drawer-title">
+    <header class="sqli-hard__drawer-head">
+      <h3 id="inspector-drawer-title">Request Inspector</h3>
+      <button type="button" class="sqli-hard__drawer-close" id="inspector-drawer-close" aria-label="Close">×</button>
+    </header>
+    <p class="sqli-hard__drawer-desc">Review how this login request is handled on the backend before testing payloads.</p>
+    <pre class="sqli-hard__inspector-result" id="inspector-result">Loading request details…</pre>
+  </aside>
+</div>
+
+<!-- Flag modal -->
+<div class="phish-modal" id="flag-modal" hidden>
+  <div class="phish-modal__backdrop" id="flag-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="flag-modal-title">
+    <button type="button" class="phish-modal__dismiss" id="flag-modal-close" aria-label="Close">×</button>
+    <div class="phish-modal__flow">
+      <div class="phish-modal__reveal" data-stagger="0">
+        <span class="phish-modal__badge">
+          <span class="phish-modal__dot-wrap" aria-hidden="true">
+            <span class="phish-modal__dot-ring"></span>
+            <span class="phish-modal__dot"></span>
+          </span>
+          Vulnerability spotted
+        </span>
+      </div>
+      <h2 class="phish-modal__title phish-modal__reveal" data-stagger="1" id="flag-modal-title"></h2>
+      <p class="phish-modal__desc phish-modal__reveal" data-stagger="2" id="flag-modal-body"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Consequence modal -->
+<div class="phish-modal" id="consequence-modal" hidden>
+  <div class="phish-modal__backdrop" id="consequence-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="consequence-modal-title">
+    <button type="button" class="phish-modal__dismiss" id="consequence-close" aria-label="Close">×</button>
+    <div class="phish-modal__flow">
+      <div class="phish-modal__reveal" data-stagger="0">
+        <span class="phish-modal__badge">
+          <span class="phish-modal__dot-wrap" aria-hidden="true">
+            <span class="phish-modal__dot-ring"></span>
+            <span class="phish-modal__dot"></span>
+          </span>
+          ⚠ Simulation consequence
+        </span>
+      </div>
+      <h2 class="phish-modal__title phish-modal__reveal" data-stagger="1" id="consequence-modal-title">Authentication bypassed — admin access granted</h2>
+      <p class="phish-modal__desc phish-modal__reveal" data-stagger="2">
+        You bypassed the login form using SQL injection. In a real attack, an adversary could reach this admin dashboard,
+        modify student records, export sensitive data, or create backdoor accounts. Developers must always validate input
+        and use parameterized queries — never concatenate user input into SQL strings.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Decision modal -->
+<div class="phish-modal" id="decision-modal" hidden>
+  <div class="phish-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="decision-prompt">
+    <div class="phish-modal__flow">
+      <div class="phish-modal__reveal" data-stagger="0">
+        <span class="phish-modal__badge">
+          <span class="phish-modal__dot-wrap" aria-hidden="true">
+            <span class="phish-modal__dot-ring"></span>
+            <span class="phish-modal__dot"></span>
+          </span>
+          Incident report
+        </span>
+      </div>
+      <h2 class="phish-modal__title phish-modal__reveal" data-stagger="1" id="decision-prompt"></h2>
+      <div class="phish-modal__reveal" data-stagger="2" id="decision-options" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>
+  // Remove Tailwind's blue hero-grid class injected by base.html
+  document.body.classList.remove('bg-hero-grid');
+</script>
+<script src="{{ url_for('static', filename='js/range-grid.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sql-injection-hard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,438 @@
+/* Hard simulation — SQL injection login lab workspace */
+
+/* Hide the base.html nav sidebar on hard sim pages */
+body:has(#sqli-hard-app) #sidebar,
+body:has(#sqli-hard-app) #sidebar-toggle {
+  display: none !important;
+}
+
+body:has(#sqli-hard-app) .app-layout {
+  grid-template-columns: 1fr !important;
+}
+
+body:has(#sqli-hard-app) .main-content {
+  padding-inline: 1.25rem !important;
+}
+
+/* Override the blue hero-grid background from base.html */
+body:has(#sqli-hard-app) {
+  background: #07111f !important;
+  background-image: none !important;
+}
+
+.sqli-hard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sqli-hard__header .sqli-hard__flag-btn,
+.sqli-hard__header .sqli-hard__tool-btn {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.4rem 0.85rem;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.sqli-hard__flag-btn:hover,
+.sqli-hard__tool-btn:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sqli-hard__flag-btn.is-active {
+  border-color: rgba(251, 146, 60, 0.55);
+  background: rgba(251, 146, 60, 0.18);
+  color: #fdba74;
+}
+
+.sqli-hard__flags-meta {
+  margin: 0.65rem 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.sqli-hard__layout {
+  min-height: 680px;
+}
+
+.sqli-hard__main-wrap {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  background: #12151a;
+  min-height: 620px;
+}
+
+.sqli-hard-browser {
+  min-height: 620px;
+  background: #0a0c0e;
+}
+
+.sqli-hard-browser__chrome {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #141618;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sqli-hard-browser__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.sqli-hard-browser__dots i {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.sqli-hard-browser__dots i:nth-child(1) { background: #e53935; }
+.sqli-hard-browser__dots i:nth-child(2) { background: #ffb300; }
+.sqli-hard-browser__dots i:nth-child(3) { background: #43a047; }
+
+.sqli-hard-browser__url {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #0a0c0e;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: #b0b5bb;
+}
+
+.sqli-hard-stage {
+  display: flex;
+  justify-content: center;
+  padding: 36px 24px 48px;
+}
+
+.sqli-hard-login {
+  width: min(420px, 100%);
+}
+
+.sqli-hard-login__head {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sqli-hard-login__logo {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: rgba(0, 255, 159, 0.1);
+  font-size: 24px;
+}
+
+.sqli-hard-login__title {
+  margin: 0 0 6px;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 400;
+  color: #fff;
+}
+
+.sqli-hard-login__subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #8b9199;
+}
+
+.sqli-hard-login__legacy {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 179, 0, 0.08);
+  border: 1px solid rgba(255, 179, 0, 0.25);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #ffd54f;
+}
+
+.sqli-hard-field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.sqli-hard-field__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #a8adb3;
+}
+
+.sqli-hard-field input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: #0a0c0e;
+  color: #f0f0f0;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+.sqli-hard-field input:focus {
+  outline: none;
+  border-color: rgba(0, 255, 159, 0.45);
+}
+
+.sqli-hard-login__error {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(229, 57, 53, 0.1);
+  border: 1px solid rgba(229, 57, 53, 0.35);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #ff8a80;
+}
+
+.sqli-hard-login__error.is-revealed {
+  display: block;
+}
+
+.sqli-hard-login__form-error {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #ff8a80;
+}
+
+.sqli-hard-login__submit {
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #00ff9f;
+  color: #0a0c0e;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.sqli-hard-login__submit:hover {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+
+.sqli-hard-login__footer {
+  margin: 16px 0 0;
+  font-size: 11px;
+  text-align: center;
+  color: #6b7078;
+}
+
+.sqli-hard-dashboard {
+  padding: 32px 28px 40px;
+}
+
+.sqli-hard-dashboard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sqli-hard-dashboard__eyebrow {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: #8b9199;
+}
+
+.sqli-hard-dashboard__title {
+  margin: 0 0 6px;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #fff;
+}
+
+.sqli-hard-dashboard__welcome {
+  margin: 0;
+  font-size: 14px;
+  color: #00ff9f;
+}
+
+.sqli-hard-dashboard__badge {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(229, 57, 53, 0.14);
+  border: 1px solid rgba(229, 57, 53, 0.35);
+  color: #ff8a80;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sqli-hard-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.sqli-hard-dashboard__stat {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sqli-hard-dashboard__stat-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: #8b9199;
+}
+
+.sqli-hard-dashboard__stat-value {
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+/* Flag mode & flagged signs */
+
+.sqli-hard.is-flag-mode .sqli-hard-browser [data-sign] {
+  cursor: crosshair;
+}
+
+.sqli-hard-browser [data-sign].is-flagged {
+  outline: 2px solid #f97316;
+  outline-offset: 3px;
+  border-radius: 4px;
+  background: rgba(249, 115, 22, 0.1);
+}
+
+.sqli-hard-browser [data-sign].is-flagged::after {
+  content: "🚩";
+  margin-left: 4px;
+  font-size: 12px;
+}
+
+.sqli-hard-browser [data-sign][hidden]:not(.is-revealed) {
+  display: none;
+}
+
+/* Request inspector drawer */
+
+.sqli-hard__drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+.sqli-hard__drawer[hidden] {
+  display: none;
+}
+
+.sqli-hard__drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 10, 12, 0.72);
+}
+
+.sqli-hard__drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(440px, 100%);
+  height: 100%;
+  padding: 24px;
+  background: #141618;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.45);
+  overflow-y: auto;
+}
+
+.sqli-hard__drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sqli-hard__drawer-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sqli-hard__drawer-close {
+  border: none;
+  background: transparent;
+  color: #f87171;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sqli-hard__drawer-desc {
+  margin: 12px 0 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.sqli-hard__inspector-result {
+  margin: 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  min-height: 280px;
+}
+
+.sqli-hard__consequence-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sim-primary-btn.w-full {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .sqli-hard-dashboard__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .sqli-hard-stage {
+    padding-inline: 16px;
+  }
+}

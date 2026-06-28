@@ -1,0 +1,44 @@
+{% extends 'guest_base.html' %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% block page_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="app-page">
+  <div class="app-ambient" aria-hidden="true">
+    <span class="app-ambient__orb app-ambient__orb--1"></span>
+    <span class="app-ambient__orb app-ambient__orb--2"></span>
+    <span class="app-ambient__orb app-ambient__orb--3"></span>
+  </div>
+
+  {% block page_ambient %}{% endblock %}
+
+  <div class="app-layout" id="app-layout">
+    {% include 'partials/profile_sidebar.html' %}
+
+    <div class="app-layout__content">
+      <div class="dash-shell">
+        <div class="dash-main">
+          {% block dash_header %}
+          <header class="dash-main__header">
+            <div>
+              <h1 class="dash-main__title">{{ title }}</h1>
+              <p class="dash-main__subtitle">{{ subtitle }}</p>
+            </div>
+          </header>
+          {% endblock %}
+
+          {% block dash_content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/app-shell.js') }}"></script>
+{% block page_scripts %}{% endblock %}
+{% endblock %}

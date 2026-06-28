@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ provider }} login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+      function closePopup() {
+        if (window.opener) {
+          window.opener.location.reload();
+        }
+        window.close();
+      }
+      window.addEventListener('load', () => {
+        const success = {{ 'true' if success else 'false' }};
+        if (success) {
+          setTimeout(closePopup, 800);
+        }
+      });
+    </script>
+  </head>
+  <body class="social-popup-page">
+    <div class="social-popup-card">
+      <h1 style="margin-top:0;">{{ provider }} sign-in</h1>
+      {% if success %}
+      <p class="social-popup-muted">You're signed in with {{ provider }}. This popup will close automatically.</p>
+      <a class="social-popup-button" href="#" onclick="closePopup(); return false;">Continue</a>
+      {% else %}
+      <p class="social-popup-muted">The {{ provider }} login is not available right now.</p>
+      <a class="social-popup-button" href="#" onclick="closePopup(); return false;">Close</a>
+      {% endif %}
+    </div>
+  </body>
+</html>

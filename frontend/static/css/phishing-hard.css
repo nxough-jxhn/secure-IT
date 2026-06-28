@@ -1,0 +1,399 @@
+/* ══════════════════════════════════════════
+   Phishing Hard Simulation
+   3-column: sidebar | gmail | event feed
+══════════════════════════════════════════ */
+
+/* Strip base.html chrome */
+body:has(#phish-hard-app) { background:#0a0a0a!important; background-image:none!important; }
+body:has(#phish-hard-app) #sidebar,
+body:has(#phish-hard-app) #sidebar-toggle { display:none!important; }
+body:has(#phish-hard-app) .app-layout { grid-template-columns:1fr!important; }
+body:has(#phish-hard-app) .main-content { padding:0!important; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.ph-sim {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a0a;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+/* Three-column layout */
+.ph-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 260px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── LEFT SIDEBAR ── */
+.ph-sidebar {
+  background: #111;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  padding: 24px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ph-sidebar__top { display:flex; flex-direction:column; gap:8px; }
+.ph-sidebar__label { font-size:0.625rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#555; }
+.ph-sidebar__title { font-size:1.0625rem; font-weight:800; color:#fff; line-height:1.3; }
+
+.ph-sidebar__badge {
+  display:inline-block; padding:3px 10px; border-radius:999px;
+  font-size:.5625rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; width:fit-content;
+}
+.ph-sidebar__badge--hard { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3); color:#f87171; }
+
+.ph-sidebar__section { display:flex; flex-direction:column; gap:8px; }
+.ph-sidebar__section-title { font-size:.625rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#666; }
+.ph-sidebar__text { font-size:.8125rem; line-height:1.65; color:#aaa; }
+
+.ph-sidebar__timer { font-family:'Courier New',monospace; font-size:2rem; font-weight:700; color:#00ff9f; letter-spacing:.05em; }
+
+/* Progress */
+.ph-progress { display:flex; flex-direction:column; gap:6px; }
+.ph-progress__row { display:flex; align-items:center; justify-content:space-between; }
+.ph-progress__pct { font-size:.875rem; font-weight:700; color:#fff; }
+.ph-progress__count { font-size:.75rem; color:#666; }
+.ph-progress__bar { height:4px; border-radius:999px; background:rgba(255,255,255,.08); }
+.ph-progress__fill { height:100%; border-radius:999px; background:#00ff9f; transition:width .4s ease; }
+.ph-progress__flags { font-size:.75rem; color:#666; }
+
+/* Objectives */
+.ph-objectives { list-style:none; display:flex; flex-direction:column; gap:10px; }
+.ph-objective { display:flex; gap:8px; font-size:.8125rem; line-height:1.5; color:#bbb; align-items:flex-start; }
+.ph-objective__check { font-size:.75rem; flex-shrink:0; color:#555; margin-top:1px; }
+.ph-objective.is-done { color:#00ff9f; }
+.ph-objective.is-done .ph-objective__check { color:#00ff9f; }
+
+/* Task log */
+.ph-task-log { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.ph-task-log__empty { font-size:.8125rem; color:#555; font-style:italic; }
+.ph-task-log li { font-size:.8125rem; color:#aaa; }
+.ph-task-log li.is-done { color:#00ff9f; }
+
+/* Exit button */
+.ph-exit-btn {
+  display:flex; align-items:center; justify-content:center;
+  margin-top:auto; padding:12px; border-radius:10px;
+  background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25);
+  color:#f87171; font-weight:700; font-size:.875rem;
+  text-decoration:none; transition:background .2s;
+}
+.ph-exit-btn:hover { background:rgba(239,68,68,.18); }
+
+/* ── CENTER: Email column ── */
+.ph-email-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #141414;
+}
+
+.ph-email__topbar {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 20px;
+  background:#0f0f0f;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  flex-shrink:0;
+}
+.ph-email__topbar-icon { font-size:1.125rem; }
+.ph-email__topbar-label { font-size:.875rem; font-weight:600; color:#fff; flex:1; }
+.ph-email__topbar-actions { display:flex; gap:10px; }
+
+.ph-topbar-btn {
+  padding:6px 14px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+  color:#e0e0e0; font-size:.75rem; font-weight:700;
+  cursor:pointer; transition:background .15s, border-color .15s;
+}
+.ph-topbar-btn:hover { background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.2); }
+.ph-topbar-btn.is-active { border-color:rgba(251,146,60,.55); background:rgba(251,146,60,.18); color:#fdba74; }
+
+/* Gmail shell */
+.ph-gmail {
+  flex:1; min-height:0; display:flex; flex-direction:column;
+  background:#ffffff;
+}
+
+.ph-gmail__header {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 16px; background:#ffffff;
+  border-bottom:1px solid #e8eaed; flex-shrink:0;
+}
+.ph-gmail__header-left { display:flex; align-items:center; gap:14px; }
+.ph-gmail__menu { color:#5f6368; font-size:1.125rem; }
+.ph-gmail__logo { font-size:1.25rem; font-weight:500; color:#ea4335; }
+
+.ph-gmail__search {
+  flex:1; display:flex; align-items:center; gap:10px;
+  padding:8px 14px; background:#eaf1fb; border-radius:8px; max-width:580px;
+}
+.ph-gmail__search-icon,.ph-gmail__search-settings { color:#5f6368; font-size:.875rem; }
+.ph-gmail__search input {
+  flex:1; background:transparent; border:none; outline:none;
+  color:#202124; font-size:.875rem;
+}
+
+.ph-gmail__header-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
+.ph-gmail__hicon { color:#5f6368; font-size:1.0625rem; cursor:default; }
+.ph-gmail__hicon--red { color:#ea4335; }
+.ph-gmail__avatar {
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(0,255,159,.18); border:1px solid rgba(0,193,124,.4);
+  display:grid; place-items:center;
+  font-weight:700; font-size:.875rem; color:#0d8a4f;
+}
+
+.ph-gmail__toolbar {
+  display:flex; align-items:center; gap:12px;
+  padding:8px 16px; background:#ffffff;
+  border-bottom:1px solid #e8eaed; flex-shrink:0;
+}
+.ph-gmail__back-btn {
+  border:none; background:transparent; color:#5f6368;
+  font-size:1.125rem; cursor:pointer; padding:2px 6px;
+}
+.ph-gmail__ticon { color:#5f6368; font-size:.9375rem; cursor:default; }
+
+/* Gmail views */
+.ph-gmail__view { flex:1; overflow-y:auto; background:#ffffff; }
+.ph-hidden { display:none!important; }
+
+.ph-gmail__email-list { display:flex; flex-direction:column; }
+
+.ph-gmail__email-row {
+  display:grid; grid-template-columns:24px 160px minmax(0,1fr) 96px;
+  align-items:center; gap:12px;
+  padding:10px 16px; border:none;
+  border-bottom:1px solid #f1f3f4;
+  background:transparent; color:#202124;
+  font-family:inherit; font-size:.875rem; text-align:left;
+  cursor:pointer; transition:background .15s;
+}
+.ph-gmail__email-row:hover { background:#f1f3f4; }
+.ph-gmail__email-row.is-unread .ph-gmail__row-subject,
+.ph-gmail__email-row.is-unread .ph-gmail__row-from { font-weight:700; color:#202124; }
+.ph-gmail__row-from { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ph-gmail__row-subject { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#3c4043; }
+.ph-gmail__row-snippet { color:#5f6368; font-weight:400; }
+.ph-gmail__row-time { font-size:.75rem; color:#5f6368; text-align:right; }
+
+/* Read pane */
+.ph-gmail__read-pane { padding:24px 28px; max-width:860px; }
+
+.ph-read__subject {
+  margin:0 0 4px; font-size:1.25rem; font-weight:500;
+  line-height:1.35; color:#202124;
+}
+.ph-read__subject-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.ph-read__tags { display:flex; align-items:center; gap:10px; }
+.ph-read__inbox-tag {
+  padding:3px 10px; border-radius:4px;
+  background:#e8eaed; font-size:.75rem; color:#3c4043;
+}
+.ph-read__icon { color:#5f6368; font-size:.9375rem; cursor:default; }
+
+.ph-read__sender {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  padding-bottom:16px; border-bottom:1px solid #e8eaed; margin-bottom:20px;
+}
+.ph-read__sender-left { display:flex; gap:12px; }
+.ph-read__avatar {
+  width:40px; height:40px; border-radius:50%;
+  background:#9aa0a6; flex-shrink:0; display:grid; place-items:center;
+  color:#fff; font-size:.875rem; font-weight:600;
+}
+.ph-read__from-name { font-weight:700; color:#202124; }
+.ph-read__from-email { font-size:.75rem; color:#5f6368; margin-top:2px; }
+.ph-read__to-me { font-size:.75rem; color:#5f6368; margin-top:4px; }
+.ph-read__time { font-size:.75rem; color:#5f6368; }
+
+.ph-read__body { line-height:1.7; color:#3c4043; }
+.ph-read__body-line { margin-bottom:14px; }
+
+/* Flaggable sign elements */
+[data-sign] { border-radius:4px; transition:background .15s; }
+.ph-sim.is-flag-mode [data-sign] { cursor:crosshair; }
+[data-sign].is-flagged { outline:2px solid #f97316!important; background:rgba(249,115,22,.08)!important; }
+[data-sign].is-flagged::after { content:"🚩"; margin-left:4px; font-size:.75rem; }
+
+/* Email link */
+.ph-read__link {
+  border:none; background:transparent; color:#1a73e8;
+  font-family:inherit; font-size:inherit; text-decoration:underline;
+  cursor:pointer; padding:0;
+}
+.ph-read__link:hover { color:#1558b3; }
+
+
+
+
+/* Hint bar */
+.ph-gmail__hint-bar {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 18px; background:#e6f4ea;
+  border-top:1px solid #c3e6cb; flex-shrink:0;
+}
+.ph-gmail__hint-icon { font-size:1.125rem; }
+.ph-gmail__hint-label { font-weight:700; color:#0d8a4f; font-size:.8125rem; }
+.ph-gmail__hint-text { font-size:.8125rem; color:#3c4043; flex:1; }
+
+.ph-complete-btn {
+  padding:9px 18px; border-radius:8px;
+  border:none; background:#00c97c;
+  color:#ffffff; font-weight:700; font-size:.8125rem; cursor:pointer;
+  transition:background .2s;
+}
+.ph-complete-btn:not(:disabled):hover { filter:brightness(1.08); }
+.ph-complete-btn:disabled { background:#c8d6cd; color:#8a948e; opacity:1; cursor:not-allowed; }
+/* Status bar */
+.ph-statusbar {
+  display:flex; align-items:center; gap:0;
+  background:#111; border-top:1px solid rgba(255,255,255,.08);
+  padding:12px 20px; flex-shrink:0;
+}
+.ph-statusbar__section { display:flex; align-items:center; gap:10px; padding:0 20px; }
+.ph-statusbar__icon { font-size:1.25rem; }
+.ph-statusbar__label { font-size:.5625rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#555; margin-bottom:2px; }
+.ph-statusbar__value { font-size:.75rem; color:#aaa; }
+.ph-statusbar__divider { width:1px; height:36px; background:rgba(255,255,255,.08); }
+.ph-statusbar__timer-display { font-family:'Courier New',monospace; font-size:1.375rem; font-weight:700; color:#00ff9f; }
+.ph-statusbar__timer-label { font-size:.5625rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#555; margin-top:2px; }
+
+.ph-submit-btn {
+  margin-left:auto; padding:12px 22px; border-radius:10px;
+  border:none; background:#00ff9f; color:#0a0a0a;
+  font-weight:800; font-size:.875rem; cursor:pointer;
+  transition:filter .2s, transform .2s;
+}
+.ph-submit-btn:not(:disabled):hover { filter:brightness(1.1); transform:translateY(-1px); }
+.ph-submit-btn:disabled { opacity:.3; cursor:not-allowed; }
+
+/* ── RIGHT: Event feed ── */
+.ph-events {
+  background:#111; border-left:1px solid rgba(255,255,255,.07);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.ph-events__header {
+  display:flex; align-items:center; gap:10px;
+  padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.07); flex-shrink:0;
+}
+.ph-events__icon { font-size:1.125rem; }
+.ph-events__title { font-size:.875rem; font-weight:700; color:#fff; }
+
+.ph-events__list { list-style:none; overflow-y:auto; flex:1; padding:12px; display:flex; flex-direction:column; gap:8px; }
+.ph-event {
+  padding:10px 12px; border-radius:8px;
+  font-size:.75rem; line-height:1.55; color:#ccc;
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+}
+.ph-event--good { border-color:rgba(0,255,159,.2); background:rgba(0,255,159,.04); color:#6effd4; }
+.ph-event--bad  { border-color:rgba(239,68,68,.2);  background:rgba(239,68,68,.04);  color:#fca5a5; }
+.ph-event--warn { border-color:rgba(251,191,36,.2); background:rgba(251,191,36,.04); color:#fde68a; }
+.ph-event--info { border-color:rgba(96,165,250,.2); background:rgba(96,165,250,.04); color:#93c5fd; }
+
+/* ── URL Analyzer drawer ── */
+.ph-drawer { position:fixed; inset:0; z-index:300; }
+.ph-drawer[hidden] { display:none; }
+.ph-drawer__backdrop { position:absolute; inset:0; background:rgba(0,0,0,.6); }
+.ph-drawer__panel {
+  position:absolute; top:0; right:0;
+  width:min(420px,100%); height:100%;
+  padding:24px; background:#141618;
+  border-left:1px solid rgba(255,255,255,.08);
+  box-shadow:-12px 0 40px rgba(0,0,0,.55); overflow-y:auto;
+}
+.ph-drawer__head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.ph-drawer__head h3 { margin:0; font-size:1.0625rem; font-weight:800; color:#fff; }
+.ph-drawer__close {
+  border:none; background:transparent; color:#f87171;
+  font-size:1.5rem; line-height:1; cursor:pointer; transition:transform .15s;
+}
+.ph-drawer__close:hover { transform:scale(1.1); }
+.ph-drawer__desc { margin:12px 0 16px; font-size:.8125rem; line-height:1.6; color:#94a3b8; }
+.ph-drawer__input-row { display:flex; gap:8px; }
+.ph-drawer__input {
+  flex:1; padding:10px 14px; border-radius:8px;
+  border:1px solid rgba(255,255,255,.12); background:#1a1a1a;
+  color:#fff; font-family:inherit; font-size:.875rem; outline:none;
+}
+.ph-drawer__input:focus { border-color:rgba(0,255,159,.4); }
+.ph-action-btn {
+  padding:10px 18px; border-radius:8px; border:none;
+  background:#00ff9f; color:#0a0a0a; font-weight:700; font-size:.875rem; cursor:pointer;
+  transition:filter .2s;
+}
+.ph-action-btn:hover { filter:brightness(1.1); }
+.ph-drawer__paste-link {
+  display:block; margin-top:10px; border:none; background:none;
+  color:#00ff9f; font-size:.75rem; font-weight:600; cursor:pointer;
+  text-decoration:underline;
+}
+.ph-drawer__result {
+  margin-top:16px; padding:16px; border-radius:10px;
+  background:#1a1a1a; border:1px solid rgba(255,255,255,.08);
+  font-family:'Courier New',monospace; font-size:.75rem;
+  line-height:1.65; color:#94a3b8; white-space:pre-wrap; min-height:160px;
+}
+
+/* ── Modals (shared) ── */
+.phish-modal { position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; padding:24px; pointer-events:none; }
+.phish-modal:not([hidden]) { pointer-events:auto; }
+.phish-modal__backdrop { position:absolute; inset:0; background:rgba(0,0,0,.82); backdrop-filter:blur(4px); pointer-events:auto; }
+.phish-modal__dialog {
+  position:relative; width:min(560px,100%); max-height:90vh;
+  background:#1a1a1a; border-radius:20px; border:1px solid rgba(255,255,255,.1);
+  padding:36px 40px; overflow-y:auto;
+  animation:phModalIn .3s ease;
+  z-index:1;
+}
+@keyframes phModalIn { from{opacity:0;transform:scale(.94) translateY(16px)} to{opacity:1;transform:none} }
+.phish-modal__close {
+  position:absolute; top:14px; right:14px;
+  width:34px; height:34px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05);
+  color:#999; font-size:1.25rem; cursor:pointer; display:grid; place-items:center;
+  transition:background .2s, color .2s;
+}
+.phish-modal__close:hover { background:rgba(239,68,68,.15); color:#f87171; }
+.phish-modal__content { display:flex; flex-direction:column; gap:16px; }
+.phish-modal__badge {
+  display:inline-flex; align-items:center; padding:5px 14px; border-radius:999px;
+  background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25);
+  color:#f87171; font-size:.625rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; width:fit-content;
+}
+.phish-modal__badge--warn { background:rgba(251,191,36,.1); border-color:rgba(251,191,36,.25); color:#fde68a; }
+.phish-modal__title { font-size:1.375rem; font-weight:700; color:#fff; margin:0; line-height:1.3; }
+.phish-modal__desc { font-size:.9375rem; line-height:1.7; color:#bbb; margin:0; }
+
+/* Decision options */
+.ph-decision-options { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+.decision-option {
+  padding:12px 18px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04);
+  color:#e0e0e0; font-family:inherit; font-size:.875rem; font-weight:600;
+  text-align:left; cursor:pointer; transition:background .2s, border-color .2s;
+}
+.decision-option:hover { background:rgba(0,255,159,.08); border-color:rgba(0,255,159,.3); color:#00ff9f; }
+
+/* Responsive */
+@media (max-width:1100px) {
+  .ph-layout { grid-template-columns:220px 1fr; }
+  .ph-events { display:none; }
+}
+@media (max-width:760px) {
+  .ph-layout { grid-template-columns:1fr; }
+  .ph-sidebar { display:none; }
+}

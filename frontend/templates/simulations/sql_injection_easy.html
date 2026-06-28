@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sql-easy.css') }}">
+  </head>
+  <body class="sqli-lab">
+    <div class="sqli-lab__banner">
+      <a href="{{ back_url }}" class="sqli-lab__back">← Exit simulation</a>
+      <span class="sqli-lab__progress" id="indicator-progress">0 / {{ indicators | length }} indicators reviewed</span>
+    </div>
+
+    <div class="sqli-lab__hint" id="lab-hint">
+      Click each <strong>highlighted</strong> vulnerability, build the guided payload, then sign in to bypass the form.
+    </div>
+
+    <div class="sqli-browser">
+      <div class="sqli-browser__chrome">
+        <span class="sqli-browser__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <div class="sqli-browser__url">
+          <span class="sqli-browser__lock" aria-hidden="true">🔒</span>
+          <span>{{ form_data.url_bar }}</span>
+        </div>
+      </div>
+
+      <div class="sqli-stage" id="login-stage">
+        <section class="sqli-login">
+          <header class="sqli-login__head">
+            <span class="sqli-login__logo" aria-hidden="true">🎓</span>
+            <h1 class="sqli-login__title">{{ form_data.app_name }}</h1>
+            <p class="sqli-login__subtitle">Sign in with your administrator credentials</p>
+          </header>
+
+          <form class="sqli-login__form" id="login-form" autocomplete="off">
+            <label class="sqli-field">
+              <span class="sqli-field__label">{{ form_data.username_label }}</span>
+              <div class="sqli-field__wrap sqli-hotspot" data-indicator="unsanitized_input">
+                <input
+                  type="text"
+                  id="username-input"
+                  name="username"
+                  placeholder="admin"
+                  spellcheck="false"
+                >
+              </div>
+            </label>
+
+            <label class="sqli-field">
+              <span class="sqli-field__label">{{ form_data.password_label }}</span>
+              <input type="password" id="password-input" name="password" placeholder="••••••••">
+            </label>
+
+            <p class="sqli-login__error" id="login-error" hidden></p>
+
+            <button type="submit" class="sqli-login__submit">{{ form_data.submit_label }}</button>
+          </form>
+
+          <p class="sqli-login__footer">{{ form_data.footer_note }}</p>
+        </section>
+
+        <aside class="sqli-query-panel">
+          <h2 class="sqli-query-panel__title">Backend query preview</h2>
+          <p class="sqli-query-panel__note">Simulated — shows how unsanitized input may be stitched into SQL.</p>
+          <pre class="sqli-query-panel__code sqli-hotspot" data-indicator="string_concat" id="query-preview"></pre>
+
+          <div class="sqli-payload">
+            <h3 class="sqli-payload__title">Guided payload builder</h3>
+            <p class="sqli-payload__hint">Click each segment to learn what it does, then insert it into the username field.</p>
+            <div class="sqli-payload__chips">
+              <button type="button" class="sqli-payload__chip sqli-hotspot" data-indicator="or_always_true" data-part=" OR '1'='1">OR '1'='1</button>
+              <button type="button" class="sqli-payload__chip sqli-hotspot" data-indicator="sql_comment" data-part=" --">-- comment</button>
+              <button type="button" class="sqli-payload__chip" data-part="'">' close quote</button>
+            </div>
+            <button type="button" class="sqli-payload__insert" id="insert-full-payload">Insert full payload</button>
+          </div>
+        </aside>
+      </div>
+
+      <section class="sqli-dashboard" id="admin-dashboard" hidden>
+        <header class="sqli-dashboard__head">
+          <div>
+            <p class="sqli-dashboard__eyebrow">{{ form_data.admin_dashboard.subtitle }}</p>
+            <h2 class="sqli-dashboard__title">{{ form_data.admin_dashboard.title }}</h2>
+            <p class="sqli-dashboard__welcome">{{ form_data.admin_dashboard.welcome }}</p>
+          </div>
+          <span class="sqli-dashboard__badge">Bypass successful</span>
+        </header>
+
+        <div class="sqli-dashboard__stats">
+          {% for stat in form_data.admin_dashboard.stats %}
+          <article class="sqli-dashboard__stat">
+            <span class="sqli-dashboard__stat-label">{{ stat.label }}</span>
+            <strong class="sqli-dashboard__stat-value">{{ stat.value }}</strong>
+          </article>
+          {% endfor %}
+        </div>
+
+        <p class="sqli-dashboard__alert">{{ form_data.admin_dashboard.alert }}</p>
+      </section>
+    </div>
+
+    <div class="phish-modal" id="phish-modal" hidden>
+      <div class="phish-modal__backdrop" id="phish-modal-backdrop"></div>
+      <div
+        class="phish-modal__dialog"
+        id="phish-modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="phish-modal-title"
+      >
+        <button
+          type="button"
+          class="phish-modal__dismiss"
+          id="phish-modal-close"
+          aria-label="Close"
+        >×</button>
+
+        <div class="phish-modal__flow">
+          <div class="phish-modal__reveal" data-stagger="0">
+            <span class="phish-modal__badge">
+              <span class="phish-modal__dot-wrap" aria-hidden="true">
+                <span class="phish-modal__dot-ring"></span>
+                <span class="phish-modal__dot"></span>
+              </span>
+              Vulnerability spotted
+            </span>
+          </div>
+
+          <h2 class="phish-modal__title phish-modal__reveal" data-stagger="1" id="phish-modal-title"></h2>
+          <p class="phish-modal__desc phish-modal__reveal" data-stagger="2" id="phish-modal-desc"></p>
+
+          <div class="phish-modal__compare phish-modal__reveal" data-stagger="3" id="phish-modal-compare">
+            <div class="phish-modal__box phish-modal__box--wrong">
+              <span class="phish-modal__box-label" id="phish-modal-wrong-label">What you see</span>
+              <p class="phish-modal__box-text" id="phish-modal-wrong"></p>
+            </div>
+            <div class="phish-modal__box phish-modal__box--correct">
+              <span class="phish-modal__box-label" id="phish-modal-correct-label">What you should expect</span>
+              <p class="phish-modal__box-text" id="phish-modal-correct"></p>
+            </div>
+          </div>
+
+          <div class="phish-modal__tip phish-modal__reveal" data-stagger="4" id="phish-modal-tip" hidden>
+            <span class="phish-modal__tip-icon" aria-hidden="true">ℹ</span>
+            <span class="phish-modal__tip-text" id="phish-modal-tip-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sqli-lab__footer">
+      <button type="button" class="sqli-lab__complete" id="complete-easy" disabled>
+        Complete Easy Simulation
+      </button>
+    </footer>
+
+    <script>
+      window.SQLI_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+        validPayload: {{ form_data.valid_payload | tojson }},
+        queryTemplate: {{ form_data.vulnerable_query | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/sql-easy.js') }}"></script>
+  </body>
+</html>

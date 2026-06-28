@@ -1,0 +1,312 @@
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulations.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-v2.css') }}">
+{% endblock %}
+
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+<div class="dv2-layout">
+
+  <!-- ════════════════════════════ LEFT MAIN ════════════════════════════ -->
+  <main class="dv2-main">
+
+    <!-- ── Section 1: Hackathon News (module cards) ── -->
+    <section class="dv2-section">
+      <div class="dv2-section__head">
+        <h2 class="dv2-section__title">📋 Module Progress</h2>
+        <a href="{{ url_for('simulations_page') }}" class="dv2-view-all">View All →</a>
+      </div>
+      <div class="dv2-hscroll">
+        {% if active_modules %}
+          {% for m in active_modules %}
+          <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}" class="dv2-rec-card">
+  <div class="dv2-thumb dv2-rec-card__thumb">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M3 17l5-5 4 4 6-7 3 4"/><rect x="2" y="3" width="20" height="18" rx="1"/></svg>
+    <span class="dv2-rec-card__badge dv2-diff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
+  </div>
+  <div class="dv2-rec-card__body">
+    <div class="dv2-rec-card__name">{{ m.name }}</div>
+    <div class="dv2-rec-card__meta">
+      <span>{{ m.difficulty }}</span>
+      <span>⏱ {{ m.estimated_minutes }} min</span>
+    </div>
+    <div class="dv2-rec-card__skills">
+      {% for skill in m.skills_learned[:2] %}
+      <span class="dv2-skill-tag">{{ skill }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="dv2-rec-card__footer">
+    <span class="dv2-rec-card__cta">View</span>
+  </div>
+</a>
+          {% endfor %}
+        {% else %}
+          {% for m in recommended %}
+          <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}" class="dv2-module-card">
+            <div class="dv2-module-card__top">
+              <span class="dv2-module-card__icon">{{ m.icon }}</span>
+              <span class="dv2-module-card__diff dv2-diff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
+            </div>
+            <div class="dv2-module-card__name">{{ m.name }}</div>
+            <div class="dv2-module-card__meta">{{ m.estimated_minutes }} min</div>
+            <div class="dv2-module-card__bar">
+              <div class="dv2-module-card__fill" style="width:0%;"></div>
+            </div>
+            <span class="dv2-module-card__status">Not started</span>
+          </a>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ── Section 2: Recommended Challenges ── -->
+    <section class="dv2-section">
+      <div class="dv2-section__head">
+        <h2 class="dv2-section__title">🎯 Recommended Challenges</h2>
+        <a href="{{ url_for('simulations_page') }}" class="dv2-view-all">View All →</a>
+      </div>
+      <div class="dv2-rec-grid">
+        {% for m in recommended %}
+        <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}" class="dv2-rec-card">
+          <div class="dv2-rec-card__thumb">
+            <span class="dv2-rec-card__emoji">{{ m.icon }}</span>
+            <span class="dv2-rec-card__badge dv2-diff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
+          </div>
+          <div class="dv2-rec-card__body">
+            <div class="dv2-rec-card__name">{{ m.name }}</div>
+            <div class="dv2-rec-card__meta">
+              <span class="dv2-rec-card__type">{{ m.difficulty }}</span>
+              <span class="dv2-rec-card__time">⏱ {{ m.estimated_minutes }} min</span>
+            </div>
+            <div class="dv2-rec-card__skills">
+              {% for skill in m.skills_learned[:2] %}
+              <span class="dv2-skill-tag">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="dv2-rec-card__footer">
+            <span class="dv2-rec-card__cta">View</span>
+          </div>
+        </a>
+        {% else %}
+        <p class="dv2-empty">You have completed all available missions. Great work.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ── Section 3: Recent Activity (community posts placeholder) ── -->
+    <section class="dv2-section">
+      <div class="dv2-section__head">
+        <h2 class="dv2-section__title">🗣 Recent Activity <span class="dv2-section__badge">{{ history | length }}</span></h2>
+        <span class="dv2-view-all dv2-view-all--muted">Community coming soon</span>
+      </div>
+      <div class="dv2-hscroll">
+        {% if history %}
+          {% for entry in history %}
+          <div class="dv2-activity-card">
+  <div class="dv2-activity-card__top">
+    <span class="dv2-activity-card__mod">{{ entry.get('attack_id', 'module') | replace('_', ' ') | title }}</span>
+    {% if entry.get('quiz_score') is not none %}
+    <span class="dv2-activity-card__score dv2-score--{% if entry.quiz_score >= 70 %}pass{% else %}fail{% endif %}">
+      Quiz {{ entry.quiz_score }}%
+    </span>
+    {% endif %}
+  </div>
+  <div class="dv2-activity-card__sim">
+    Sim score: <strong>{{ entry.get('simulation_score', '—') }}{% if entry.get('simulation_score') is not none %}%{% endif %}</strong>
+  </div>
+  <div class="dv2-activity-card__bar">
+    <div class="dv2-activity-card__bar-fill" style="width: {{ entry.get('simulation_score', 0) }}%;"></div>
+  </div>
+  <div class="dv2-activity-card__footer">
+    <span class="dv2-activity-card__pts">+{{ entry.get('points_earned', 0) }} pts</span>
+    <span class="dv2-activity-card__date">{{ entry.get('completed_at', '') | string | truncate(10, true, '') }}</span>
+  </div>
+</div>
+          {% endfor %}
+        {% else %}
+          <div class="dv2-activity-card dv2-activity-card--placeholder">
+            <span class="dv2-activity-card__icon">💬</span>
+            <p>Community posts will appear here once the Community feature launches.</p>
+          </div>
+          <div class="dv2-activity-card dv2-activity-card--placeholder">
+            <span class="dv2-activity-card__icon">🏆</span>
+            <p>Complete your first simulation to see your activity history here.</p>
+          </div>
+          <div class="dv2-activity-card dv2-activity-card--placeholder">
+            <span class="dv2-activity-card__icon">🔒</span>
+            <p>Start Module 1 — Phishing: Fake Email to begin your journey.</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ════════════════════════════ RIGHT SIDEBAR ════════════════════════════ -->
+  <aside class="dv2-sidebar">
+
+    <!-- Profile KPIs -->
+    <div class="dv2-namecard">
+  <div class="dv2-namecard__avatar-wrap">
+    {% if profile.profile_picture %}
+    <img class="dv2-namecard__avatar" src="{{ profile.profile_picture if profile.profile_picture.startswith('http') else url_for('static', filename=profile.profile_picture) }}" alt="">
+    {% else %}
+    <div class="dv2-namecard__avatar dv2-namecard__avatar--initials">{{ display_name[:2] | upper }}</div>
+    {% endif %}
+  </div>
+  <div class="dv2-namecard__info">
+    <div class="dv2-namecard__name">{{ display_name }}</div>
+    <div class="dv2-namecard__level">{{ profile.level }} · {{ year_level or 'Active Learner' }}</div>
+    <div class="dv2-namecard__pts">{{ profile.points }} pts</div>
+  </div>
+  <span class="dv2-namecard__chevron">▾</span>
+</div>
+
+    <!-- KPI pills -->
+    <div class="dv2-kpi-row">
+      <div class="dv2-kpi">
+        <span class="dv2-kpi__icon">🔥</span>
+        <span class="dv2-kpi__val">{{ profile.simulations_completed | length }}</span>
+        <span class="dv2-kpi__label">Completed</span>
+      </div>
+      <div class="dv2-kpi">
+        <span class="dv2-kpi__icon">🎯</span>
+        <span class="dv2-kpi__val">{{ average_score }}%</span>
+        <span class="dv2-kpi__label">Avg Score</span>
+      </div>
+      <div class="dv2-kpi">
+        <span class="dv2-kpi__icon">🏅</span>
+        <span class="dv2-kpi__val">{% if user_rank %}#{{ user_rank }}{% else %}—{% endif %}</span>
+        <span class="dv2-kpi__label">Rank</span>
+      </div>
+    </div>
+
+    <!-- Weekly Streak / progress -->
+    <div class="dv2-streak-card">
+      <div class="dv2-streak-card__head">
+        <span class="dv2-streak-card__title">Weekly Progress</span>
+      </div>
+      <div class="dv2-streak-days">
+        {% set days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+        {% for day in days %}
+        {% set active = loop.index <= (profile.simulations_completed | length % 7) %}
+        <div class="dv2-streak-day {{ 'is-active' if active else '' }}">
+          <span class="dv2-streak-day__label">{{ day }}</span>
+          <span class="dv2-streak-day__dot">{{ '✓' if active else '' }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="dv2-level-bar">
+        <div class="dv2-level-bar__meta">
+          <span>{{ level_progress.level_name }}</span>
+          <span>{{ level_progress.percent_in_level }}%</span>
+        </div>
+        <div class="dv2-level-bar__track">
+          <div class="dv2-level-bar__fill" style="width: {{ (level_progress.percent_in_level | string | replace('%', '') | float) }}%;"></div>
+        </div>
+        <div class="dv2-level-bar__counts">
+          <span>{{ module_status.in_progress }} In Progress</span>
+          <span>{{ module_status.completed }} Completed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badge / Certificate / Namecard toggler -->
+    <div class="dv2-collect-card" id="dv2-collect">
+      <div class="dv2-collect-card__head">
+        <button type="button" class="dv2-collect-nav" id="dv2-collect-prev" aria-label="Previous">‹</button>
+        <span class="dv2-collect-card__label" id="dv2-collect-label">Badges</span>
+        <button type="button" class="dv2-collect-nav" id="dv2-collect-next" aria-label="Next">›</button>
+      </div>
+
+      <!-- Badges panel -->
+      <ul class="dv2-collect-list is-active" id="dv2-panel-badges">
+        {% for badge in all_badges %}
+        <li class="dv2-collect-item {% if badge.earned %}is-earned{% endif %}">
+          <span class="dv2-collect-item__icon">{% if badge.earned %}🏅{% else %}🔒{% endif %}</span>
+          <div class="dv2-collect-item__info">
+            <span class="dv2-collect-item__name">{{ badge.name }}</span>
+            <span class="dv2-collect-item__sub">{% if badge.earned %}Earned{% else %}Locked{% endif %}</span>
+          </div>
+          {% if badge.earned %}<span class="dv2-collect-item__check">✓</span>{% endif %}
+        </li>
+        {% endfor %}
+        {% for badge in milestone_badges %}
+        <li class="dv2-collect-item {% if badge.earned %}is-earned{% endif %}">
+          <span class="dv2-collect-item__icon">{% if badge.earned %}⭐{% else %}🔒{% endif %}</span>
+          <div class="dv2-collect-item__info">
+            <span class="dv2-collect-item__name">{{ badge.name }}</span>
+            <span class="dv2-collect-item__sub">{{ badge.condition }}</span>
+          </div>
+          {% if badge.earned %}<span class="dv2-collect-item__check">✓</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- Certificates panel -->
+      <ul class="dv2-collect-list" id="dv2-panel-certificates">
+        {% for cert in all_certificates %}
+        <li class="dv2-collect-item {% if cert.earned %}is-earned{% endif %}">
+          <span class="dv2-collect-item__icon">{% if cert.earned %}📜{% else %}🔒{% endif %}</span>
+          <div class="dv2-collect-item__info">
+            <span class="dv2-collect-item__name">{{ cert.name }}</span>
+            <span class="dv2-collect-item__sub">{{ cert.condition }}</span>
+          </div>
+          {% if cert.earned %}<span class="dv2-collect-item__check">✓</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- Namecards panel -->
+      <ul class="dv2-collect-list" id="dv2-panel-namecards">
+        {% for card in all_namecards %}
+        <li class="dv2-collect-item {% if card.earned %}is-earned{% endif %}">
+          <span class="dv2-collect-item__icon">{% if card.earned %}🃏{% else %}🔒{% endif %}</span>
+          <div class="dv2-collect-item__info">
+            <span class="dv2-collect-item__name">{{ card.name }}</span>
+            <span class="dv2-collect-item__sub">{{ card.theme }}</span>
+          </div>
+          {% if card.earned %}<span class="dv2-collect-item__check">✓</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </aside>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+  const panels = ['badges', 'certificates', 'namecards'];
+  const labels = ['Badges', 'Certificates', 'Namecards'];
+  let current = 0;
+
+  const labelEl = document.getElementById('dv2-collect-label');
+  const prevBtn = document.getElementById('dv2-collect-prev');
+  const nextBtn = document.getElementById('dv2-collect-next');
+
+  function show(index) {
+    panels.forEach(function(id, i) {
+      const el = document.getElementById('dv2-panel-' + id);
+      if (el) el.classList.toggle('is-active', i === index);
+    });
+    if (labelEl) labelEl.textContent = labels[index];
+    current = index;
+  }
+
+  prevBtn?.addEventListener('click', function() {
+    show((current - 1 + panels.length) % panels.length);
+  });
+  nextBtn?.addEventListener('click', function() {
+    show((current + 1) % panels.length);
+  });
+})();
+</script>
+{% endblock %}

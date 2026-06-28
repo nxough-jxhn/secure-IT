@@ -1,0 +1,339 @@
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/module-info.css') }}">
+{% endblock %}
+
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+
+{% set media = info_page.get('media', {}) %}
+{% set media_folder = media.get('folder', 'phishing') %}
+{% set default_imgs = ['image1_phishing.jpg', 'image2_phishing.png', 'image3_phishing.png'] %}
+{% set spotlight_files = media.get('spotlight', default_imgs) %}
+{% set video_poster = media.get('video_poster', 'video-poster.svg') %}
+{% set video_src = media.get('video', 'videos/phishing-fake-email-intro.mp4' if media_folder == 'phishing' else none) %}
+
+<div class="ai-page">
+
+  <!-- ── HEADER ── -->
+  <header class="ai-header">
+    <div class="ai-header__left">
+      <a href="{{ url_for('simulations_page') }}" class="ai-back">← Cyber Range</a>
+      <span class="ai-category">{{ attack.category_label }}</span>
+    </div>
+    <div class="ai-header__title-row">
+      <h1 class="ai-title">{{ attack.name }}</h1>
+      <div class="ai-header__actions">
+        <a href="{{ url_for('simulation_easy_page', attack_id=attack_id) }}" class="ai-btn ai-btn--primary ai-btn--pulse">
+          <span>Easy Sim</span>
+        </a>
+        {% if module_progress.easy_complete %}
+        <a href="{{ url_for('simulation_start_page', attack_id=attack_id) }}" class="ai-btn ai-btn--secondary ai-btn--pulse-secondary">
+          <span>Hard Sim</span>
+        </a>
+        {% else %}
+        <span class="ai-btn ai-btn--disabled" title="Complete Easy Sim first">Hard Sim</span>
+        {% endif %}
+      </div>
+    </div>
+    <p class="ai-lead">{{ attack.short_description }}</p>
+  </header>
+
+  <!-- ── TOP ROW: Spotlight carousel + Video ── -->
+  <div class="ai-top-row">
+
+    <!-- Spotlight carousel -->
+    <div class="ai-spotlight-box">
+      <div class="ai-carousel-head">
+        <div class="ai-carousel-tabs" id="spotlight-tabs">
+          {% for item in info_page.spotlight %}
+          <button type="button"
+            class="ai-carousel-tab {% if loop.first %}is-active{% endif %}"
+            data-carousel="spotlight"
+            data-index="{{ loop.index0 }}">
+            {{ item.heading }}
+          </button>
+          {% endfor %}
+        </div>
+        <div class="ai-carousel-nav">
+          <button type="button" class="ai-carousel-btn" id="spotlight-prev" aria-label="Previous">‹</button>
+          <button type="button" class="ai-carousel-btn" id="spotlight-next" aria-label="Next">›</button>
+        </div>
+      </div>
+
+      <div class="ai-carousel-body" id="spotlight-body">
+        {% for item in info_page.spotlight %}
+        {% set img_file = spotlight_files[loop.index0] if loop.index0 < spotlight_files|length else default_imgs[0] %}
+        <div class="ai-carousel-slide {% if loop.first %}is-active{% endif %}" data-slide="{{ loop.index0 }}">
+          <div class="ai-spotlight-content">
+            <button type="button" class="ai-spotlight-img-btn"
+              aria-label="View full image"
+              data-lightbox-src="{{ url_for('static', filename='img/modules/' ~ media_folder ~ '/' ~ img_file) }}"
+              data-lightbox-alt="{{ item.heading }}">
+              <img src="{{ url_for('static', filename='img/modules/' ~ media_folder ~ '/' ~ img_file) }}"
+                   alt="{{ item.heading }}">
+              <span class="ai-zoom-hint" aria-hidden="true">🔍</span>
+            </button>
+            <div class="ai-spotlight-text">
+              <span class="ai-spotlight-num">0{{ loop.index }}</span>
+              <h3 class="ai-spotlight-title">{{ item.heading }}</h3>
+              <p class="ai-spotlight-body">{{ item.text }}</p>
+              <p class="ai-spotlight-body ai-spotlight-body--muted">
+                {% if loop.index == 1 %}Understanding what this attack is at its core allows you to recognize it across different contexts — whether in an email, a website, or a social interaction. Attackers continuously refine their methods, but the underlying principle remains the same.
+                {% elif loop.index == 2 %}This is how the attack develops in practice. Seeing the mechanics laid out clearly helps demystify what can otherwise feel like a sophisticated and invisible threat. Most attacks follow a predictable pattern once you know what to look for.
+                {% else %}Real-world context reinforces why this topic matters. These incidents affected real users, real organizations, and had real consequences — and they all started with the same type of vulnerability you are learning to recognize right now.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Video box -->
+    <div class="ai-video-box">
+      <div class="ai-box-label">🎬 Educational Video</div>
+      <div class="ai-video-wrap">
+        <video controls preload="metadata"
+          poster="{{ url_for('static', filename='img/modules/' ~ media_folder ~ '/' ~ video_poster) }}">
+          {% if video_src %}
+          <source src="{{ url_for('static', filename=video_src) }}" type="video/mp4">
+          {% endif %}
+          Your browser does not support embedded video.
+        </video>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── BOTTOM CAROUSEL: How it Works › Warning Signs › Prevention › Real-world ── -->
+  <div class="ai-detail-box">
+    <div class="ai-carousel-head">
+      <div class="ai-carousel-tabs" id="detail-tabs">
+        <button type="button" class="ai-carousel-tab is-active" data-carousel="detail" data-index="0">How it Works</button>
+        <button type="button" class="ai-carousel-tab" data-carousel="detail" data-index="1">Warning Signs</button>
+        <button type="button" class="ai-carousel-tab" data-carousel="detail" data-index="2">Prevention</button>
+        <button type="button" class="ai-carousel-tab" data-carousel="detail" data-index="3">Real-world</button>
+      </div>
+      <div class="ai-carousel-nav">
+        <button type="button" class="ai-carousel-btn" id="detail-prev" aria-label="Previous">‹</button>
+        <button type="button" class="ai-carousel-btn" id="detail-next" aria-label="Next">›</button>
+      </div>
+    </div>
+
+    <div class="ai-carousel-body ai-carousel-body--detail" id="detail-body">
+
+      <!-- Slide 0: How it Works -->
+      <div class="ai-carousel-slide is-active" data-slide="0">
+        <div class="ai-detail-split">
+          <div class="ai-detail-left">
+            <h3 class="ai-detail-heading">How it Works</h3>
+            <p class="ai-detail-para">{{ overview.explanation }}</p>
+            {% if overview.why_used %}
+            <p class="ai-detail-para">{{ overview.why_used }} Understanding the attacker's motivation helps you anticipate where and how these attacks are most likely to appear in your daily digital life.</p>
+            {% endif %}
+            {% if overview.how_encountered %}
+            <p class="ai-detail-para ai-detail-para--muted">{{ overview.how_encountered }} Being aware of these entry points is the first step toward protecting yourself before an attack even begins.</p>
+            {% endif %}
+          </div>
+          <div class="ai-detail-right">
+            <h4 class="ai-detail-list-title">Step-by-step breakdown</h4>
+            <ol class="ai-detail-list ai-detail-list--steps">
+              {% for step in overview.how_it_happens %}
+              <li class="ai-detail-list__item">
+                <span class="ai-detail-list__num">{{ loop.index }}</span>
+                <span>{{ step }}</span>
+              </li>
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 1: Warning Signs -->
+      <div class="ai-carousel-slide" data-slide="1">
+        <div class="ai-detail-split">
+          <div class="ai-detail-left">
+            <h3 class="ai-detail-heading">Warning Signs &amp; Red Flags</h3>
+            <p class="ai-detail-para">Knowing the warning signs of {{ attack.name | lower }} can help you identify an attack before it causes damage. These indicators are often subtle — attackers intentionally design them to blend into legitimate communication so victims don't notice until it's too late.</p>
+            <p class="ai-detail-para">Trust your instincts — if something feels off, verify before acting. Attackers rely on urgency and confusion to bypass your judgment. A moment of caution can prevent hours of damage control.</p>
+            <p class="ai-detail-para ai-detail-para--muted">Most victims report that warning signs were present but seemed minor at the time. Learning to recognize even small irregularities is what separates a cautious user from an easy target.</p>
+          </div>
+          <div class="ai-detail-right">
+            <h4 class="ai-detail-list-title">Red flags to watch for</h4>
+            <ul class="ai-detail-list ai-detail-list--warn">
+              {% for sign in overview.warning_signs %}
+              <li class="ai-detail-list__item">
+                <span class="ai-detail-list__bullet ai-bullet--warn">⚠</span>
+                <span>{{ sign }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Prevention -->
+      <div class="ai-carousel-slide" data-slide="2">
+        <div class="ai-detail-split">
+          <div class="ai-detail-left">
+            <h3 class="ai-detail-heading">Prevention Tips</h3>
+            <p class="ai-detail-para">Prevention is your strongest defense against {{ attack.name | lower }}. Applying even a few of these habits significantly reduces your risk and makes you a far harder target for attackers who rely on catching people off-guard.</p>
+            <p class="ai-detail-para">Most attacks succeed because of a single overlooked habit or one moment of inattention. Building secure behaviors into your daily routine means you are protected even when you are not actively thinking about security.</p>
+            <p class="ai-detail-para ai-detail-para--muted">Security is not a one-time action — it is a mindset. Consistent small habits compound over time into a strong personal defense posture that protects both you and the people around you.</p>
+          </div>
+          <div class="ai-detail-right">
+            <h4 class="ai-detail-list-title">What you should do</h4>
+            <ul class="ai-detail-list ai-detail-list--tips">
+              {% for tip in overview.prevention_tips %}
+              <li class="ai-detail-list__item">
+                <span class="ai-detail-list__bullet ai-bullet--tip">✓</span>
+                <span>{{ tip }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Real-world Examples -->
+      <div class="ai-carousel-slide" data-slide="3">
+        <div class="ai-detail-split">
+          <div class="ai-detail-left">
+            <h3 class="ai-detail-heading">Real-world Examples</h3>
+            <p class="ai-detail-para">{{ attack.name }} attacks have affected millions of individuals, businesses, and government institutions worldwide. These real examples demonstrate the scale, creativity, and impact of this type of threat across different industries and contexts.</p>
+            <p class="ai-detail-para">What these incidents share is that they all exploited a predictable human response — trust, urgency, or curiosity. No organization is too large to be targeted, and no individual is too careful to be at risk without the right knowledge.</p>
+            <p class="ai-detail-para ai-detail-para--muted">Understanding real incidents helps you recognize similar patterns when they appear in your own digital environment. The details change but the tactics remain consistent — making awareness your most reliable protection.</p>
+          </div>
+          <div class="ai-detail-right">
+            <h4 class="ai-detail-list-title">Notable cases</h4>
+            <ul class="ai-detail-list ai-detail-list--examples">
+              {% for example in info_page.real_world_examples %}
+              <li class="ai-detail-list__item">
+                <span class="ai-detail-list__bullet ai-bullet--num">{{ loop.index }}</span>
+                <span>{{ example }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- end detail box -->
+
+</div><!-- end ai-page -->
+
+<!-- Lightbox -->
+<div class="img-lightbox" id="img-lightbox" hidden aria-modal="true" role="dialog" aria-label="Image preview">
+  <div class="img-lightbox__backdrop" id="img-lightbox-backdrop"></div>
+  <div class="img-lightbox__stage">
+    <button type="button" class="img-lightbox__close" id="img-lightbox-close" aria-label="Close">×</button>
+    <img class="img-lightbox__img" id="img-lightbox-img" src="" alt="">
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+  // ── Generic carousel engine with slide-wipe transition ──
+  function Carousel(bodyId, tabsId, prevId, nextId) {
+    const body = document.getElementById(bodyId);
+    const tabsEl = document.getElementById(tabsId);
+    const prevBtn = document.getElementById(prevId);
+    const nextBtn = document.getElementById(nextId);
+    if (!body) return;
+
+    const slides = Array.from(body.querySelectorAll('.ai-carousel-slide'));
+    const tabs = tabsEl ? Array.from(tabsEl.querySelectorAll('.ai-carousel-tab')) : [];
+    let current = 0;
+    let animating = false;
+
+    function go(index, direction) {
+      const n = slides.length;
+      const next = ((index % n) + n) % n;
+      if (next === current || animating) return;
+      animating = true;
+
+      const outSlide = slides[current];
+      const inSlide = slides[next];
+      const goingForward = direction === undefined
+        ? (next > current || (current === n - 1 && next === 0))
+        : direction > 0;
+
+      // Lock height on the body so it doesn't collapse during absolute transition
+      const bodyEl = outSlide.closest('.ai-carousel-body');
+      if (bodyEl) bodyEl.style.height = outSlide.offsetHeight + 'px';
+
+      // Set up incoming slide
+      inSlide.classList.remove('is-active', 'slide-enter', 'slide-enter-back', 'slide-leave', 'slide-leave-back');
+      inSlide.style.display = 'flex';
+      inSlide.classList.add(goingForward ? 'slide-enter' : 'slide-enter-back');
+
+      // Animate out current
+      outSlide.classList.remove('is-active');
+      outSlide.classList.add(goingForward ? 'slide-leave' : 'slide-leave-back');
+
+      // Update tabs immediately
+      tabs.forEach((t, i) => t.classList.toggle('is-active', i === next));
+      current = next;
+
+      setTimeout(() => {
+        outSlide.classList.remove('slide-leave', 'slide-leave-back');
+        outSlide.style.display = '';
+        inSlide.classList.remove('slide-enter', 'slide-enter-back');
+        inSlide.classList.add('is-active');
+        // Release height lock
+        if (bodyEl) bodyEl.style.height = '';
+        animating = false;
+      }, 390);
+    }
+
+    prevBtn?.addEventListener('click', () => go(current - 1, -1));
+    nextBtn?.addEventListener('click', () => go(current + 1, 1));
+    tabs.forEach((tab, i) => tab.addEventListener('click', () => go(i)));
+  }
+
+  Carousel('spotlight-body', 'spotlight-tabs', 'spotlight-prev', 'spotlight-next');
+  Carousel('detail-body',    'detail-tabs',    'detail-prev',    'detail-next');
+
+  // ── Lightbox ──
+  const lightbox = document.getElementById('img-lightbox');
+  const lightboxImg = document.getElementById('img-lightbox-img');
+  const closeBtn = document.getElementById('img-lightbox-close');
+  const backdrop = document.getElementById('img-lightbox-backdrop');
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => lightbox.classList.add('is-open'));
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('is-open');
+    setTimeout(() => {
+      lightbox.hidden = true;
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+    }, 220);
+  }
+
+  document.querySelectorAll('[data-lightbox-src]').forEach(btn => {
+    btn.addEventListener('click', () => openLightbox(btn.dataset.lightboxSrc, btn.dataset.lightboxAlt));
+  });
+
+  closeBtn?.addEventListener('click', closeLightbox);
+  backdrop?.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !lightbox.hidden) closeLightbox();
+  });
+})();
+</script>
+{% endblock %}

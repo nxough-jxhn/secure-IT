@@ -1,0 +1,126 @@
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cyber-range.css') }}">
+{% endblock %}
+
+{% block page_ambient %}{% endblock %}
+
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+<div class="cr-page">
+
+  <!-- Page title -->
+  <header class="cr-header">
+    <h1 class="cr-header__title">Cyber Range</h1>
+    <p class="cr-header__sub">Select a category below to explore realistic attack scenarios, sharpen your detection skills, and complete hands-on simulations designed to prepare you for real-world threats.</p>
+  </header>
+
+  <!-- Split layout: pillars left, carousel right -->
+  <div class="cr-split-layout">
+    
+    <!-- Left: Three.js pillar scene -->
+    <div class="cr-scene-left">
+      <div class="cr-scene" id="cr-scene"></div>
+
+
+      <div class="cr-scene-fade cr-scene-fade--bottom"></div>
+  <div class="cr-scene-fade cr-scene-fade--left"></div>
+  <div class="cr-scene-fade cr-scene-fade--right"></div>
+  <div class="cr-scene-fade cr-scene-fade--top"></div>
+
+      
+      <!-- Progress strip below pillars -->
+      <div class="cr-progress-strip">
+        <span>{{ profile.level }}</span>
+        <span class="cr-progress-strip__dot"></span>
+        <span>{{ profile.points }} pts</span>
+        <span class="cr-progress-strip__dot"></span>
+        <span>{{ profile.simulations_completed|length }} completed</span>
+      </div>
+    </div>
+
+    <!-- Right: Auto-playing attack carousel -->
+    <div class="cr-carousel-right">
+      <div class="cr-attack-carousel" id="cr-attack-carousel">
+        <div class="cr-attack-slide" id="cr-attack-slide">
+          <!-- injected by JS -->
+        </div>
+        </div>
+        <button type="button" class="cr-attack-next" id="cr-attack-next" aria-label="Next attack">›</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="cr-overlay" id="cr-overlay" aria-modal="true" role="dialog">
+  <button class="cr-cat-nav cr-cat-nav--prev" id="cr-cat-prev" aria-label="Previous category">‹</button>
+  <div class="cr-modal" id="cr-modal">
+    <div class="cr-modal__inner">
+
+      <!-- Top bar -->
+      <div class="cr-modal__topbar">
+        <span class="cr-modal__cat-badge" id="cr-modal-badge">Category 01</span>
+        <h2 class="cr-modal__cat-title" id="cr-modal-title"></h2>
+        <span class="cr-modal__attack-count" id="cr-modal-count"></span>
+        <button type="button" class="cr-modal__close" id="cr-close" aria-label="Close">✕</button>
+      </div>
+
+      <!-- Body -->
+      <div class="cr-modal__body">
+
+        <!-- Sidebar -->
+        <div class="cr-modal__sidebar">
+          <span class="cr-sidebar__num" id="cr-mini-num">01</span>
+          <div class="cr-sidebar__pillar" id="cr-sidebar-pillar">
+            <!-- SVG injected by JS -->
+          </div>
+          <p class="cr-sidebar__label" id="cr-mini-name"></p>
+        </div>
+
+        <!-- Mission list (carousel) -->
+<div class="cr-modal__content" id="cr-modal-content">
+  <p class="cr-modal__desc" id="cr-modal-desc"></p>
+  
+  <div class="cr-modal__carousel">
+    <div class="cr-modal__carousel-track" id="cr-mission-track">
+      <!-- injected by JS -->
+    </div>
+    <div class="cr-modal__carousel-footer">
+      <div class="cr-modal__carousel-dots" id="cr-mission-dots"></div>
+      <span class="cr-modal__carousel-counter" id="cr-mission-counter"></span>
+      <div class="cr-modal__carousel-nav">
+        <button class="cr-modal__carousel-btn" id="cr-mission-prev" aria-label="Previous">‹</button>
+        <button class="cr-modal__carousel-btn" id="cr-mission-next" aria-label="Next">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+  <button class="cr-cat-nav cr-cat-nav--next" id="cr-cat-next" aria-label="Next category">›</button>
+
+</div>
+
+<!-- Category data for JS -->
+<script id="cr-data" type="application/json">
+{{ categories | tojson }}
+</script>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/range-grid.js') }}"></script>
+{% endblock %}

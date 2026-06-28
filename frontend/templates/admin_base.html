@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }} | Secure-IT SOC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="admin-body">
+    <div class="admin-shell">
+      <header class="admin-topbar">
+        <div class="admin-brand">
+          <div class="admin-brand-mark">SOC</div>
+          <div>
+            <div class="admin-brand-title">Secure-IT Command</div>
+            <div class="admin-brand-sub">Security Operations & Analytics</div>
+          </div>
+        </div>
+        <nav class="admin-topnav">
+          <a class="admin-nav-link {% if active_page == 'admin' %}is-active{% endif %}" href="{{ url_for('admin_page') }}">Analytics</a>
+          <a class="admin-nav-link {% if active_page == 'admin_users' %}is-active{% endif %}" href="{{ url_for('admin_users_page') }}">User Monitor</a>
+          <a class="admin-nav-link" href="{{ url_for('dashboard_page') }}">User Dashboard</a>
+          <form action="{{ url_for('logout_page') }}" method="post" style="display:inline; margin:0;">
+            <button type="submit" class="admin-nav-link" style="background:none;border:0;padding:0;font:inherit;cursor:pointer;">Logout</button>
+          </form>
+        </nav>
+      </header>
+
+      <section class="admin-hero">
+        <div>
+          <div class="admin-kicker">Administrator Console</div>
+          <h1 class="admin-page-title">{{ title }}</h1>
+          <p class="admin-page-sub">{{ subtitle }}</p>
+        </div>
+        <div class="admin-status-pill">LIVE FEED</div>
+      </section>
+
+      <main class="admin-main">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="admin-footer">Secure-IT SOC · Monitoring & Response · {{ year }}</footer>
+    </div>
+  </body>
+</html>

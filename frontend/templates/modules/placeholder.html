@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-950/70 p-8 text-center shadow-glow">
+  <div class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-300/80">Modules</div>
+  <h2 class="text-2xl font-extrabold text-white">
+    {% if page_kind == 'category' %}
+    {{ category_id.replace('_', ' ')|title }} — coming soon
+    {% else %}
+    All categories — coming soon
+    {% endif %}
+  </h2>
+  <p class="mt-4 text-sm leading-7 text-slate-300">This route is wired up. The full module list UI will be built in the next phase.</p>
+  <a href="{{ url_for('landing_page') }}" class="mt-6 inline-flex rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Back to home</a>
+</section>
+{% endblock %}

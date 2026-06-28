@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-hard.css') }}">
+<script>
+  document.documentElement.style.cssText = 'background:#0a0a0a!important';
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.classList.remove('bg-hero-grid');
+    document.body.style.background = '#0a0a0a';
+    document.body.style.backgroundImage = 'none';
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="ph-sim" id="phish-hard-app">
+
+  <!-- ── Three-column layout ── -->
+  <div class="ph-layout">
+
+    <!-- LEFT: Simulation sidebar -->
+    <aside class="ph-sidebar">
+      <div class="ph-sidebar__top">
+        <span class="ph-sidebar__label">SIMULATION</span>
+        <h1 class="ph-sidebar__title">{{ mission.name }}</h1>
+        <span class="ph-sidebar__badge ph-sidebar__badge--hard">HARD</span>
+      </div>
+
+      <div class="ph-sidebar__section">
+        <h3 class="ph-sidebar__section-title">OBJECTIVE</h3>
+        <p class="ph-sidebar__text">Identify the red flags in this email to determine if it is legitimate or a phishing attempt.</p>
+      </div>
+
+      <div class="ph-sidebar__section">
+        <h3 class="ph-sidebar__section-title">TIME ELAPSED</h3>
+        <div class="ph-sidebar__timer" id="mission-timer">00:00</div>
+      </div>
+
+      <div class="ph-sidebar__section">
+        <h3 class="ph-sidebar__section-title">MISSION PROGRESS</h3>
+        <div class="ph-progress">
+          <div class="ph-progress__row">
+            <span class="ph-progress__pct" id="progress-percent">0%</span>
+            <span class="ph-progress__count" id="progress-count">0 / {{ mission.tasks|length if mission.tasks else 4 }} tasks</span>
+          </div>
+          <div class="ph-progress__bar">
+            <div class="ph-progress__fill" id="mission-progress-fill" style="width:0%"></div>
+          </div>
+          <span class="ph-progress__flags" id="flags-meta">0 / 5 signs flagged</span>
+        </div>
+      </div>
+
+      <div class="ph-sidebar__section">
+        <h3 class="ph-sidebar__section-title">OBJECTIVES</h3>
+        <ul class="ph-objectives" id="objective-list">
+          {% for objective in mission.objectives %}
+          <li class="ph-objective" data-objective-index="{{ loop.index0 }}">
+            <span class="ph-objective__check">☐</span>
+            <span>{{ objective }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="ph-sidebar__section">
+        <h3 class="ph-sidebar__section-title">TASK LOG</h3>
+        <ul class="ph-task-log" id="task-log">
+          <li class="ph-task-log__empty">Investigate the email to log progress.</li>
+        </ul>
+      </div>
+
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="ph-exit-btn">
+        ← Exit Simulation
+      </a>
+    </aside>
+
+    <!-- CENTER: Gmail simulation -->
+    <main class="ph-email-col">
+      <div class="ph-email__topbar">
+        <span class="ph-email__topbar-icon">✉</span>
+        <span class="ph-email__topbar-label">Email Simulation</span>
+        <div class="ph-email__topbar-actions">
+          <button type="button" class="ph-topbar-btn" id="flag-mode-btn" title="Enable flag mode then click suspicious elements">
+            🚩 Flag sign
+          </button>
+          <button type="button" class="ph-topbar-btn" id="open-analyzer-btn">
+            🔗 URL analyzer
+          </button>
+        </div>
+      </div>
+
+      <!-- Gmail shell -->
+      <div class="ph-gmail" id="gmail-app">
+
+        <!-- Gmail header -->
+        <header class="ph-gmail__header">
+          <div class="ph-gmail__header-left">
+            <span class="ph-gmail__menu">☰</span>
+            <span class="ph-gmail__logo">Gmail</span>
+          </div>
+          <div class="ph-gmail__search">
+            <span class="ph-gmail__search-icon">🔍</span>
+            <input type="text" placeholder="Search mail" readonly>
+            <span class="ph-gmail__search-settings">⚙</span>
+          </div>
+          <div class="ph-gmail__header-right">
+            <span class="ph-gmail__hicon ph-gmail__hicon--red">❓</span>
+            <span class="ph-gmail__hicon">⚙</span>
+            <span class="ph-gmail__hicon">◫</span>
+            <span class="ph-gmail__avatar">U</span>
+          </div>
+        </header>
+
+        <!-- Gmail toolbar -->
+        <div class="ph-gmail__toolbar">
+          <button type="button" class="ph-gmail__back-btn" id="gmail-back-btn" hidden>←</button>
+          <span class="ph-gmail__ticon">📥</span>
+          <span class="ph-gmail__ticon">❗</span>
+          <span class="ph-gmail__ticon">🗑</span>
+          <span class="ph-gmail__ticon">📧</span>
+          <span class="ph-gmail__ticon">📁</span>
+          <span class="ph-gmail__ticon">🏷</span>
+          <span class="ph-gmail__ticon">⋯</span>
+        </div>
+
+        <!-- Inbox list -->
+        <div id="gmail-inbox-view" class="ph-gmail__view">
+          <div class="ph-gmail__email-list" id="email-list"></div>
+        </div>
+
+        <!-- Read view -->
+        <div id="gmail-read-view" class="ph-gmail__view ph-hidden">
+          <article class="ph-gmail__read-pane" id="email-read-pane"></article>
+        </div>
+
+        <!-- Hint + complete bar -->
+        <div class="ph-gmail__hint-bar">
+          <span class="ph-gmail__hint-icon">💡</span>
+          <span class="ph-gmail__hint-label">Hint</span>
+          <span class="ph-gmail__hint-text">Click on elements in the email to highlight red flags</span>
+          <button type="button" class="ph-complete-btn" id="complete-sim-btn" disabled>
+            Complete simulation
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom status bar -->
+      <div class="ph-statusbar">
+        <div class="ph-statusbar__section">
+          <span class="ph-statusbar__icon">⚠</span>
+          <div>
+            <div class="ph-statusbar__label">FLAGGED SIGNS</div>
+            <div class="ph-statusbar__value" id="statusbar-flags">0 / 5 signs flagged</div>
+          </div>
+        </div>
+        <div class="ph-statusbar__divider"></div>
+        <div class="ph-statusbar__section">
+          <span class="ph-statusbar__icon">🔗</span>
+          <div>
+            <div class="ph-statusbar__label">URL ANALYZER</div>
+            <div class="ph-statusbar__value">Analyze links before clicking</div>
+          </div>
+        </div>
+        <div class="ph-statusbar__divider"></div>
+        <div class="ph-statusbar__section">
+          <div class="ph-statusbar__timer-display" id="statusbar-timer">00:00</div>
+          <div class="ph-statusbar__timer-label">ELAPSED TIME</div>
+        </div>
+        <button type="button" class="ph-submit-btn" id="submit-report-btn" disabled>
+          Submit incident report
+        </button>
+      </div>
+    </main>
+
+    <!-- RIGHT: Event feed -->
+    <aside class="ph-events">
+      <div class="ph-events__header">
+        <span class="ph-events__icon">📡</span>
+        <span class="ph-events__title">Event Feed</span>
+      </div>
+      <ul class="ph-events__list" id="event-feed">
+        <li class="ph-event ph-event--info">New password-reset email received. Investigate carefully.</li>
+      </ul>
+    </aside>
+
+  </div><!-- /.ph-layout -->
+
+</div><!-- /#phish-hard-app -->
+
+<!-- URL analyzer drawer -->
+<div class="ph-drawer" id="url-drawer" hidden>
+  <div class="ph-drawer__backdrop" id="url-drawer-backdrop"></div>
+  <aside class="ph-drawer__panel" role="dialog" aria-labelledby="url-drawer-title">
+    <header class="ph-drawer__head">
+      <h3 id="url-drawer-title">URL Analyzer</h3>
+      <button type="button" class="ph-drawer__close" id="url-drawer-close" aria-label="Close">×</button>
+    </header>
+    <p class="ph-drawer__desc">Paste a suspicious link from the email to check its reputation before visiting.</p>
+    <div class="ph-drawer__input-row">
+      <input type="text" id="url-input" class="ph-drawer__input" placeholder="https://example.com/path">
+      <button type="button" class="ph-action-btn" id="url-analyze-btn">Analyze</button>
+    </div>
+    <button type="button" class="ph-drawer__paste-link" id="paste-email-link">Use link from email</button>
+    <pre class="ph-drawer__result" id="url-result">Analysis output will appear here.</pre>
+  </aside>
+</div>
+
+<!-- Flag modal -->
+<div class="phish-modal" id="flag-modal" hidden>
+  <div class="phish-modal__backdrop" id="flag-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true">
+    <button type="button" class="phish-modal__close" id="flag-modal-close" aria-label="Close">×</button>
+    <div class="phish-modal__content">
+      <span class="phish-modal__badge">Sign flagged</span>
+      <h2 class="phish-modal__title" id="flag-modal-title"></h2>
+      <p class="phish-modal__desc" id="flag-modal-body"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Consequence modal -->
+<div class="phish-modal" id="consequence-modal" hidden>
+  <div class="phish-modal__backdrop" id="consequence-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true">
+    <button type="button" class="phish-modal__close" id="consequence-close" aria-label="Close">×</button>
+    <div class="phish-modal__content">
+      <span class="phish-modal__badge phish-modal__badge--warn">⚠ Simulation consequence</span>
+      <h2 class="phish-modal__title">Credentials sent to unknown server</h2>
+      <p class="phish-modal__desc">You clicked the link without verifying it. In a real attack, your username and password would have been submitted to an attacker's server. Always verify URLs and senders before entering credentials.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Decision modal -->
+<div class="phish-modal" id="decision-modal" hidden>
+  <div class="phish-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true">
+    <div class="phish-modal__content">
+      <span class="phish-modal__badge">Incident report</span>
+      <h2 class="phish-modal__title" id="decision-prompt"></h2>
+      <div class="ph-decision-options" id="decision-options"></div>
+    </div>
+  </div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>
+  document.body.classList.remove('bg-hero-grid');
+</script>
+<script src="{{ url_for('static', filename='js/phishing-hard.js') }}"></script>
+{% endblock %}

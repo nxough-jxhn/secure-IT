@@ -1,0 +1,87 @@
+{% extends 'guest_base.html' %}
+
+{% block content %}
+<section class="home-hero" id="approach">
+  <div class="home-hero__copy">
+    <h1 class="home-hero__title">Our Approach to Cyber Defense</h1>
+    <p class="home-hero__subtitle">
+      Secure-IT is a gamified cybersecurity awareness platform built for students.
+      Learn to spot real threats through guided simulations, hands-on challenges, and instant feedback.
+    </p>
+    <div class="home-hero__actions">
+      {% if is_logged_in %}
+      <a href="{{ url_for('dashboard_page') }}" class="home-btn home-btn--primary">Go to dashboard</a>
+      {% else %}
+      <a href="{{ url_for('login_page') }}" class="home-btn home-btn--primary">Get started</a>
+      {% endif %}
+      <a href="#features" class="home-btn home-btn--ghost">Explore features</a>
+    </div>
+  </div>
+
+  <div
+    class="pillar-scene"
+    id="pillar-scene"
+    aria-hidden="true"
+    data-routes='{{ {
+      "modules": url_for("modules_page"),
+      "social_based": url_for("modules_category_page", category_id="social_based"),
+      "malware_based": url_for("modules_category_page", category_id="malware_based"),
+      "network_based": url_for("modules_category_page", category_id="network_based"),
+      "injection_based": url_for("modules_category_page", category_id="injection_based")
+    } | tojson }}'
+  ></div>
+</section>
+
+<section class="home-section" id="features">
+  <h2 class="home-section__title">Built for student cyber awareness</h2>
+  <p class="home-section__lead">
+    Train with structured modules covering social engineering, malware, network attacks, and more —
+    all in one dark, focused learning environment.
+  </p>
+
+  <div class="home-features">
+    <article class="home-feature-card">
+      <div class="home-feature-card__num">01</div>
+      <h3 class="home-feature-card__title">Guided simulations</h3>
+      <p class="home-feature-card__text">Easy mode highlights red flags so you learn what to look for before facing unguided challenges.</p>
+    </article>
+    <article class="home-feature-card">
+      <div class="home-feature-card__num">02</div>
+      <h3 class="home-feature-card__title">Progress tracking</h3>
+      <p class="home-feature-card__text">Points, levels, badges, and module completion — your dashboard shows exactly how far you have come.</p>
+    </article>
+    <article class="home-feature-card">
+      <div class="home-feature-card__num">03</div>
+      <h3 class="home-feature-card__title">Quiz validation</h3>
+      <p class="home-feature-card__text">Pass scenario-based quizzes to prove understanding and unlock the next module in the chain.</p>
+    </article>
+  </div>
+
+  <div class="home-stats">
+    <div class="home-stat">
+      <div class="home-stat__value">{{ metrics.total_modules if metrics else 10 }}</div>
+      <div class="home-stat__label">Attack modules</div>
+    </div>
+    <div class="home-stat">
+      <div class="home-stat__value">5</div>
+      <div class="home-stat__label">Level ranks</div>
+    </div>
+    <div class="home-stat">
+      <div class="home-stat__value">1,500</div>
+      <div class="home-stat__label">Max points</div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/home-scene.js') }}"></script>
+{% endblock %}

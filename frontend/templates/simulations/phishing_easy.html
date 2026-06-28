@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-easy.css') }}">
+  </head>
+  <body class="phish-sim">
+    
+
+    <!-- Three-column layout -->
+    <div class="phish-sim__layout">
+
+     
+      
+      <!-- Left sidebar: Simulation info -->
+      <aside class="phish-sidebar">
+        <div class="phish-sidebar__header">
+          <span class="phish-sidebar__label">SIMULATION</span>
+          <h1 class="phish-sidebar__title">{{ attack.name }}</h1>
+          <span class="phish-sidebar__badge phish-sidebar__badge--beginner">BEGINNER</span>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">OBJECTIVE</h3>
+          <p class="phish-sidebar__text">Identify the red flags in this email to determine if it is legitimate or a phishing attempt.</p>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="phish-sidebar__timer" id="timer">00:00</div>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">DESCRIPTION</h3>
+          <p class="phish-sidebar__text">Attackers use urgency and fake links to steal credentials or trick users into taking actions.</p>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="phish-sidebar__list">
+            <li>Click on suspicious elements to highlight red flags</li>
+            <li>Review all indicators</li>
+            <li>Decide if this email is legitimate or phishing</li>
+          </ul>
+        </div>
+
+        <a href="{{ back_url }}" class="phish-sidebar__report">
+  <span>←</span> Exit Simulation
+</a>
+      </aside>
+
+      <!-- Center: Email simulation -->
+      <main class="phish-email">
+        <div class="phish-email__header">
+          <span class="phish-email__icon">✉</span>
+          <span class="phish-email__label">Email Simulation</span>
+        </div>
+
+        <!-- Gmail-like interface -->
+        <div class="gmail-sim">
+          
+          <!-- Gmail header -->
+          <header class="gmail-header">
+            <div class="gmail-header__left">
+              <span class="gmail-header__menu">☰</span>
+              <span class="gmail-header__logo">Gmail</span>
+            </div>
+            <div class="gmail-header__search">
+              <span class="gmail-header__search-icon">🔍</span>
+              <input type="text" placeholder="Search mail" readonly>
+              <span class="gmail-header__filter">⚙</span>
+            </div>
+            <div class="gmail-header__right">
+              <span class="gmail-header__icon">❓</span>
+              <span class="gmail-header__icon">⚙</span>
+              <span class="gmail-header__icon">◫</span>
+              <span class="gmail-header__avatar">U</span>
+            </div>
+          </header>
+
+          <!-- Gmail toolbar -->
+          <div class="gmail-toolbar">
+            <div class="gmail-toolbar__left">
+              <span class="gmail-toolbar__back">←</span>
+              <span class="gmail-toolbar__icon">📥</span>
+              <span class="gmail-toolbar__icon">❗</span>
+              <span class="gmail-toolbar__icon">🗑</span>
+              <span class="gmail-toolbar__icon">📧</span>
+              <span class="gmail-toolbar__icon">📁</span>
+              <span class="gmail-toolbar__icon">🏷</span>
+              <span class="gmail-toolbar__icon">⋯</span>
+            </div>
+          </div>
+
+          <!-- Email content -->
+          <div class="gmail-email">
+            
+            <!-- Subject with red flag indicator -->
+            <div class="gmail-email__subject-row">
+              <h2 class="gmail-email__subject">
+                <button
+                  type="button"
+                  class="phish-hotspot gmail-email__subject-btn"
+                  data-indicator="urgent_subject"
+                >
+                  <span class="phish-flag-num" aria-hidden="true">1</span>
+                  {{ email_data.subject }}
+                </button>
+              </h2>
+              <div class="gmail-email__actions">
+                <span class="gmail-email__tag">Inbox</span>
+                <span class="gmail-email__icon">⭐</span>
+                <span class="gmail-email__icon">↩</span>
+                <span class="gmail-email__icon">⋮</span>
+              </div>
+            </div>
+
+            <!-- Sender info -->
+            <div class="gmail-email__sender">
+              <div class="gmail-email__sender-left">
+                <span class="gmail-email__avatar">U</span>
+                <div>
+                  <div class="gmail-email__from">
+                    <span class="gmail-email__name">{{ email_data.from_name }}</span>
+                    <button 
+                      type="button" 
+                      class="gmail-email__address phish-hotspot"
+                      data-indicator="sender_domain"
+                    >
+                      <span class="phish-flag-num" aria-hidden="true">2</span>
+                      &lt;{{ email_data.from }}&gt;
+                    </button>
+                  </div>
+                  <div class="gmail-email__to">to me ▾</div>
+                </div>
+              </div>
+              <div class="gmail-email__time">12:18 PM (50 minutes ago)</div>
+            </div>
+
+            <!-- Email body -->
+            <article class="gmail-email__body">
+              <div class="gmail-email__body-line">
+                <button
+                  type="button"
+                  class="phish-hotspot gmail-email__body-hotspot"
+                  data-indicator="generic_greeting"
+                >
+                  <span class="phish-flag-num" aria-hidden="true">3</span>
+                  {{ email_data.greeting }}
+                </button>
+              </div>
+              <div class="gmail-email__body-line">{{ email_data.body }}</div>
+              <div class="gmail-email__body-line">
+                <button
+                  type="button"
+                  class="gmail-email__link phish-hotspot"
+                  data-indicator="link_url"
+                >
+                  <span class="phish-flag-num" aria-hidden="true">4</span>
+                  {{ email_data.highlight }}
+                </button>
+              </div>
+              <div class="gmail-email__body-line">{{ email_data.signoff | replace('\n', '<br>') | safe }}</div>
+              <div class="gmail-email__footer">
+                <span class="gmail-email__logo">🎓</span>
+                <span>{{ email_data.footer_label }}</span>
+              </div>
+            </article>
+          </div>
+
+          <!-- Bottom hint -->
+          <div class="gmail-hint">
+            <span class="gmail-hint__icon">💡</span>
+            <span class="gmail-hint__text">Hint</span>
+            <span class="gmail-hint__desc">Click on elements in the email to highlight red flags</span>
+            <button type="button" class="gmail-hint__btn" id="complete-easy" disabled>
+              Complete simulation
+            </button>
+          </div>
+
+        </div>
+      </main>
+
+      <!-- Right sidebar: Indicators -->
+      <aside class="phish-indicators">
+        <div class="phish-indicators__header">
+          <span class="phish-indicators__icon">🚨</span>
+          <span class="phish-indicators__title">Indicators</span>
+          <span class="phish-indicators__count" id="indicator-count">2 / 4 reviewed</span>
+        </div>
+
+        <div class="phish-indicators__list" id="indicator-list">
+          <!-- Indicators will be populated by JS -->
+        </div>
+
+        <div class="phish-verdict">
+          <h3 class="phish-verdict__title">What do you think?</h3>
+          <p class="phish-verdict__subtitle">Is this email legitimate or a phishing attempt?</p>
+          <div class="phish-verdict__buttons">
+            <button type="button" class="phish-verdict__btn phish-verdict__btn--legit" id="verdict-legit">
+              <span class="phish-verdict__icon">✓</span>
+              Legitimate
+            </button>
+            <button type="button" class="phish-verdict__btn phish-verdict__btn--phish" id="verdict-phish">
+              <span class="phish-verdict__icon">⚠</span>
+              Phishing
+            </button>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Modal for indicator details -->
+    <div class="phish-modal" id="phish-modal" hidden>
+      <div class="phish-modal__backdrop" id="phish-modal-backdrop"></div>
+      <div class="phish-modal__dialog" id="phish-modal-dialog">
+        <button type="button" class="phish-modal__close" id="phish-modal-close">×</button>
+
+        <div class="phish-modal__content">
+          <span class="phish-modal__badge">Red flag spotted</span>
+          <h2 class="phish-modal__title" id="phish-modal-title"></h2>
+          <p class="phish-modal__desc" id="phish-modal-desc"></p>
+
+          <div class="phish-modal__compare" id="phish-modal-compare">
+            <div class="phish-modal__box phish-modal__box--wrong">
+              <span class="phish-modal__label">What you see</span>
+              <p class="phish-modal__text" id="phish-modal-wrong"></p>
+            </div>
+            <div class="phish-modal__box phish-modal__box--correct">
+              <span class="phish-modal__label">What you should expect</span>
+              <p class="phish-modal__text" id="phish-modal-correct"></p>
+            </div>
+          </div>
+
+          <div class="phish-modal__tip" id="phish-modal-tip" hidden>
+            <span class="phish-modal__tip-icon">💡</span>
+            <span class="phish-modal__tip-text" id="phish-modal-tip-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.PHISHING_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/phishing-easy.js') }}"></script>
+  </body>
+</html>
