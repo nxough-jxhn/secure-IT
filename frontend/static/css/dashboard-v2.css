@@ -157,6 +157,23 @@
   border-radius: 0;
   border-left: none; border-top: none; border-right: none;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+}
+
+.dv2-rec-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.dv2-rec-card:hover .dv2-rec-card__img {
+  transform: scale(1.05);
 }
 
 .dv2-rec-card__badge {

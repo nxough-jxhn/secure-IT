@@ -414,11 +414,13 @@ def list_mission_summaries() -> list[dict[str, Any]]:
         mission = get_workspace_mission(attack_id)
         if not mission:
             continue
+        attack = get_attack(attack_id)
         summaries.append(
             {
                 "id": attack_id,
                 "name": mission["name"],
                 "icon": mission["icon"],
+                "image": attack.get("image", "") if attack else "",
                 "difficulty": mission["difficulty"],
                 "short_description": mission.get("short_description", ""),
                 "mission_title": mission["mission_title"],

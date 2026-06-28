@@ -467,6 +467,9 @@ function renderMissionRow(mission, categoryLabel, rowIndex) {
   const num  = String(rowIndex + 1).padStart(2, '0');
   const icon = missionIcons[rowIndex % missionIcons.length];
   const iconColored = done ? icon.replace('#4b5563', '#00ff9f') : icon;
+  const imgHtml = mission.image
+    ? `<img src="/static/${mission.image}" alt="${mission.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:inherit;">`
+    : iconColored;
 
   const row = document.createElement('a');
   row.href = `/simulations/${mission.id}`;
@@ -475,9 +478,9 @@ function renderMissionRow(mission, categoryLabel, rowIndex) {
   row.style.animation = 'crRowIn 0.35s ease both';
 
   row.innerHTML = `
-    <div class="cr-mission-row__img">
+    <div class="cr-mission-row__img" style="position:relative;overflow:hidden;">
       <div class="cr-mission-row__img-grid"></div>
-      ${iconColored}
+      ${imgHtml}
     </div>
     <span class="cr-mission-row__num">${num}</span>
     <div class="cr-mission-row__info">
@@ -556,21 +559,24 @@ function showMissionAtIndex(index) {
   if (!currentMissions.length) return;
   currentMissionIndex = Math.max(0, Math.min(index, currentMissions.length - 1));
   const mission = currentMissions[currentMissionIndex];
-  const done = mission.state === 'completed';
   const num = String(currentMissionIndex + 1).padStart(2, '0');
   const icon = missionIcons[currentMissionIndex % missionIcons.length];
-  const iconColored = done ? icon.replace('stroke="#4b5563"', 'stroke="#00ff9f"') : icon;
 
   // Animate out then in
   missionTrack.style.opacity = '0';
   missionTrack.style.transform = 'translateX(20px)';
 
   setTimeout(() => {
+    const done = mission.state === 'completed';
+    const imgHtml = mission.image
+      ? `<img src="/static/${mission.image}" alt="${mission.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:inherit;">`
+      : (done ? icon.replace('stroke="#4b5563"', 'stroke="#00ff9f"') : icon);
+
     missionTrack.innerHTML = `
       <a href="/simulations/${mission.id}" class="cr-mission-row${done ? ' cr-mission-row--done' : ''}">
-        <div class="cr-mission-row__img">
+        <div class="cr-mission-row__img" style="position:relative;overflow:hidden;">
           <div class="cr-mission-row__img-grid"></div>
-          ${iconColored}
+          ${imgHtml}
         </div>
         <span class="cr-mission-row__num">${num}</span>
         <div class="cr-mission-row__info">

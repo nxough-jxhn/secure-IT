@@ -24,7 +24,11 @@
           {% for m in active_modules %}
           <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}" class="dv2-rec-card">
   <div class="dv2-thumb dv2-rec-card__thumb">
+    {% if m.image %}
+    <img src="{{ url_for('static', filename=m.image) }}" alt="{{ m.name }}" class="dv2-rec-card__img">
+    {% else %}
     <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M3 17l5-5 4 4 6-7 3 4"/><rect x="2" y="3" width="20" height="18" rx="1"/></svg>
+    {% endif %}
     <span class="dv2-rec-card__badge dv2-diff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
   </div>
   <div class="dv2-rec-card__body">
@@ -73,7 +77,11 @@
         {% for m in recommended %}
         <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}" class="dv2-rec-card">
           <div class="dv2-rec-card__thumb">
+            {% if m.image %}
+            <img src="{{ url_for('static', filename=m.image) }}" alt="{{ m.name }}" class="dv2-rec-card__img">
+            {% else %}
             <span class="dv2-rec-card__emoji">{{ m.icon }}</span>
+            {% endif %}
             <span class="dv2-rec-card__badge dv2-diff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
           </div>
           <div class="dv2-rec-card__body">

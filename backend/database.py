@@ -626,6 +626,7 @@ def get_cyber_range_categories(email: str) -> list[dict[str, Any]]:
                     "id": attack_id,
                     "name": attack["name"],
                     "icon": attack.get("icon", "🎯"),
+                    "image": attack.get("image", ""),
                     "difficulty": attack.get("difficulty", "Beginner"),
                     "short_description": attack.get("short_description", ""),
                     "skills_learned": summary.get("skills_learned", [])[:3],
