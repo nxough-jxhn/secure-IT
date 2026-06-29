@@ -1,7 +1,14 @@
 from flask import redirect, request, session, url_for
 
 from cloudinary_uploader import upload_profile_picture
-from database import get_user_by_email, update_user_by_email
+from database import (
+    get_user_by_email,
+    get_app_shell_context,
+    get_leaderboard,
+    get_user_rank,
+    update_user_by_email,
+    MODULE_BADGES,
+)
 from secure_it import login_required, make_layout
 
 
@@ -68,12 +75,45 @@ def profile_page():
                 else:
                     error = "Could not save profile changes."
 
+    shell = get_app_shell_context(email)
+
+    # Build badge list for display panel
+    earned_badge_names = set(shell["profile"].get("badges", []))
+    all_badges = [
+        {
+            "id": v["badge_id"],
+            "name": v["badge_name"],
+            "module": k,
+            "earned": v["badge_name"] in earned_badge_names,
+        }
+        for k, v in MODULE_BADGES.items()
+    ]
+    milestone_badges = [
+        {"id": "first_step",  "name": "First Step",  "condition": "Complete your first module",  "earned": len(shell["profile"]["simulations_completed"]) >= 1},
+        {"id": "full_shield", "name": "Full Shield",  "condition": "Complete all 10 modules",     "earned": len(shell["profile"]["simulations_completed"]) >= 10},
+    ]
+
+    all_namecards = [
+        {"id": "social_sentinel", "name": "Social Sentinel", "theme": "Social-Based",      "earned": False},
+        {"id": "malware_hunter",  "name": "Malware Hunter",  "theme": "Malware-Based",     "earned": False},
+        {"id": "network_warden",  "name": "Network Warden",  "theme": "Network-Based",     "earned": False},
+        {"id": "code_guardian",   "name": "Code Guardian",   "theme": "Injection-Based",   "earned": False},
+        {"id": "cyber_throne",    "name": "Cyber Throne",    "theme": "1st on Leaderboard","earned": shell.get("rank") == 1},
+    ]
+
+    leaderboard = get_leaderboard(limit=8)
+
     return make_layout(
         "profile",
-        "Edit Profile",
-        "Update your display name, year level, and profile picture.",
+        "Profile",
+        "Your Secure-IT learner profile.",
         "profile.html",
+        **shell,
         user=user,
         message=message,
         error=error,
+        all_badges=all_badges,
+        milestone_badges=milestone_badges,
+        all_namecards=all_namecards,
+        leaderboard=leaderboard,
     )

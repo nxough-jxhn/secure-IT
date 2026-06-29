@@ -26,7 +26,7 @@
 
     <div class="site-header__actions">
       {% if is_logged_in %}
-      {% if active_page in ['dashboard', 'simulations'] %}
+      {% if active_page in ['dashboard', 'simulations', 'profile', 'quizzes'] %}
       <button
         type="button"
         class="site-header__cta site-header__cta--progress"
@@ -66,7 +66,7 @@
     <a href="{{ url_for('simulations_page') }}">Modules</a>
     <span style="padding:12px 14px;color:#4b5563;font-weight:500;">Community</span>
     <a href="{{ url_for('profile_page') }}">Profile</a>
-    {% if active_page in ['dashboard', 'simulations'] %}
+    {% if active_page in ['dashboard', 'simulations', 'profile', 'quizzes'] %}
     <button type="button" class="site-header__mobile-progress" id="header-progress-toggle-mobile">Progress</button>
     {% else %}
     <a href="{{ url_for('dashboard_page') }}">Progress</a>

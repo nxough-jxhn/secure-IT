@@ -1,0 +1,850 @@
+/* ============================================================
+   Profile Page — Secure-IT
+   ============================================================ */
+
+.pf-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  width: 100%;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.pf-sidebar {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Namecard hero (Genshin-style) ───────────────────────── */
+.pf-namecard-hero {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 255, 159, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 20px 20px;
+  min-height: 220px;
+  justify-content: center;
+}
+
+.pf-namecard-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.pf-namecard-hero__art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* All children sit above the bg */
+.pf-namecard-hero > *:not(.pf-namecard-hero__bg) {
+  position: relative;
+  z-index: 1;
+}
+
+.pf-namecard-hero__email {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 255, 159, 0.6);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px rgba(0, 255, 159, 0.4);
+}
+
+.pf-namecard-hero__name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.01em;
+}
+
+.pf-namecard-hero__badge {
+  display: inline-flex;
+  padding: 5px 16px;
+  border-radius: 999px;
+  background: rgba(0, 255, 159, 0.15);
+  border: 1.5px solid rgba(0, 255, 159, 0.4);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #00ff9f;
+  text-shadow: 0 0 8px rgba(0, 255, 159, 0.5);
+  box-shadow: 0 0 16px rgba(0, 255, 159, 0.1);
+}
+
+/* Avatar */
+.pf-avatar-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.pf-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(0, 255, 159, 0.5);
+  display: block;
+  box-shadow: 0 0 24px rgba(0, 255, 159, 0.25), 0 4px 16px rgba(0,0,0,0.6);
+}
+
+.pf-avatar--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #00ff9f;
+}
+
+.pf-avatar-edit {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #00ff9f;
+  border: 2px solid #07111f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.pf-avatar-edit:hover { transform: scale(1.12); }
+.pf-avatar-edit svg { width: 13px; height: 13px; color: #0a0a0a; }
+
+/* (namecard hero handles name/email/badge — see .pf-namecard-hero above) */
+
+/* Form */
+.pf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pf-hidden { display: none !important; }
+
+.pf-alert {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.pf-alert--success {
+  background: rgba(0, 255, 159, 0.1);
+  border: 1px solid rgba(0, 255, 159, 0.25);
+  color: #00ff9f;
+}
+
+.pf-alert--error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  color: #f87171;
+}
+
+.pf-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pf-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.pf-input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.pf-input:focus { border-color: rgba(0, 255, 159, 0.4); }
+.pf-input--disabled { color: #4b5563; background: rgba(0, 0, 0, 0.15); cursor: not-allowed; }
+.pf-select { cursor: pointer; }
+.pf-select option { background: #0d1a26; }
+
+.pf-photo-row {
+  display: flex;
+  gap: 8px;
+}
+
+.pf-form__actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+/* Camera panel */
+.pf-camera-panel {
+  display: none;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+
+.pf-camera-video {
+  width: 100%;
+  display: block;
+}
+
+.pf-camera-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Level bar */
+.pf-level-bar {
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pf-level-bar__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.pf-level-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.pf-level-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00ff9f, #46d6ff);
+  transition: width 0.5s ease;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.pf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.pf-btn--primary {
+  background: #00ff9f;
+  color: #0a0a0a;
+  box-shadow: 0 4px 16px rgba(0, 255, 159, 0.2);
+}
+
+.pf-btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0, 255, 159, 0.3); }
+
+.pf-btn--ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.pf-btn--ghost:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+.pf-btn--sm { padding: 7px 14px; font-size: 0.8125rem; }
+.pf-btn svg { width: 16px; height: 16px; }
+
+/* ── Main content ─────────────────────────────────────────── */
+.pf-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* KPI row */
+.pf-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.pf-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pf-kpi__ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+
+.pf-kpi__ring svg {
+  width: 56px;
+  height: 56px;
+  transform: rotate(-90deg);
+}
+
+.pf-kpi__val {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+/* Smaller font for large numbers like points */
+.pf-kpi__val--sm {
+  font-size: 0.6875rem;
+}
+
+.pf-kpi__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* Bottom grid */
+.pf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.pf-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Card */
+.pf-card {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pf-card__title {
+  margin: 0 0 18px;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.pf-card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.pf-card__coming-soon {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4b5563;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ── Leaderboard ──────────────────────────────────────────── */
+.pf-leaderboard {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pf-lb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s ease;
+}
+
+.pf-lb-row--you {
+  border-color: rgba(0, 255, 159, 0.3);
+  background: rgba(0, 255, 159, 0.05);
+}
+
+.pf-lb-rank {
+  flex-shrink: 0;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-lb-crown { width: 18px; height: 18px; color: #f59e0b; }
+.pf-lb-crown--silver { color: #94a3b8; }
+.pf-lb-crown--bronze { color: #b45309; }
+
+.pf-lb-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.pf-lb-avatar {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 255, 159, 0.12);
+  border: 1px solid rgba(0, 255, 159, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: #00ff9f;
+}
+
+.pf-lb-name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pf-lb-you-tag {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 255, 159, 0.15);
+  color: #00ff9f;
+}
+
+.pf-lb-pts {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #00ff9f;
+}
+
+.pf-lb-empty {
+  font-size: 0.875rem;
+  color: #4b5563;
+  padding: 12px;
+  text-align: center;
+}
+
+/* ── Collection panel ─────────────────────────────────────── */
+.pf-card--collect { padding: 20px 20px 16px; }
+
+.pf-collect__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.pf-collect__label {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.pf-collect-nav {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.pf-collect-nav:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+.pf-collect-panel { display: none; }
+.pf-collect-panel.is-active { display: block; }
+
+/* Badge grid */
+.pf-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.pf-badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+  cursor: default;
+}
+
+.pf-badge-item.is-earned { opacity: 1; }
+
+.pf-badge-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-badge-icon svg { width: 22px; height: 22px; }
+
+.pf-badge-name {
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  color: #94a3b8;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Namecards */
+.pf-namecard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-namecard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.45;
+  transition: all 0.15s ease;
+}
+
+.pf-namecard.is-earned { opacity: 1; border-color: rgba(0, 255, 159, 0.2); }
+
+.pf-namecard__art {
+  flex-shrink: 0;
+  width: 36px;
+  height: 24px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(0, 255, 159, 0.3), rgba(70, 214, 255, 0.2));
+  border: 1px solid rgba(0, 255, 159, 0.2);
+}
+
+.pf-namecard__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pf-namecard__name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.pf-namecard__theme {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.pf-namecard__active-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 255, 159, 0.15);
+  color: #00ff9f;
+}
+
+.pf-namecard__lock {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: #374151;
+}
+
+/* Titles */
+.pf-title-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-title-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.4;
+}
+
+.pf-title-item.is-earned {
+  opacity: 1;
+  border-color: rgba(0, 255, 159, 0.2);
+}
+
+.pf-title-item__dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #374151;
+}
+
+.pf-title-item.is-earned .pf-title-item__dot {
+  background: #00ff9f;
+}
+
+.pf-title-item__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pf-title-item__name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.pf-title-item__cond {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.pf-title-item__check {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: #00ff9f;
+}
+
+/* ── Community posts ──────────────────────────────────────── */
+.pf-community-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pf-post {
+  display: flex;
+  gap: 12px;
+}
+
+.pf-post__avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(70, 214, 255, 0.12);
+  border: 1px solid rgba(70, 214, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #7dd3fc;
+}
+
+.pf-post__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-post__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.pf-post__name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.pf-post__time {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.pf-post__text {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.pf-post__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pf-post__like,
+.pf-post__reply {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.pf-post__like svg { width: 14px; height: 14px; }
+.pf-post__like:hover { color: #00ff9f; }
+.pf-post__reply:hover { color: #fff; }
+
+.pf-community-cta {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.pf-community-cta p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .pf-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .pf-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .pf-sidebar__hero { grid-column: 1 / -1; }
+  .pf-level-bar { grid-column: 1 / -1; }
+
+  .pf-kpi-row { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .pf-grid { grid-template-columns: 1fr; }
+  .pf-kpi-row { grid-template-columns: repeat(2, 1fr); }
+
+  .pf-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pf-badge-grid { grid-template-columns: repeat(4, 1fr); }
+}

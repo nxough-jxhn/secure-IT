@@ -1,172 +1,483 @@
-{% extends 'base.html' %}
-{% block content %}
-<section class="mx-auto max-w-2xl rounded-[32px] border border-white/10 bg-slate-950/70 p-6 shadow-glow backdrop-blur-xl lg:p-8">
-  <div class="mb-6">
-    <div class="mb-3 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-cyan-100">Your account</div>
-    <h2 class="text-3xl font-extrabold tracking-tight text-white">Edit profile</h2>
-    <p class="mt-2 text-sm leading-7 text-slate-300">Update how you appear across the Secure-IT platform.</p>
-  </div>
+{% extends 'app_base.html' %}
 
-  {% if message %}
-  <div class="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm font-medium text-emerald-100">{{ message }}</div>
-  {% endif %}
-  {% if error %}
-  <div class="mb-5 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm font-medium text-rose-100">{{ error }}</div>
-  {% endif %}
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-page.css') }}">
+{% endblock %}
 
-  <form class="space-y-5" method="post" enctype="multipart/form-data">
-    <label class="block text-sm font-semibold text-slate-200">Full name
-      <input class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-300/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/20" type="text" name="name" value="{{ user.name }}" required>
-    </label>
+{% block dash_header %}{% endblock %}
 
-    <label class="block text-sm font-semibold text-slate-200">Email
-      <input class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-slate-400" type="email" value="{{ user.email }}" disabled>
-    </label>
+{% block dash_content %}
+<div class="pf-layout">
 
-    <label class="block text-sm font-semibold text-slate-200">Year level
-      <select class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white focus:border-cyan-300/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/20" name="year_level" required>
-        {% set levels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12', 'College First Year', 'College Second Year', 'College Third Year', 'College Fourth Year'] %}
-        {% for level in levels %}
-        <option value="{{ level }}" {% if user.year_level == level %}selected{% endif %}>{{ level }}</option>
-        {% endfor %}
-      </select>
-    </label>
+  <!-- ═══════════════════ LEFT SIDEBAR ═══════════════════ -->
+  <aside class="pf-sidebar">
 
-    <div class="rounded-[28px] border border-white/10 bg-slate-950/70 p-4">
-      <div class="flex items-center justify-between gap-3">
-        <div>
-          <div class="text-sm font-semibold text-slate-200">Profile picture</div>
-          <p class="mt-1 text-xs leading-5 text-slate-400">Choose a file or take a picture with your camera.</p>
-        </div>
-        <button type="button" onclick="startCamera()" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/10">Take a picture</button>
+    <!-- Genshin-style namecard hero -->
+    <div class="pf-namecard-hero" id="pf-namecard-hero">
+      <!-- Namecard background layer -->
+      <div class="pf-namecard-hero__bg" aria-hidden="true">
+        <!-- SVG geometric namecard art — cyber / matrix theme -->
+        <svg class="pf-namecard-hero__art" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="ncBg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#001a0e"/>
+              <stop offset="60%" stop-color="#021409"/>
+              <stop offset="100%" stop-color="#000d06"/>
+            </linearGradient>
+            <linearGradient id="ncGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00ff9f" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#46d6ff" stop-opacity="0.06"/>
+            </linearGradient>
+          </defs>
+          <rect width="300" height="120" fill="url(#ncBg)"/>
+          <rect width="300" height="120" fill="url(#ncGlow)"/>
+          <!-- Circuit lines -->
+          <line x1="0" y1="30" x2="80" y2="30" stroke="#00ff9f" stroke-width="0.5" opacity="0.3"/>
+          <line x1="80" y1="30" x2="80" y2="55" stroke="#00ff9f" stroke-width="0.5" opacity="0.3"/>
+          <line x1="80" y1="55" x2="130" y2="55" stroke="#00ff9f" stroke-width="0.5" opacity="0.2"/>
+          <line x1="220" y1="0" x2="220" y2="40" stroke="#00ff9f" stroke-width="0.5" opacity="0.25"/>
+          <line x1="220" y1="40" x2="300" y2="40" stroke="#00ff9f" stroke-width="0.5" opacity="0.25"/>
+          <line x1="260" y1="80" x2="300" y2="80" stroke="#46d6ff" stroke-width="0.5" opacity="0.2"/>
+          <line x1="0" y1="90" x2="50" y2="90" stroke="#46d6ff" stroke-width="0.5" opacity="0.15"/>
+          <!-- Corner dots -->
+          <circle cx="80" cy="30" r="2" fill="#00ff9f" opacity="0.5"/>
+          <circle cx="80" cy="55" r="1.5" fill="#00ff9f" opacity="0.35"/>
+          <circle cx="220" cy="40" r="2" fill="#00ff9f" opacity="0.45"/>
+          <circle cx="260" cy="80" r="1.5" fill="#46d6ff" opacity="0.3"/>
+          <!-- Decorative hexagons -->
+          <polygon points="250,10 258,14 258,22 250,26 242,22 242,14" fill="none" stroke="#00ff9f" stroke-width="0.6" opacity="0.25"/>
+          <polygon points="270,60 276,63 276,69 270,72 264,69 264,63" fill="none" stroke="#46d6ff" stroke-width="0.6" opacity="0.2"/>
+          <polygon points="30,100 35,103 35,108 30,111 25,108 25,103" fill="none" stroke="#00ff9f" stroke-width="0.6" opacity="0.2"/>
+          <!-- Scan line -->
+          <rect x="0" y="0" width="300" height="1" fill="#00ff9f" opacity="0.08"/>
+          <rect x="0" y="119" width="300" height="1" fill="#00ff9f" opacity="0.08"/>
+          <!-- Green border accent bottom -->
+          <line x1="0" y1="118" x2="300" y2="118" stroke="#00ff9f" stroke-width="1.5" opacity="0.35"/>
+        </svg>
       </div>
 
-      <div class="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <div class="flex flex-col items-center gap-3">
-          <div class="grid h-28 w-28 place-items-center overflow-hidden rounded-full border-2 border-dashed border-white/10 bg-slate-900 shadow-glow">
-            {% if user.profile_picture %}
-            <img id="profile-preview" src="{{ user.profile_picture if user.profile_picture.startswith('http') else url_for('static', filename=user.profile_picture) }}" alt="Profile preview" class="h-full w-full object-cover">
+      <!-- Email top -->
+      <p class="pf-namecard-hero__email">{{ user.email }}</p>
+
+      <!-- Avatar center -->
+      <div class="pf-avatar-wrap" id="pf-avatar-wrap">
+        {% if user.profile_picture %}
+        <img class="pf-avatar" id="pf-avatar-preview"
+             src="{{ user.profile_picture if user.profile_picture.startswith('http') else url_for('static', filename=user.profile_picture) }}"
+             alt="{{ user.name }}">
+        {% else %}
+        <div class="pf-avatar pf-avatar--initials" id="pf-avatar-preview">{{ user.name[:2]|upper }}</div>
+        {% endif %}
+        <button type="button" class="pf-avatar-edit" id="pf-avatar-btn" aria-label="Change photo">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+        </button>
+      </div>
+
+      <!-- Name below avatar -->
+      <h2 class="pf-namecard-hero__name">{{ user.name }}</h2>
+
+      <!-- Level badge at bottom -->
+      <span class="pf-namecard-hero__badge">{{ profile.level }}</span>
+    </div>
+
+    <!-- Edit form -->
+    <form class="pf-form" method="post" enctype="multipart/form-data" id="pf-form">
+
+      {% if message %}
+      <div class="pf-alert pf-alert--success">{{ message }}</div>
+      {% endif %}
+      {% if error %}
+      <div class="pf-alert pf-alert--error">{{ error }}</div>
+      {% endif %}
+
+      <!-- Hidden file input triggered by avatar button -->
+      <input type="file" id="pf-photo-input" name="profile_picture"
+             accept="image/png,image/jpeg,image/webp" class="pf-hidden">
+
+      <!-- Camera panel -->
+      <div class="pf-camera-panel" id="pf-camera-panel">
+        <video class="pf-camera-video" id="pf-camera-video" playsinline autoplay muted></video>
+        <div class="pf-camera-actions">
+          <button type="button" class="pf-btn pf-btn--primary pf-btn--sm" id="pf-capture-btn">Capture</button>
+          <button type="button" class="pf-btn pf-btn--ghost pf-btn--sm" id="pf-close-camera-btn">Cancel</button>
+        </div>
+      </div>
+
+      <div class="pf-form__group">
+        <label class="pf-label">Display Name</label>
+        <input class="pf-input" type="text" name="name" value="{{ user.name }}" required>
+      </div>
+
+      <div class="pf-form__group">
+        <label class="pf-label">Email</label>
+        <input class="pf-input pf-input--disabled" type="email" value="{{ user.email }}" disabled>
+      </div>
+
+      <div class="pf-form__group">
+        <label class="pf-label">Year Level</label>
+        <select class="pf-input pf-select" name="year_level" required>
+          {% set levels = ['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12',
+                           'College First Year','College Second Year',
+                           'College Third Year','College Fourth Year'] %}
+          {% for lv in levels %}
+          <option value="{{ lv }}" {% if user.year_level == lv %}selected{% endif %}>{{ lv }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="pf-photo-row">
+        <button type="button" class="pf-btn pf-btn--ghost pf-btn--sm" id="pf-upload-btn">
+          <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" fill="currentColor"/></svg>
+          Upload photo
+        </button>
+        <button type="button" class="pf-btn pf-btn--ghost pf-btn--sm" id="pf-camera-open-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z" fill="currentColor"/></svg>
+          Camera
+        </button>
+      </div>
+
+      <div class="pf-form__actions">
+        <button type="submit" class="pf-btn pf-btn--primary">Save changes</button>
+        <a href="{{ url_for('dashboard_page') }}" class="pf-btn pf-btn--ghost">Back</a>
+      </div>
+    </form>
+
+    <!-- Level progress bar -->
+    <div class="pf-level-bar">
+      <div class="pf-level-bar__head">
+        <span>{{ level_progress.level_name }}</span>
+        <span>{{ level_progress.current_points }} / {{ level_progress.next_threshold }} pts</span>
+      </div>
+      <div class="pf-level-track">
+        <div class="pf-level-fill" style="width: {{ level_progress.percent_in_level }}%;"></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+  <main class="pf-main">
+
+    <!-- KPI row -->
+    <div class="pf-kpi-row">
+      <div class="pf-kpi">
+        <div class="pf-kpi__ring">
+          <svg viewBox="0 0 56 56">
+            <defs>
+              <linearGradient id="kpiGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00ff9f"/>
+                <stop offset="100%" stop-color="#46d6ff"/>
+              </linearGradient>
+            </defs>
+            <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+            <circle cx="28" cy="28" r="24" fill="none" stroke="url(#kpiGrad1)" stroke-width="4"
+                    stroke-dasharray="{{ [([profile.points, 1500]|min * 150.8) / 1500, 8]|max }} 150.8"
+                    stroke-linecap="round" transform="rotate(-90 28 28)"/>
+          </svg>
+          <span class="pf-kpi__val pf-kpi__val--sm">{{ profile.points }}</span>
+        </div>
+        <span class="pf-kpi__label">Points</span>
+      </div>
+
+      <div class="pf-kpi">
+        <div class="pf-kpi__ring">
+          <svg viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+            <circle cx="28" cy="28" r="24" fill="none" stroke="#00ff9f" stroke-width="4"
+                    stroke-dasharray="150.8 150.8" stroke-linecap="round"
+                    transform="rotate(-90 28 28)" opacity="0.9"/>
+          </svg>
+          <span class="pf-kpi__val">{% if rank %}#{{ rank }}{% else %}—{% endif %}</span>
+        </div>
+        <span class="pf-kpi__label">Rank</span>
+      </div>
+
+      <div class="pf-kpi">
+        <div class="pf-kpi__ring">
+          <svg viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+            <circle cx="28" cy="28" r="24" fill="none" stroke="#00ff9f" stroke-width="4"
+                    stroke-dasharray="{{ [(profile.badges|length * 15.08), 150.8]|min }} 150.8"
+                    stroke-linecap="round" transform="rotate(-90 28 28)"/>
+          </svg>
+          <span class="pf-kpi__val">{{ profile.badges|length }}</span>
+        </div>
+        <span class="pf-kpi__label">Badges</span>
+      </div>
+
+      <div class="pf-kpi">
+        <div class="pf-kpi__ring">
+          <svg viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+            <circle cx="28" cy="28" r="24" fill="none" stroke="#46d6ff" stroke-width="4"
+                    stroke-dasharray="{{ [(profile.simulations_completed|length * 15.08), 150.8]|min }} 150.8"
+                    stroke-linecap="round" transform="rotate(-90 28 28)"/>
+          </svg>
+          <span class="pf-kpi__val">{{ profile.simulations_completed|length }}</span>
+        </div>
+        <span class="pf-kpi__label">Completed</span>
+      </div>
+    </div>
+
+    <!-- Bottom two-column grid -->
+    <div class="pf-grid">
+
+      <!-- LEFT COL: Leaderboard + Collections -->
+      <div class="pf-col">
+
+        <!-- Overall Leaderboard -->
+        <section class="pf-card">
+          <h3 class="pf-card__title">Overall Ranking</h3>
+          <ol class="pf-leaderboard">
+            {% for entry in leaderboard %}
+            {% set is_you = loop.index == rank %}
+            <li class="pf-lb-row {% if is_you %}pf-lb-row--you{% endif %}">
+              <span class="pf-lb-rank">
+                {% if loop.index == 1 %}
+                <svg viewBox="0 0 24 24" class="pf-lb-crown"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 2h10v2H7v-2z" fill="currentColor"/></svg>
+                {% elif loop.index == 2 %}
+                <svg viewBox="0 0 24 24" class="pf-lb-crown pf-lb-crown--silver"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 2h10v2H7v-2z" fill="currentColor"/></svg>
+                {% elif loop.index == 3 %}
+                <svg viewBox="0 0 24 24" class="pf-lb-crown pf-lb-crown--bronze"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 2h10v2H7v-2z" fill="currentColor"/></svg>
+                {% else %}
+                <span class="pf-lb-num">{{ loop.index }}</span>
+                {% endif %}
+              </span>
+              <span class="pf-lb-avatar">{{ entry.name[:2]|upper }}</span>
+              <span class="pf-lb-name">{{ entry.name }}{% if is_you %} <span class="pf-lb-you-tag">You</span>{% endif %}</span>
+              <span class="pf-lb-pts">{{ entry.points }} pts</span>
+            </li>
             {% else %}
-            <img id="profile-preview" src="" alt="Profile preview" class="hidden h-full w-full object-cover">
-            <div id="profile-preview-placeholder" class="flex flex-col items-center justify-center text-center text-slate-400">
-              <span class="text-3xl font-black text-mint">{{ user.name[:1] if user.name else '?' }}</span>
-            </div>
-            {% endif %}
+            <li class="pf-lb-empty">No leaderboard data yet.</li>
+            {% endfor %}
+          </ol>
+        </section>
+
+        <!-- Badge / Namecard / Title toggler -->
+        <section class="pf-card pf-card--collect" id="pf-collect">
+          <div class="pf-collect__head">
+            <button type="button" class="pf-collect-nav" id="pf-collect-prev" aria-label="Previous">‹</button>
+            <span class="pf-collect__label" id="pf-collect-label">Badges</span>
+            <button type="button" class="pf-collect-nav" id="pf-collect-next" aria-label="Next">›</button>
           </div>
-          <button type="button" onclick="clearProfilePhoto()" class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:bg-white/10">Clear photo</button>
-        </div>
 
-        <div class="min-w-0 flex-1 space-y-3">
-          <label class="block text-sm font-semibold text-slate-200">Upload photo
-            <input id="profile-picture-input" class="mt-2 w-full rounded-2xl border border-dashed border-white/10 bg-slate-900 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-white/15" type="file" name="profile_picture" accept="image/png,image/jpeg,image/webp" capture="user">
-          </label>
-          <div id="camera-panel" class="hidden rounded-3xl border border-white/10 bg-black/40 p-3">
-            <video id="camera-video" class="w-full rounded-2xl bg-black" playsinline autoplay muted></video>
-            <div class="mt-3 flex flex-wrap gap-3">
-              <button type="button" onclick="captureCameraPhoto()" class="rounded-2xl bg-gradient-to-r from-mint to-cyan px-4 py-2 text-sm font-extrabold text-slate-950">Capture</button>
-              <button type="button" onclick="stopCamera()" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Close camera</button>
+          <!-- Badges panel -->
+          <div class="pf-collect-panel is-active" id="pf-panel-badges">
+            <div class="pf-badge-grid">
+              {% for badge in all_badges %}
+              <div class="pf-badge-item {% if badge.earned %}is-earned{% endif %}" title="{{ badge.name }}">
+                <div class="pf-badge-icon">
+                  {% if badge.earned %}
+                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#00ff9f"/></svg>
+                  {% else %}
+                  <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="#374151"/></svg>
+                  {% endif %}
+                </div>
+                <span class="pf-badge-name">{{ badge.name }}</span>
+              </div>
+              {% endfor %}
+              {% for badge in milestone_badges %}
+              <div class="pf-badge-item {% if badge.earned %}is-earned{% endif %}" title="{{ badge.condition }}">
+                <div class="pf-badge-icon">
+                  {% if badge.earned %}
+                  <svg viewBox="0 0 24 24"><path d="M12 1l2.39 7.26H22l-6.18 4.5 2.35 7.24L12 15.77l-6.17 4.23 2.35-7.24L2 8.26h7.61L12 1z" fill="#46d6ff"/></svg>
+                  {% else %}
+                  <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="#374151"/></svg>
+                  {% endif %}
+                </div>
+                <span class="pf-badge-name">{{ badge.name }}</span>
+              </div>
+              {% endfor %}
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="flex flex-wrap gap-3 pt-2">
-      <button class="rounded-2xl bg-gradient-to-r from-mint to-cyan px-5 py-3 font-extrabold text-slate-950 transition hover:scale-[1.01]" type="submit">Save changes</button>
-      <a href="{{ url_for('dashboard_page') }}" class="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-slate-100 transition hover:bg-white/10">Cancel</a>
-    </div>
-  </form>
-</section>
+          <!-- Namecards panel -->
+          <div class="pf-collect-panel" id="pf-panel-namecards">
+            <div class="pf-namecard-list">
+              {% for card in all_namecards %}
+              <div class="pf-namecard {% if card.earned %}is-earned{% endif %}">
+                <div class="pf-namecard__art"></div>
+                <div class="pf-namecard__body">
+                  <span class="pf-namecard__name">{{ card.name }}</span>
+                  <span class="pf-namecard__theme">{{ card.theme }}</span>
+                </div>
+                {% if card.earned %}
+                <span class="pf-namecard__active-tag">Earned</span>
+                {% else %}
+                <svg class="pf-namecard__lock" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="currentColor"/></svg>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
 
+          <!-- Title panel -->
+          <div class="pf-collect-panel" id="pf-panel-titles">
+            <div class="pf-title-list">
+              {% set titles = [
+                {"name": "Top Defender",   "condition": "Reach rank #1",             "earned": rank == 1},
+                {"name": "Elite Guard",    "condition": "Reach rank #2",             "earned": rank == 2},
+                {"name": "Cyber Ace",      "condition": "Reach rank #3",             "earned": rank == 3},
+                {"name": "Honor Shield",   "condition": "Reach top 10",              "earned": rank is not none and rank <= 10},
+                {"name": "Phish Hunter",   "condition": "Complete Phishing module",  "earned": "phishing_fake_email" in profile.simulations_completed},
+                {"name": "Code Breaker",   "condition": "Complete SQL Injection",    "earned": "sql_injection" in profile.simulations_completed},
+                {"name": "Active Learner", "condition": "Default title",             "earned": true},
+              ] %}
+              {% for title in titles %}
+              <div class="pf-title-item {% if title.earned %}is-earned{% endif %}">
+                <div class="pf-title-item__dot"></div>
+                <div class="pf-title-item__text">
+                  <span class="pf-title-item__name">{{ title.name }}</span>
+                  <span class="pf-title-item__cond">{{ title.condition }}</span>
+                </div>
+                {% if title.earned %}
+                <svg class="pf-title-item__check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /pf-col left -->
+
+      <!-- RIGHT COL: Recent Community Posts (placeholder) -->
+      <div class="pf-col">
+        <section class="pf-card">
+          <div class="pf-card__title-row">
+            <h3 class="pf-card__title">Recent Community Posts</h3>
+            <span class="pf-card__coming-soon">Coming soon</span>
+          </div>
+          <div class="pf-community-list">
+            {% set placeholder_posts = [
+              {"user": "Anna M.", "time": "2h ago",  "text": "Just completed the SQL Injection hard sim on my first try — the URL params hint was key.", "likes": 12},
+              {"user": "Jake R.", "time": "5h ago",  "text": "Anyone else notice the spoofed domain in the phishing email uses 'univeristy' misspelled?",  "likes": 7},
+              {"user": "Clara S.", "time": "1d ago", "text": "Finished all social-based modules this week. The social engineering one is the hardest by far.", "likes": 21},
+            ] %}
+            {% for post in placeholder_posts %}
+            <div class="pf-post">
+              <div class="pf-post__avatar">{{ post.user[:2]|upper }}</div>
+              <div class="pf-post__body">
+                <div class="pf-post__meta">
+                  <span class="pf-post__name">{{ post.user }}</span>
+                  <span class="pf-post__time">{{ post.time }}</span>
+                </div>
+                <p class="pf-post__text">{{ post.text }}</p>
+                <div class="pf-post__actions">
+                  <button type="button" class="pf-post__like">
+                    <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" fill="currentColor"/></svg>
+                    {{ post.likes }}
+                  </button>
+                  <button type="button" class="pf-post__reply">Reply</button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="pf-community-cta">
+              <p>Community features launch soon. Discussions, peer reviews, and challenge sharing.</p>
+              <a href="#" class="pf-btn pf-btn--ghost pf-btn--sm" style="pointer-events:none;opacity:.45;">Join waitlist</a>
+            </div>
+          </div>
+        </section>
+      </div><!-- /pf-col right -->
+
+    </div><!-- /pf-grid -->
+  </main>
+
+</div><!-- /pf-layout -->
+{% endblock %}
+
+{% block page_scripts %}
 <script>
-  const profilePictureInput = document.getElementById('profile-picture-input');
-  const profilePreview = document.getElementById('profile-preview');
-  const profilePreviewPlaceholder = document.getElementById('profile-preview-placeholder');
-  const cameraPanel = document.getElementById('camera-panel');
-  const cameraVideo = document.getElementById('camera-video');
-  const originalProfileSrc = profilePreview.src || '';
-  const hadOriginalPhoto = Boolean(originalProfileSrc);
-  let cameraStream = null;
+(function () {
+  // ── Collection panel toggle ──────────────────────────
+  const panels  = ['badges', 'namecards', 'titles'];
+  const labels  = ['Badges', 'Namecards', 'Titles'];
+  let current   = 0;
 
-  function showPreviewFromFile(file) {
-    if (!file) return;
+  const labelEl  = document.getElementById('pf-collect-label');
+  const prevBtn  = document.getElementById('pf-collect-prev');
+  const nextBtn  = document.getElementById('pf-collect-next');
+
+  function showPanel(index) {
+    panels.forEach(function (id, i) {
+      const el = document.getElementById('pf-panel-' + id);
+      if (el) el.classList.toggle('is-active', i === index);
+    });
+    if (labelEl) labelEl.textContent = labels[index];
+    current = index;
+  }
+
+  prevBtn?.addEventListener('click', function () { showPanel((current - 1 + panels.length) % panels.length); });
+  nextBtn?.addEventListener('click', function () { showPanel((current + 1) % panels.length); });
+
+  // ── Photo upload / camera ────────────────────────────
+  const avatarBtn    = document.getElementById('pf-avatar-btn');
+  const uploadBtn    = document.getElementById('pf-upload-btn');
+  const photoInput   = document.getElementById('pf-photo-input');
+  const cameraPanel  = document.getElementById('pf-camera-panel');
+  const cameraVideo  = document.getElementById('pf-camera-video');
+  const captureBtn   = document.getElementById('pf-capture-btn');
+  const closeCamBtn  = document.getElementById('pf-close-camera-btn');
+  const cameraOpenBtn = document.getElementById('pf-camera-open-btn');
+  const avatarPreview = document.getElementById('pf-avatar-preview');
+  let stream = null;
+
+  function showPreview(file) {
+    if (!file || !avatarPreview) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      profilePreview.src = reader.result;
-      profilePreview.classList.remove('hidden');
-      if (profilePreviewPlaceholder) {
-        profilePreviewPlaceholder.classList.add('hidden');
+    reader.onload = function (e) {
+      if (avatarPreview.tagName === 'IMG') {
+        avatarPreview.src = e.target.result;
+      } else {
+        const img = document.createElement('img');
+        img.className = 'pf-avatar';
+        img.id = 'pf-avatar-preview';
+        img.src = e.target.result;
+        avatarPreview.replaceWith(img);
       }
     };
     reader.readAsDataURL(file);
   }
 
-  function setProfilePictureFile(file) {
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    profilePictureInput.files = dataTransfer.files;
-    showPreviewFromFile(file);
-  }
+  avatarBtn?.addEventListener('click', function () { photoInput?.click(); });
+  uploadBtn?.addEventListener('click', function () { photoInput?.click(); });
+  photoInput?.addEventListener('change', function () {
+    if (photoInput.files && photoInput.files[0]) showPreview(photoInput.files[0]);
+  });
 
-  profilePictureInput.addEventListener('change', () => {
-    const file = profilePictureInput.files && profilePictureInput.files[0];
-    if (file) {
-      showPreviewFromFile(file);
+  cameraOpenBtn?.addEventListener('click', async function () {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+      cameraVideo.srcObject = stream;
+      cameraPanel.style.display = 'block';
+    } catch {
+      alert('Camera not available. Upload a photo instead.');
     }
   });
 
-  async function startCamera() {
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-      cameraVideo.srcObject = cameraStream;
-      cameraPanel.classList.remove('hidden');
-    } catch (error) {
-      alert('Camera access is not available in this browser or device. You can still upload a photo file.');
-    }
-  }
-
-  function stopCamera() {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach((track) => track.stop());
-      cameraStream = null;
-    }
+  closeCamBtn?.addEventListener('click', function () {
+    if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
     cameraVideo.srcObject = null;
-    cameraPanel.classList.add('hidden');
-  }
+    cameraPanel.style.display = 'none';
+  });
 
-  async function captureCameraPhoto() {
-    if (!cameraStream) return;
+  captureBtn?.addEventListener('click', function () {
+    if (!stream) return;
     const canvas = document.createElement('canvas');
-    const videoWidth = cameraVideo.videoWidth || 720;
-    const videoHeight = cameraVideo.videoHeight || 720;
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
+    canvas.width = cameraVideo.videoWidth || 640;
+    canvas.height = cameraVideo.videoHeight || 480;
+    canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+    canvas.toBlob(function (blob) {
       if (!blob) return;
-      const file = new File([blob], `camera-photo-${Date.now()}.png`, { type: 'image/png' });
-      setProfilePictureFile(file);
-      stopCamera();
+      const file = new File([blob], 'camera-' + Date.now() + '.png', { type: 'image/png' });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      photoInput.files = dt.files;
+      showPreview(file);
+      closeCamBtn.click();
     }, 'image/png', 0.95);
-  }
-
-  function clearProfilePhoto() {
-    profilePictureInput.value = '';
-    stopCamera();
-    if (hadOriginalPhoto) {
-      profilePreview.src = originalProfileSrc;
-      profilePreview.classList.remove('hidden');
-      if (profilePreviewPlaceholder) {
-        profilePreviewPlaceholder.classList.add('hidden');
-      }
-      return;
-    }
-    profilePreview.src = '';
-    profilePreview.classList.add('hidden');
-    if (profilePreviewPlaceholder) {
-      profilePreviewPlaceholder.classList.remove('hidden');
-    }
-  }
+  });
+})();
 </script>
 {% endblock %}
