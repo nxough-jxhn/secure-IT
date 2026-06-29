@@ -210,6 +210,9 @@ def simulation_play_page(attack_id: str):
         template = "simulations/phishing_hard.html"
     elif mission.get("sqli_mode"):
         template = "simulations/sql_injection_hard.html"
+    elif mission.get("sim_template"):
+        # Each custom attack sets sim_template to its dedicated hard sim HTML
+        template = mission["sim_template"]
     else:
         template = "simulation_workspace.html"
 
