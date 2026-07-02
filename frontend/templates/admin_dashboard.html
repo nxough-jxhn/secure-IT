@@ -1,128 +1,230 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<section class="admin-grid-4">
-  <div class="admin-card">
-    <div class="admin-card-label">Total users</div>
-    <div class="admin-card-value">{{ analytics.total_users }}</div>
-  </div>
-  <div class="admin-card">
-    <div class="admin-card-label">Active users (7d)</div>
-    <div class="admin-card-value">{{ analytics.active_users }}</div>
-  </div>
-  <div class="admin-card">
-    <div class="admin-card-label">Completed simulations</div>
-    <div class="admin-card-value">{{ analytics.completed_simulations }}</div>
-  </div>
-  <div class="admin-card">
-    <div class="admin-card-label">Awareness score</div>
-    <div class="admin-card-value">{{ analytics.awareness_score }}%</div>
-  </div>
-</section>
 
-<section class="admin-grid-2 mt-4">
-  <div class="admin-card">
-    <div class="admin-card-label">Average simulation score</div>
-    <div class="admin-card-value">{{ analytics.average_simulation_score }}%</div>
-    <div class="admin-card-meta">Across all recorded mission attempts</div>
-  </div>
-  <div class="admin-card">
-    <div class="admin-card-label">Average quiz score</div>
-    <div class="admin-card-value">{{ analytics.average_quiz_score }}%</div>
-    <div class="admin-card-meta">Post-mission knowledge checks</div>
-  </div>
-</section>
-
-<section class="admin-grid-2 mt-4">
-  <div class="admin-card">
-    <h3 class="admin-card-label">Scenario performance</h3>
-    <div class="admin-bar-chart mt-4">
-      {% for item in analytics.performance_chart %}
-      <div class="admin-bar-row">
-        <span>{{ item.attack_id }}</span>
-        <div class="admin-bar-track"><div class="admin-bar-fill" style="width: {{ item.average }}%;"></div></div>
-        <span>{{ item.average }}%</span>
+<!-- ── KPI row ── -->
+<div class="av2-kpi-row">
+  <div class="av2-kpi">
+    <div class="av2-kpi__top">
+      <span class="av2-kpi__label">Total Users</span>
+      <div class="av2-kpi__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round"/></svg>
       </div>
-      {% else %}
-      <p class="admin-card-meta">No simulation data yet.</p>
+    </div>
+    <div class="av2-kpi__value">{{ analytics.total_users }}</div>
+    <div>
+      <span class="av2-kpi__delta">↑ All time</span>
+    </div>
+  </div>
+
+  <div class="av2-kpi">
+    <div class="av2-kpi__top">
+      <span class="av2-kpi__label">Active (7 days)</span>
+      <div class="av2-kpi__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="av2-kpi__value">{{ analytics.active_users }}</div>
+    <div>
+      <span class="av2-kpi__delta">Active learners</span>
+    </div>
+  </div>
+
+  <div class="av2-kpi">
+    <div class="av2-kpi__top">
+      <span class="av2-kpi__label">Simulations Done</span>
+      <div class="av2-kpi__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="av2-kpi__value">{{ analytics.completed_simulations }}</div>
+    <div>
+      <span class="av2-kpi__delta">Total completions</span>
+    </div>
+  </div>
+
+  <div class="av2-kpi">
+    <div class="av2-kpi__top">
+      <span class="av2-kpi__label">Awareness Score</span>
+      <div class="av2-kpi__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="av2-kpi__value">{{ analytics.awareness_score }}%</div>
+    <div>
+      <span class="av2-kpi__delta">Platform avg</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Charts row ── -->
+<div class="av2-grid-3-1">
+
+  <!-- Bar chart: simulation performance -->
+  <div class="av2-card">
+    <div class="av2-card__title-row">
+      <div>
+        <div class="av2-card__title" style="margin-bottom:2px;">Simulation Performance</div>
+        <div class="av2-card__subtitle">Average scores per attack module</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:1.5rem;font-weight:900;color:#00ff9f;">{{ analytics.average_simulation_score }}%</div>
+        <div style="font-size:10px;color:#4b5563;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Avg sim score</div>
+      </div>
+    </div>
+
+    {% if analytics.performance_chart %}
+    <div class="av2-bar-chart">
+      {% for item in analytics.performance_chart[:8] %}
+      {% set bar_pct = item.average %}
+      <div class="av2-bar-col">
+        <div class="av2-bar-wrap">
+          <div class="av2-bar {% if loop.index == 1 %}is-highlight{% endif %}"
+               style="height:{{ [bar_pct, 8]|max }}%"
+               title="{{ item.attack_id }}: {{ bar_pct }}%">
+            <span class="av2-bar__label">{{ bar_pct }}%</span>
+          </div>
+        </div>
+        <span class="av2-bar-axis">{{ item.attack_id | replace('_', ' ') | truncate(5, true, '') }}</span>
+      </div>
       {% endfor %}
     </div>
+    {% else %}
+    <div style="height:160px;display:flex;align-items:center;justify-content:center;color:#374151;font-size:.875rem;">No simulation data yet.</div>
+    {% endif %}
   </div>
 
-  <div class="admin-card">
-    <h3 class="admin-card-label">Cybersecurity awareness index</h3>
-    <div class="admin-awareness-ring mt-4">{{ analytics.awareness_score }}%</div>
-    <p class="admin-card-meta mt-4 text-center">Composite score from participation, simulation results, and quiz performance.</p>
-  </div>
-</section>
+  <!-- Donut: awareness breakdown -->
+  <div class="av2-card">
+    <div class="av2-card__title-row">
+      <div class="av2-card__title" style="margin-bottom:0;">Awareness Index</div>
+    </div>
 
-<section class="admin-grid-2 mt-4">
-  <div class="admin-card">
-    <h3 class="admin-card-label">Most selected simulations</h3>
-    <div class="mt-4 space-y-2">
-      {% for attack_id, count in analytics.most_selected_attacks %}
-      <div class="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2 text-sm">
-        <span>{{ attack_id }}</span><span class="admin-tag">{{ count }} attempts</span>
+    {% set sim_pct = analytics.average_simulation_score %}
+    {% set quiz_pct = analytics.average_quiz_score %}
+    {% set awareness = analytics.awareness_score %}
+    {% set circ = 301.59 %}
+    {% set sim_dash  = (sim_pct  / 100 * circ) | round(1) %}
+    {% set quiz_dash = (quiz_pct / 100 * circ) | round(1) %}
+
+    <div class="av2-donut-wrap" style="flex-direction:column;align-items:center;gap:16px;">
+      <div class="av2-donut">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+          <!-- Sim score arc (green) -->
+          <circle cx="60" cy="60" r="48" fill="none" stroke="#00ff9f" stroke-width="12"
+                  stroke-dasharray="{{ sim_dash }} {{ circ }}"
+                  stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          <!-- Quiz arc (blue, smaller inner) -->
+        </svg>
+        <div class="av2-donut__center">
+          <span class="av2-donut__val">{{ awareness }}%</span>
+          <span class="av2-donut__sub">Index</span>
+        </div>
       </div>
-      {% else %}<p class="admin-card-meta">No data yet.</p>{% endfor %}
+      <div class="av2-donut-legend" style="width:100%">
+        <div class="av2-donut-legend__item">
+          <span class="av2-donut-legend__dot" style="background:#00ff9f;"></span>
+          <span class="av2-donut-legend__label">Sim Score</span>
+          <span class="av2-donut-legend__val">{{ sim_pct }}%</span>
+        </div>
+        <div class="av2-donut-legend__item">
+          <span class="av2-donut-legend__dot" style="background:#46d6ff;"></span>
+          <span class="av2-donut-legend__label">Quiz Score</span>
+          <span class="av2-donut-legend__val">{{ quiz_pct }}%</span>
+        </div>
+        <div class="av2-donut-legend__item">
+          <span class="av2-donut-legend__dot" style="background:#fbbf24;"></span>
+          <span class="av2-donut-legend__label">Active Users</span>
+          <span class="av2-donut-legend__val">{{ analytics.active_users }}</span>
+        </div>
+        <div class="av2-donut-legend__item">
+          <span class="av2-donut-legend__dot" style="background:#f87171;"></span>
+          <span class="av2-donut-legend__label">Failures (&lt;70%)</span>
+          <span class="av2-donut-legend__val">{{ analytics.most_failed_scenarios | length }}</span>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="admin-card">
-    <h3 class="admin-card-label">Most failed scenarios (&lt;70%)</h3>
-    <div class="mt-4 space-y-2">
-      {% for attack_id, count in analytics.most_failed_scenarios %}
-      <div class="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2 text-sm">
-        <span>{{ attack_id }}</span><span class="admin-tag admin-tag-warn">{{ count }} fails</span>
-      </div>
-      {% else %}<p class="admin-card-meta">No failing attempts recorded.</p>{% endfor %}
+</div>
+
+<!-- ── Bottom row: ranking + failed ── -->
+<div class="av2-grid-2">
+  <div class="av2-card">
+    <div class="av2-card__title">Most Attempted Modules</div>
+    <div class="av2-table-wrap">
+      <table class="av2-table">
+        <thead>
+          <tr><th>Module</th><th>Attempts</th><th>Unique users</th></tr>
+        </thead>
+        <tbody>
+          {% for item in analytics.completion_chart %}
+          <tr>
+            <td>{{ item.attack_id | replace('_', ' ') | title }}</td>
+            <td>{{ item.attempts }}</td>
+            <td>{{ item.unique_users }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" style="color:#374151;font-style:italic;">No data yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
-</section>
 
-<section class="admin-card mt-4">
-  <h3 class="admin-card-label">User performance ranking</h3>
-  <div class="mt-4 overflow-x-auto">
-    <table class="admin-table">
-      <thead>
-        <tr><th>User</th><th>Points</th><th>Level</th><th>Completed</th><th>Avg score</th></tr>
-      </thead>
-      <tbody>
-        {% for row in analytics.user_ranking %}
-        <tr>
-          <td>{{ row.name }}</td>
-          <td>{{ row.points }}</td>
-          <td>{{ row.level }}</td>
-          <td>{{ row.completed }}</td>
-          <td>{{ row.average_score }}%</td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5">No ranked users yet.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="av2-card">
+    <div class="av2-card__title">Most Failed Modules</div>
+    <div class="av2-table-wrap">
+      <table class="av2-table">
+        <thead><tr><th>Module</th><th>Fails</th></tr></thead>
+        <tbody>
+          {% for attack_id, count in analytics.most_failed_scenarios %}
+          <tr>
+            <td>{{ attack_id | replace('_', ' ') | title }}</td>
+            <td><span class="av2-tag av2-tag--danger">{{ count }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2" style="color:#374151;font-style:italic;">No failures recorded.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-</section>
+</div>
 
-<section class="admin-card mt-4">
-  <h3 class="admin-card-label">Recent activity feed</h3>
-  <div class="mt-4 overflow-x-auto">
-    <table class="admin-table">
+<!-- ── Recent activity ── -->
+<div class="av2-card">
+  <div class="av2-card__title">Recent Activity</div>
+  <div class="av2-table-wrap">
+    <table class="av2-table">
       <thead>
-        <tr><th>User</th><th>Simulation</th><th>Result</th><th>Score</th><th>Mistakes</th></tr>
+        <tr><th>User</th><th>Module</th><th>Sim Score</th><th>Quiz Score</th><th>Time</th><th>Top Mistake</th></tr>
       </thead>
       <tbody>
         {% for row in analytics.recent_activity %}
         <tr>
           <td>{{ row.user }}</td>
-          <td>{{ row.attack_id }}</td>
-          <td><span class="admin-tag">{{ row.status }}</span></td>
-          <td>{{ row.simulation_score }}%</td>
-          <td>{% if row.mistakes %}{{ row.mistakes[0] }}{% else %}—{% endif %}</td>
+          <td>{{ row.attack_id | replace('_', ' ') | title }}</td>
+          <td>
+            {% if row.simulation_score is not none %}
+            <span class="av2-tag {% if row.simulation_score >= 70 %}{% else %}av2-tag--danger{% endif %}">{{ row.simulation_score }}%</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if row.quiz_score is not none %}
+            <span class="av2-tag av2-tag--blue">{{ row.quiz_score }}%</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>{% if row.time_spent_seconds %}{{ (row.time_spent_seconds // 60) }}m {{ row.time_spent_seconds % 60 }}s{% else %}—{% endif %}</td>
+          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            {% if row.mistakes %}{{ row.mistakes[0] }}{% else %}—{% endif %}
+          </td>
         </tr>
         {% else %}
-        <tr><td colspan="5">Activity will appear here when users complete missions.</td></tr>
+        <tr><td colspan="6" style="color:#374151;font-style:italic;">Activity will appear here when users complete missions.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-</section>
+</div>
+
 {% endblock %}

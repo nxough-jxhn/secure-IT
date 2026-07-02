@@ -1,64 +1,263 @@
 {% extends 'admin_base.html' %}
-{% block content %}
-<section class="admin-card">
-  <h3 class="admin-card-label">User monitoring</h3>
-  <div class="mt-4 overflow-x-auto">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Completed simulations</th>
-          <th>Current progress</th>
-          <th>Latest simulation</th>
-          <th>Score</th>
-          <th>Time spent</th>
-          <th>Top mistake</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in users %}
-        <tr>
-          <td>
-            <div class="font-semibold text-white">{{ user.username }}</div>
-            <div class="text-xs text-slate-400">{{ user.email }}</div>
-          </td>
-          <td>{{ user.completed_simulations }}</td>
-          <td>{{ user.current_progress }}</td>
-          <td>{{ user.latest_simulation }}</td>
-          <td>{{ user.latest_score }}{% if user.latest_score != '—' %}%{% endif %}</td>
-          <td>{% if user.time_spent %}{{ (user.time_spent // 60) }}m {{ user.time_spent % 60 }}s{% else %}—{% endif %}</td>
-          <td><span class="admin-tag admin-tag-danger">{{ user.mistakes }}</span></td>
-        </tr>
-        {% else %}
-        <tr><td colspan="7">No users found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</section>
 
-<section class="admin-grid-2 mt-4">
-  {% for user in users[:6] %}
-  <div class="admin-card">
-    <div class="admin-card-label">{{ user.username }}</div>
-    <div class="admin-card-value">{{ user.points }} pts</div>
-    <div class="admin-card-meta">{{ user.level }} · {{ user.completed_simulations }} missions completed</div>
-    <div class="mt-4 space-y-2 text-sm">
-      {% for attempt in user.attempt_history %}
-      <div class="rounded-xl border border-white/5 bg-white/5 px-3 py-2">
-        <div class="flex items-center justify-between gap-2">
-          <span>{{ attempt.attack_id }}</span>
-          <span class="admin-tag">{{ attempt.score }}%</span>
+{% block extra_head %}
+<style>
+  .av2-content { overflow: visible; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="av2-users-layout">
+
+  <!-- ── LEFT: User card list ── -->
+  <div>
+    <!-- Filter tabs -->
+    <div class="av2-filter-tabs">
+      <button type="button" class="av2-filter-tab is-active" data-filter="all">All Users</button>
+      <button type="button" class="av2-filter-tab" data-filter="active">Active</button>
+      <button type="button" class="av2-filter-tab" data-filter="completed">Completed</button>
+      <button type="button" class="av2-filter-tab" data-filter="inactive">No Activity</button>
+    </div>
+
+    <!-- User cards -->
+    <div class="av2-user-grid" id="av2-user-grid">
+      {% for user in users %}
+      {% set initials = (user.username[:2] | upper) if user.username else 'NA' %}
+      {% set score_color = 'av2-attempt__score' if (user.latest_score != '—' and user.latest_score is not none and user.latest_score | int >= 70) else 'av2-attempt__score av2-attempt__score--low' %}
+      <div class="av2-user-card"
+           data-user-index="{{ loop.index0 }}"
+           data-completed="{{ user.completed_simulations }}"
+           data-points="{{ user.points }}">
+
+        <!-- Namecard thumbnail -->
+        <div class="av2-user-card__namecard">
+          <span class="av2-user-card__initials">{{ initials }}</span>
         </div>
-        {% if attempt.mistakes %}
-        <div class="mt-1 text-xs text-rose-200">{{ attempt.mistakes[0] }}</div>
-        {% endif %}
+
+        <div class="av2-user-card__body">
+          <div class="av2-user-card__name">{{ user.username }}</div>
+          <div class="av2-user-card__email">{{ user.email }}</div>
+          <div class="av2-user-card__meta">
+            <span class="av2-user-card__level">{{ user.level }}</span>
+            <span class="av2-user-card__pts">{{ user.points }} pts</span>
+          </div>
+        </div>
+
+        <div class="av2-user-card__stat">
+          <span class="{{ score_color }}">
+            {% if user.latest_score != '—' and user.latest_score is not none %}
+              {{ user.latest_score }}%
+            {% else %}
+              —
+            {% endif %}
+          </span>
+          <span class="av2-user-card__score-label">Last score</span>
+        </div>
       </div>
       {% else %}
-      <div class="admin-card-meta">No attempts yet.</div>
+      <div style="padding:24px;color:#374151;font-style:italic;text-align:center;">No users found.</div>
       {% endfor %}
     </div>
   </div>
-  {% endfor %}
-</section>
+
+  <!-- ── RIGHT: User detail panel ── -->
+  <div class="av2-user-detail" id="av2-user-detail">
+
+    <!-- Empty state -->
+    <div class="av2-detail__empty" id="av2-detail-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round"/></svg>
+      <p>Select a user to view<br>their detailed profile</p>
+    </div>
+
+    <!-- Populated state (hidden until a card is clicked) -->
+    <div id="av2-detail-populated" hidden>
+
+      <!-- Namecard hero -->
+      <div class="av2-detail__hero">
+        <div class="av2-detail__hero-bg" aria-hidden="true">
+          <svg viewBox="0 0 360 180" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="dhGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00ff9f" stop-opacity=".12"/>
+                <stop offset="100%" stop-color="#46d6ff" stop-opacity=".04"/>
+              </linearGradient>
+            </defs>
+            <rect width="360" height="180" fill="url(#dhGrad)"/>
+            <line x1="0" y1="40" x2="100" y2="40" stroke="#00ff9f" stroke-width=".5" opacity=".3"/>
+            <line x1="100" y1="40" x2="100" y2="70" stroke="#00ff9f" stroke-width=".5" opacity=".3"/>
+            <line x1="260" y1="0" x2="260" y2="50" stroke="#00ff9f" stroke-width=".5" opacity=".2"/>
+            <line x1="260" y1="50" x2="360" y2="50" stroke="#00ff9f" stroke-width=".5" opacity=".2"/>
+            <polygon points="310,12 316,16 316,22 310,26 304,22 304,16" fill="none" stroke="#00ff9f" stroke-width=".6" opacity=".2"/>
+            <polygon points="40,140 44,143 44,148 40,151 36,148 36,143" fill="none" stroke="#46d6ff" stroke-width=".6" opacity=".2"/>
+            <line x1="0" y1="178" x2="360" y2="178" stroke="#00ff9f" stroke-width="1.5" opacity=".3"/>
+          </svg>
+        </div>
+
+        <div class="av2-detail__avatar-row">
+          <div class="av2-detail__avatar" id="av2-detail-avatar">AB</div>
+          <div>
+            <div class="av2-detail__name" id="av2-detail-name">—</div>
+            <div class="av2-detail__email" id="av2-detail-email">—</div>
+            <span class="av2-detail__level-badge" id="av2-detail-level">Rookie</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="av2-detail__stats">
+        <div class="av2-detail__stat">
+          <span class="av2-detail__stat-label">Points</span>
+          <span class="av2-detail__stat-value" id="av2-detail-points">0</span>
+          <span class="av2-detail__stat-sub">Accumulated</span>
+        </div>
+        <div class="av2-detail__stat">
+          <span class="av2-detail__stat-label">Completed</span>
+          <span class="av2-detail__stat-value" id="av2-detail-completed">0</span>
+          <span class="av2-detail__stat-sub">Missions</span>
+        </div>
+        <div class="av2-detail__stat">
+          <span class="av2-detail__stat-label">Last Score</span>
+          <span class="av2-detail__stat-value" id="av2-detail-lastscore">—</span>
+          <span class="av2-detail__stat-sub" id="av2-detail-lastmod">—</span>
+        </div>
+        <div class="av2-detail__stat">
+          <span class="av2-detail__stat-label">Time Spent</span>
+          <span class="av2-detail__stat-value" id="av2-detail-time">—</span>
+          <span class="av2-detail__stat-sub">Total</span>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="av2-detail__progress">
+        <div class="av2-detail__progress-head">
+          <span>Module progress</span>
+          <span id="av2-detail-progress-label">0 / 10</span>
+        </div>
+        <div class="av2-detail__bar">
+          <div class="av2-detail__bar-fill" id="av2-detail-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Attempt history -->
+      <div class="av2-detail__history">
+        <div class="av2-detail__history-title">Attempt History</div>
+        <div id="av2-detail-attempts"></div>
+      </div>
+
+    </div><!-- /#av2-detail-populated -->
+  </div><!-- /.av2-user-detail -->
+
+</div><!-- /.av2-users-layout -->
+
+<!-- User data for JS -->
+<script id="av2-users-data" type="application/json">{{ users | tojson }}</script>
+
+<script>
+(function () {
+  const usersData = JSON.parse(document.getElementById('av2-users-data').textContent);
+  const cards     = document.querySelectorAll('.av2-user-card');
+  const emptyEl   = document.getElementById('av2-detail-empty');
+  const popEl     = document.getElementById('av2-detail-populated');
+
+  // Refs
+  const detAvatar    = document.getElementById('av2-detail-avatar');
+  const detName      = document.getElementById('av2-detail-name');
+  const detEmail     = document.getElementById('av2-detail-email');
+  const detLevel     = document.getElementById('av2-detail-level');
+  const detPoints    = document.getElementById('av2-detail-points');
+  const detCompleted = document.getElementById('av2-detail-completed');
+  const detLastScore = document.getElementById('av2-detail-lastscore');
+  const detLastMod   = document.getElementById('av2-detail-lastmod');
+  const detTime      = document.getElementById('av2-detail-time');
+  const detProgLabel = document.getElementById('av2-detail-progress-label');
+  const detBar       = document.getElementById('av2-detail-bar');
+  const detAttempts  = document.getElementById('av2-detail-attempts');
+
+  function selectUser(index) {
+    cards.forEach(c => c.classList.remove('is-selected'));
+    cards[index]?.classList.add('is-selected');
+
+    const u = usersData[index];
+    if (!u) return;
+
+    emptyEl.hidden  = true;
+    popEl.hidden    = false;
+
+    const initials = (u.username || 'NA').slice(0, 2).toUpperCase();
+    detAvatar.textContent    = initials;
+    detName.textContent      = u.username || '—';
+    detEmail.textContent     = u.email || '—';
+    detLevel.textContent     = u.level || 'Rookie';
+    detPoints.textContent    = u.points ?? 0;
+    detCompleted.textContent = u.completed_simulations ?? 0;
+
+    const score = u.latest_score;
+    detLastScore.textContent = (score !== '—' && score != null) ? score + '%' : '—';
+    detLastScore.style.color = (score !== '—' && score != null && Number(score) >= 70) ? '#00ff9f' : '#f87171';
+    detLastMod.textContent   = u.latest_simulation || '—';
+
+    const ts = u.time_spent || 0;
+    detTime.textContent = ts ? Math.floor(ts / 60) + 'm ' + (ts % 60) + 's' : '—';
+
+    const total = 10;
+    const done  = u.completed_simulations || 0;
+    const pct   = Math.round((done / total) * 100);
+    detProgLabel.textContent = done + ' / ' + total;
+    detBar.style.width       = pct + '%';
+
+    // Attempts
+    detAttempts.innerHTML = '';
+    const attempts = u.attempt_history || [];
+    if (!attempts.length) {
+      detAttempts.innerHTML = '<div class="av2-detail__no-history">No attempts yet.</div>';
+      return;
+    }
+    attempts.forEach(function (a, i) {
+      const scoreVal = a.score;
+      const scoreOk  = scoreVal != null && Number(scoreVal) >= 70;
+      const div = document.createElement('div');
+      div.className = 'av2-attempt';
+      div.innerHTML =
+        '<div class="av2-attempt__icon">' + (i + 1) + '</div>' +
+        '<div class="av2-attempt__body">' +
+          '<div class="av2-attempt__name">' + (a.attack_id || '').replace(/_/g, ' ') + '</div>' +
+          (a.mistakes && a.mistakes.length ? '<div class="av2-attempt__mistake">' + a.mistakes[0] + '</div>' : '') +
+        '</div>' +
+        '<span class="av2-attempt__score' + (scoreOk ? '' : ' av2-attempt__score--low') + '">' +
+          (scoreVal != null ? scoreVal + '%' : '—') +
+        '</span>';
+      detAttempts.appendChild(div);
+    });
+  }
+
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      selectUser(Number(card.dataset.userIndex));
+    });
+  });
+
+  // Filter tabs
+  const tabs = document.querySelectorAll('.av2-filter-tab');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      const filter = tab.dataset.filter;
+      cards.forEach(function (card) {
+        const completed = Number(card.dataset.completed);
+        let show = true;
+        if (filter === 'active')    show = completed > 0;
+        if (filter === 'completed') show = completed >= 10;
+        if (filter === 'inactive')  show = completed === 0;
+        card.style.display = show ? '' : 'none';
+      });
+    });
+  });
+
+  // Auto-select first user if any
+  if (usersData.length > 0) selectUser(0);
+})();
+</script>
+
 {% endblock %}

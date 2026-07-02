@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hard Simulation — {{ mission.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mitm-hard.css') }}">
+  </head>
+  <body>
+
+<!-- ══ BRIEFING MODAL (shown on load, timer starts after dismiss) ══ -->
+<div class="mh-briefing" id="mh-briefing">
+  <div class="mh-briefing__dialog">
+    <div class="mh-briefing__badge">HARD SIMULATION</div>
+    <h1 class="mh-briefing__title">Man-in-the-Middle Attack</h1>
+    <div class="mh-briefing__scenario">
+      <div class="mh-briefing__scenario-icon">☕</div>
+      <p class="mh-briefing__scenario-text">
+        You are a student at the TUP-T school canteen during your free period.
+        You need to access the student payment portal to settle your tuition fee before the deadline today. 
+        Several WiFi networks are available around you.
+        Access the secured payment.tupt.edu.ph payment page when performing the transaction.  
+        Make sure to send the check slip to the schools email "payment@tupt.edu.ph".
+      </p>
+    </div>
+    <div class="mh-briefing__divider"></div>
+    <p class="mh-briefing__warn">
+      A Man-in-the-Middle attacker may be lurking on one of these networks —
+      intercepting traffic, reading credentials, and silently altering data before it reaches its destination.
+      Your job is to complete the payment correctly without falling into any of the traps.
+    </p>
+    <ul class="mh-briefing__tasks">
+      <li>Choose the correct WiFi network to connect to</li>
+      <li>Verify the payment portal connection is secure before logging in</li>
+      <li>Double-check all payment details before confirming</li>
+    </ul>
+    <p class="mh-briefing__note">No hints will be given. Points are deducted silently for each mistake.</p>
+    <button type="button" class="mh-briefing__start" id="mh-briefing-start">
+      I understand — start simulation
+    </button>
+  </div>
+</div>
+
+<!-- ══ MAIN SIMULATION ══ -->
+<div class="mh-sim" id="mitm-hard-app">
+  <div class="mh-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="mh-sidebar">
+      <div class="mh-sidebar__top">
+        <span class="mh-sidebar__label">SIMULATION</span>
+        <h1 class="mh-sidebar__title">{{ mission.name }}</h1>
+        <span class="mh-sidebar__badge">HARD</span>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">SCENARIO</h3>
+        <p class="mh-sidebar__text">TUP-T school canteen. You need to pay tuition. Choose a WiFi, access the portal, complete the payment.</p>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">TIME ELAPSED</h3>
+        <div class="mh-sidebar__timer" id="mh-timer">00:00</div>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">PROGRESS</h3>
+        <div class="mh-progress">
+          <div class="mh-progress__row">
+            <span class="mh-progress__pct" id="mh-progress-pct">0%</span>
+            <span class="mh-progress__count" id="mh-progress-count">Step 1 of 3</span>
+          </div>
+          <div class="mh-progress__bar">
+            <div class="mh-progress__fill" id="mh-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">STEPS</h3>
+        <ul class="mh-steps" id="mh-step-list">
+          <li class="mh-step mh-step--active" data-step="0">
+            <span class="mh-step__num">1</span>
+            <span>Connect to WiFi</span>
+          </li>
+          <li class="mh-step" data-step="1">
+            <span class="mh-step__num">2</span>
+            <span>Access Payment Portal</span>
+          </li>
+          <li class="mh-step" data-step="2">
+            <span class="mh-step__num">3</span>
+            <span>Confirm Payment</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">EVENT LOG</h3>
+        <ul class="mh-log" id="mh-log">
+          <li class="mh-log__empty">Simulation not started.</li>
+        </ul>
+      </div>
+
+      <button type="button" class="mh-end-btn" id="mh-end-sim-btn">End Simulation</button>
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="mh-exit-btn">← Exit</a>
+    </aside>
+
+    <!-- CENTER: Laptop desktop -->
+    <main class="mh-desktop-col" id="mh-desktop-col">
+
+      <!-- Fake laptop desktop -->
+      <div class="mh-desktop" id="mh-desktop">
+
+        <!-- Desktop wallpaper area -->
+        <div class="mh-desktop__wallpaper" id="mh-wallpaper">
+
+          <!-- Wallpaper center decoration -->
+          <div class="mh-wallpaper__center" aria-hidden="true">
+            <svg class="mh-wallpaper__logo" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Four-quadrant Windows-style logo -->
+              <rect x="8"  y="8"  width="48" height="48" rx="4" fill="rgba(30,80,160,0.35)"/>
+              <rect x="64" y="8"  width="48" height="48" rx="4" fill="rgba(30,80,160,0.35)"/>
+              <rect x="8"  y="64" width="48" height="48" rx="4" fill="rgba(30,80,160,0.35)"/>
+              <rect x="64" y="64" width="48" height="48" rx="4" fill="rgba(30,80,160,0.35)"/>
+            </svg>
+            <span class="mh-wallpaper__label">Secure-IT OS</span>
+            <span class="mh-wallpaper__sub">Click the WiFi icon in the taskbar to begin</span>
+          </div>
+
+          <!-- ══ STAGE 1: Chrome window (login page) — hidden initially ══ -->
+          <div class="mh-window mh-window--hidden" id="mh-chrome-window">
+            <div class="mh-window__titlebar">
+              <div class="mh-window__controls">
+                <span class="mh-window__ctrl mh-window__ctrl--close"></span>
+                <span class="mh-window__ctrl mh-window__ctrl--min"></span>
+                <span class="mh-window__ctrl mh-window__ctrl--max"></span>
+              </div>
+              <span class="mh-window__title">Google Chrome</span>
+            </div>
+            <!-- Chrome browser UI -->
+            <div class="mh-chrome">
+              <div class="mh-chrome__tabbar">
+                <div class="mh-chrome__tab mh-chrome__tab--active">
+                  <span class="mh-chrome__tab-favicon">🎓</span>
+                  <span class="mh-chrome__tab-title">TUP-T Student Portal</span>
+                  <span class="mh-chrome__tab-close">×</span>
+                </div>
+                <button type="button" class="mh-chrome__newtab">+</button>
+              </div>
+              <div class="mh-chrome__toolbar">
+                <div class="mh-chrome__nav-btns">
+                  <button class="mh-chrome__nav-btn" disabled>←</button>
+                  <button class="mh-chrome__nav-btn">→</button>
+                  <button class="mh-chrome__nav-btn">↺</button>
+                </div>
+                <!-- Editable address bar — stage 2 interaction -->
+                <div class="mh-chrome__address-wrap">
+                  <span class="mh-chrome__security-icon" id="mh-security-icon">⚠</span>
+                  <span class="mh-chrome__not-secure" id="mh-not-secure-label">Not Secure</span>
+                  <span
+                    class="mh-chrome__url"
+                    id="mh-url-bar"
+                    contenteditable="true"
+                    spellcheck="false"
+                    role="textbox"
+                    aria-label="Address bar"
+                  >http://payment.tupt.edu.ph/login</span>
+                  <button type="button" class="mh-chrome__go-btn" id="mh-url-go">↵</button>
+                </div>
+                <div class="mh-chrome__toolbar-right">
+                  <span class="mh-chrome__ticon">☆</span>
+                  <span class="mh-chrome__ticon">⋮</span>
+                </div>
+              </div>
+              <!-- Page content -->
+              <div class="mh-chrome__page" id="mh-chrome-page">
+                <!-- Stage 2: Login page -->
+                <div id="mh-page-login">
+                  <div class="mh-portal-topbar">
+                    <span class="mh-portal-topbar__logo">🎓</span>
+                    <span class="mh-portal-topbar__name">TUP-T Student Portal</span>
+                  </div>
+                  <div class="mh-portal-body">
+                    <div class="mh-login-card">
+                      <h2 class="mh-login-card__title">Student Login</h2>
+                      <p class="mh-login-card__sub">Enter your credentials to access your account.</p>
+                      <div class="mh-form-row">
+                        <label class="mh-form-label">Student ID</label>
+                        <input type="text" class="mh-form-input" id="mh-student-id"
+                               placeholder="TUPT-XX-XXXX" maxlength="12">
+                      </div>
+                      <div class="mh-form-row">
+                        <label class="mh-form-label">Password</label>
+                        <input type="password" class="mh-form-input" id="mh-password"
+                               placeholder="Enter your password">
+                      </div>
+                      <button type="button" class="mh-form-submit" id="mh-login-btn">Log In</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Stage 3: Payment page (hidden until login) -->
+                <div id="mh-page-payment" class="mh-page-hidden">
+                  <div class="mh-portal-topbar">
+                    <span class="mh-portal-topbar__logo">🎓</span>
+                    <span class="mh-portal-topbar__name">TUP-T Student Portal — Payment</span>
+                    <span class="mh-portal-topbar__user" id="mh-portal-user"></span>
+                  </div>
+                  <div class="mh-portal-body">
+                    <div class="mh-payment-card">
+                      <h2 class="mh-payment-card__title">Tuition Payment</h2>
+                      <div class="mh-payment-row">
+                        <span class="mh-payment-row__label">Student Name</span>
+                        <span class="mh-payment-row__val" id="mh-pay-name">Juan Dela Cruz</span>
+                      </div>
+                      <div class="mh-payment-row">
+                        <span class="mh-payment-row__label">Student ID</span>
+                        <span class="mh-payment-row__val" id="mh-pay-id"></span>
+                      </div>
+                      <div class="mh-payment-row">
+                        <span class="mh-payment-row__label">Course</span>
+                        <span class="mh-payment-row__val">BSIT — 2nd Year</span>
+                      </div>
+                      <div class="mh-payment-row">
+                        <span class="mh-payment-row__label">School</span>
+                        <span class="mh-payment-row__val">Technological University of the Philippines — Taguig</span>
+                      </div>
+                      <div class="mh-payment-row">
+                        <span class="mh-payment-row__label">Amount Due</span>
+                        <span class="mh-payment-row__val mh-payment-row__val--amount">₱7,800.00</span>
+                      </div>
+                      <div class="mh-payment-divider"></div>
+                      <div class="mh-payment-row mh-payment-row--receiver">
+                        <span class="mh-payment-row__label">Payment Receiver</span>
+                        <!-- Editable receiver field — stage 3 interaction -->
+                        <span
+                          class="mh-payment-row__val mh-payment-receiver"
+                          id="mh-receiver-field"
+                          contenteditable="true"
+                          spellcheck="false"
+                          role="textbox"
+                          aria-label="Payment receiver email"
+                        >payrnent@tupt.edu.ph</span>
+                      </div>
+                      <div class="mh-payment-row mh-payment-row--muted">
+                        <span class="mh-payment-row__label">Reference No.</span>
+                        <span class="mh-payment-row__val">TXN-20251114-4492</span>
+                      </div>
+                      <button type="button" class="mh-payment-confirm" id="mh-pay-btn">Confirm Payment</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /.mh-window -->
+
+        </div><!-- /.mh-desktop__wallpaper -->
+
+        <!-- ══ TASKBAR ══ -->
+        <div class="mh-taskbar">
+          <div class="mh-taskbar__left">
+            <button type="button" class="mh-taskbar__start">⊞</button>
+            <button type="button" class="mh-taskbar__app-btn" id="mh-chrome-taskbar-btn" title="Google Chrome" disabled>
+              <span>🌐</span>
+            </button>
+          </div>
+          <div class="mh-taskbar__center">
+            <span class="mh-taskbar__clock" id="mh-clock">9:41 AM</span>
+            <span class="mh-taskbar__date" id="mh-date">Thu, Jul 2</span>
+          </div>
+          <div class="mh-taskbar__right">
+            <span class="mh-taskbar__tray-icon" title="Volume">🔊</span>
+            <span class="mh-taskbar__tray-icon" title="Battery">🔋</span>
+            <!-- WiFi tray icon — clicking opens WiFi panel -->
+            <button type="button" class="mh-taskbar__wifi-btn" id="mh-wifi-tray-btn" title="WiFi">
+              <span class="mh-taskbar__wifi-icon" id="mh-wifi-tray-icon">📶</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ WIFI PANEL (Windows 11 style flyout) ══ -->
+        <div class="mh-wifi-panel" id="mh-wifi-panel" hidden>
+          <div class="mh-wifi-panel__header">
+            <span class="mh-wifi-panel__heading">← Wi-Fi</span>
+            <div class="mh-wifi-panel__toggle">
+              <span class="mh-wifi-panel__toggle-track mh-wifi-panel__toggle-track--on"></span>
+            </div>
+          </div>
+          <div class="mh-wifi-panel__list" id="mh-wifi-list">
+            <!-- Populated by JS -->
+          </div>
+          <div class="mh-wifi-panel__footer">
+            <span>More Wi-Fi settings</span>
+            <div class="mh-wifi-panel__footer-icons">
+              <span>⊙</span><span>↻</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.mh-desktop -->
+    </main>
+
+    <!-- RIGHT: Event feed -->
+    <aside class="mh-events">
+      <div class="mh-events__header">
+        <span>📡</span>
+        <span class="mh-events__title">Event Feed</span>
+      </div>
+      <ul class="mh-events__list" id="mh-event-feed">
+        <li class="mh-event mh-event--info">Waiting for simulation to start…</li>
+      </ul>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ══ WIFI DETAIL DRAWER ══ -->
+<div class="mh-wifi-detail" id="mh-wifi-detail" hidden>
+  <div class="mh-wifi-detail__backdrop" id="mh-wifi-detail-bd"></div>
+  <div class="mh-wifi-detail__panel">
+    <button type="button" class="mh-wifi-detail__close" id="mh-wifi-detail-close">×</button>
+    <div class="mh-wifi-detail__content" id="mh-wifi-detail-content"></div>
+    <div class="mh-wifi-detail__actions">
+      <button type="button" class="mh-wifi-detail__btn mh-wifi-detail__btn--connect" id="mh-wifi-connect-btn">Connect</button>
+      <button type="button" class="mh-wifi-detail__btn mh-wifi-detail__btn--cancel" id="mh-wifi-detail-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REVEAL / DEBRIEF OVERLAY ══ -->
+<div class="mh-reveal-overlay" id="mh-reveal-overlay" hidden>
+  <div class="mh-reveal" id="mh-reveal-content"></div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script src="{{ url_for('static', filename='js/mitm-hard.js') }}"></script>
+  </body>
+</html>

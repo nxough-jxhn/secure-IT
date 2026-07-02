@@ -1,0 +1,738 @@
+/* ══════════════════════════════════════════
+   Social Engineering Easy Simulation
+   Matches phishing-easy.css design language:
+   Dark sidebar + dark right panel + LIGHT phone center
+══════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.se-sim {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+.se-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  height: 100vh;
+  gap: 0;
+}
+
+/* ── LEFT SIDEBAR ─────────────────────────────── */
+.se-sidebar {
+  background: #0f0f0f;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 32px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.se-sidebar__header { display: flex; flex-direction: column; gap: 8px; }
+
+.se-sidebar__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.se-sidebar__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.se-sidebar__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: fit-content;
+  background: rgba(0,255,159,0.12);
+  border: 1px solid rgba(0,255,159,0.25);
+  color: #00ff9f;
+}
+
+.se-sidebar__section { display: flex; flex-direction: column; gap: 10px; }
+
+.se-sidebar__section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5f6368;
+}
+
+.se-sidebar__text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #bbb;
+}
+
+.se-sidebar__timer {
+  font-family: 'Courier New', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #00ff9f;
+}
+
+.se-sidebar__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.se-sidebar__list li {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #bbb;
+  padding-left: 20px;
+  position: relative;
+}
+
+.se-sidebar__list li::before {
+  content: '•';
+  position: absolute;
+  left: 6px;
+  color: #00ff9f;
+}
+
+.se-sidebar__exit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.1);
+  text-decoration: none;
+  color: #f87171;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-top: auto;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.se-sidebar__exit:hover {
+  border-color: rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.16);
+  transform: translateY(-1px);
+}
+
+/* ── CENTER COLUMN ────────────────────────────── */
+.se-phone-col {
+  background: #141414;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.se-phone-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #0f0f0f;
+  flex-shrink: 0;
+}
+
+.se-phone-header__icon { font-size: 1.25rem; }
+.se-phone-header__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ── PHONE DEVICE — light theme interior ────── */
+.se-phone {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 380px;
+  width: 100%;
+  margin: 20px auto 0;
+  border-radius: 36px;
+  /* Dark outer shell like a real phone */
+  background: #1c1c1e;
+  border: 2px solid #3a3a3c;
+  box-shadow:
+    0 0 0 8px rgba(0,0,0,0.4),
+    0 24px 60px rgba(0,0,0,0.5),
+    inset 0 0 0 1px rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+/* Status bar — dark phone shell */
+.se-phone__statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 6px;
+  background: #1c1c1e;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.se-phone__icons {
+  display: flex;
+  gap: 6px;
+  font-size: 10px;
+  color: #ebebf5cc;
+}
+
+/* Caller screen — dark gradient like iOS call screen */
+.se-phone__caller-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 20px 16px;
+  background: linear-gradient(180deg, #1c1c1e 0%, #2c2c2e 100%);
+}
+
+.se-phone__call-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #30d158;
+  letter-spacing: 0.04em;
+}
+
+.se-phone__call-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #30d158;
+  animation: se-pulse 1.5s infinite;
+}
+
+@keyframes se-pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.8); }
+}
+
+.se-phone__caller-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #48484a;
+  border: 2px solid #636366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ebebf5;
+}
+
+/* Caller name is a hotspot — styled like plain text with subtle hover */
+.se-phone__caller-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.se-phone__caller-name:hover { background: rgba(255,255,255,0.08); }
+
+.se-phone__caller-number {
+  font-size: 0.875rem;
+  color: #ebebf599;
+}
+
+.se-phone__call-timer {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ebebf5cc;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+/* ── TRANSCRIPT — LIGHT background like iOS messages ── */
+.se-transcript {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  /* Light background for readability */
+  background: #f2f2f7;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+
+.se-transcript__bubble--caller {
+  align-self: flex-start;
+  max-width: 84%;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 0 18px 18px 18px;
+  padding: 10px 14px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #1c1c1e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.se-transcript__you-label {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  color: #8e8e93;
+  font-style: italic;
+  padding: 4px 8px;
+}
+
+/* Hotspot transcript bubbles */
+.se-transcript__hotspot {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  transition: opacity 0.15s;
+}
+
+.se-transcript__hotspot:hover { opacity: 0.8; }
+.se-transcript__hotspot.is-reviewed { color: #1c1c1e; }
+
+/* ── FLAG NUMBER BADGES ───────────────────────── */
+.se-flag-num {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.18);
+  border: 1px solid rgba(239,68,68,0.5);
+  color: #c0392b;
+  font-size: 10px;
+  font-weight: 800;
+  margin-top: 1px;
+}
+
+.se-hotspot.is-reviewed .se-flag-num {
+  background: rgba(0,200,100,0.15);
+  border-color: rgba(0,200,100,0.45);
+  color: #1a7a4a;
+}
+
+/* Phone action buttons — iOS style dark */
+.se-phone__actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #2c2c2e;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 0;
+}
+
+.se-phone__action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 10px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ebebf5cc;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.se-phone__action-btn span:first-child { font-size: 1.5rem; }
+.se-phone__action-btn:hover { color: #fff; }
+
+.se-phone__action-btn--end { color: #ff453a; }
+.se-phone__action-btn--end:hover { color: #ff6961; }
+.se-phone__action-btn--end:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Hint bar — matches phishing easy green hint bar */
+.se-hint-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #e6f4ea;
+  border-top: 1px solid #c3e6cb;
+  flex-shrink: 0;
+}
+
+.se-hint-bar__icon { font-size: 1.25rem; }
+.se-hint-bar__label { font-weight: 700; color: #0d8a4f; font-size: 0.875rem; }
+.se-hint-bar__text  { font-size: 0.8125rem; color: #3c4043; flex: 1; }
+
+.se-hint-bar__complete {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #00c97c;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  white-space: nowrap;
+}
+
+.se-hint-bar__complete:not(:disabled):hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.se-hint-bar__complete:disabled {
+  background: #c8d6cd;
+  color: #8a948e;
+  cursor: not-allowed;
+}
+
+/* ── RIGHT INDICATORS PANEL ───────────────────── */
+.se-indicators {
+  background: #0f0f0f;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.se-indicators__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.se-indicators__icon  { font-size: 1.5rem; }
+.se-indicators__title { font-size: 1rem; font-weight: 700; color: #fff; }
+.se-indicators__count { font-size: 0.75rem; color: #00ff9f; font-weight: 600; }
+
+.se-indicators__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual indicator items */
+.se-indicator-item {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.se-indicator-item:hover {
+  border-color: rgba(251,191,36,0.35);
+  background: rgba(251,191,36,0.04);
+}
+
+.se-indicator-item.is-reviewed {
+  border-color: rgba(0,255,159,0.25);
+  background: rgba(0,255,159,0.04);
+}
+
+.se-indicator-item__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.se-indicator-item__num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5f6368;
+}
+
+.se-indicator-item.is-reviewed .se-indicator-item__num {
+  background: #00ff9f;
+  color: #0a0a0a;
+}
+
+.se-indicator-item__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.se-indicator-item__status {
+  font-size: 0.75rem;
+  color: #5f6368;
+  padding-left: 34px;
+}
+
+.se-indicator-item.is-reviewed .se-indicator-item__status {
+  color: #00ff9f;
+}
+
+/* Verdict */
+.se-verdict {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.se-verdict__title    { font-size: 0.9375rem; font-weight: 700; color: #fff; }
+.se-verdict__subtitle { font-size: 0.8125rem; color: #5f6368; line-height: 1.5; }
+
+.se-verdict__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.se-verdict__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.se-verdict__btn--legit {
+  background: rgba(0,255,159,0.08);
+  border-color: rgba(0,255,159,0.25);
+  color: #00ff9f;
+}
+
+.se-verdict__btn--legit:hover {
+  background: rgba(0,255,159,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,255,159,0.2);
+}
+
+.se-verdict__btn--attack {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.25);
+  color: #f87171;
+}
+
+.se-verdict__btn--attack:hover {
+  background: rgba(239,68,68,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+}
+
+.se-verdict__btn.is-active {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ── MODAL ────────────────────────────────────── */
+.se-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.se-modal[hidden] { display: none !important; }
+.se-modal:not([hidden]) { pointer-events: auto; }
+
+.se-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+}
+
+.se-modal__dialog {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: 90vh;
+  background: #1a1a1a;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 36px 40px;
+  overflow-y: auto;
+  animation: seModalIn 0.25s ease;
+  z-index: 1;
+}
+
+@keyframes seModalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+.se-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #5f6368;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.se-modal__close:hover {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border-color: rgba(239,68,68,0.3);
+}
+
+.se-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.se-modal__badge {
+  display: inline-flex;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #f87171;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.se-modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.se-modal__desc {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #bbb;
+  margin: 0;
+}
+
+.se-modal__compare {
+  display: flex;
+  gap: 16px;
+}
+
+.se-modal__box {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.se-modal__box--wrong {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.28);
+}
+
+.se-modal__box--correct {
+  background: rgba(0,255,159,0.08);
+  border: 1px solid rgba(0,255,159,0.28);
+}
+
+.se-modal__box-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.se-modal__box--wrong   .se-modal__box-label { color: #fca5a5; }
+.se-modal__box--correct .se-modal__box-label { color: #5eead4; }
+
+.se-modal__box-text {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #f5f5f5;
+  margin: 0;
+}
+
+.se-modal__tip {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(66,133,244,0.08);
+  border: 1px solid rgba(66,133,244,0.2);
+}
+
+.se-modal__tip-icon  { font-size: 1.25rem; }
+.se-modal__tip-text  { font-size: 0.875rem; line-height: 1.6; color: #ccc; }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 1200px) {
+  .se-layout { grid-template-columns: 1fr; }
+  .se-sidebar { display: none; }
+}

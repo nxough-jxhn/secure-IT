@@ -285,6 +285,101 @@ WORKSPACE_MISSIONS: dict[str, dict[str, Any]] = {
             }
         ],
     },
+    "social_engineering": {
+        **_base_mission("social_engineering"),
+        "mission_title": "Hard Simulation — Suspicious IT Support Call",
+        "story": (
+            "You receive a phone call from someone claiming to be the UP IT Security Office. "
+            "No hints are provided — listen carefully, flag suspicious tactics on your own, "
+            "use the caller lookup tool if needed, and decide how to respond."
+        ),
+        "objectives": [
+            "Answer the call and listen to the caller's requests",
+            "Flag at least 3 suspicious social engineering tactics",
+            "Use the caller lookup tool to verify the number",
+            "End the call and decide the correct response",
+            "Submit your incident report",
+        ],
+        "skills_learned": [
+            "Social engineering identification",
+            "Caller identity verification",
+            "OTP security awareness",
+            "Urgency tactic recognition",
+        ],
+        "tools": ["phone", "flag_tool", "caller_lookup"],
+        "sim_template": "simulations/social_engineering_hard.html",
+        "signs": [
+            {
+                "id": "spoofed_caller_id",
+                "label": "Caller ID could be spoofed",
+                "hint": "The display name 'TUP-T IT Helpdesk' can be set by anyone with a VoIP tool. Caller ID proves nothing.",
+            },
+            {
+                "id": "urgency",
+                "label": "Artificial urgency — 'right now'",
+                "hint": "Legitimate TUP-T IT staff don't demand immediate action. Creating panic stops you from thinking critically.",
+            },
+            {
+                "id": "personal_info_bait",
+                "label": "Uses personal info to build false trust",
+                "hint": "Knowing your student number doesn't make them IT. This information is easy to find online.",
+            },
+            {
+                "id": "otp_request",
+                "label": "Requests a verification code (OTP)",
+                "hint": "Legitimate IT staff will never ask for an OTP over the phone. Full stop.",
+            },
+            {
+                "id": "urgency_deadline",
+                "label": "Countdown threat — '5 minutes'",
+                "hint": "Fake deadlines create fear. Real security alerts give you time to verify.",
+            },
+            {
+                "id": "authority_pressure",
+                "label": "Pressure not to hang up",
+                "hint": "Insisting you stay on the line is a manipulation tactic. Real IT will always let you call back.",
+            },
+        ],
+        "logs": [
+            {"time": "09:41:02", "level": "INFO",  "message": "Incoming call from +63 2 5310-0000 — caller ID: TUP-T IT Helpdesk"},
+            {"time": "09:41:18", "level": "WARN",  "message": "Number not found in official TUP-T IT directory"},
+            {"time": "09:41:44", "level": "ALERT", "message": "Call contains urgency keywords: suspended, 5 minutes"},
+        ],
+        "tasks": [
+            {"id": "answer_call",   "objective_index": 0, "label": "Answer and listen to the call",        "action": "answer_call"},
+            {"id": "flag_three",    "objective_index": 1, "label": "Flag at least 3 suspicious tactics",   "action": "flag_signs", "required": 3},
+            {"id": "lookup_caller", "objective_index": 2, "label": "Look up the caller's number",          "action": "lookup_caller"},
+            {"id": "end_call",      "objective_index": 3, "label": "End the call",                         "action": "end_call"},
+            {"id": "review_call",   "objective_index": 0, "label": "Review all caller messages",           "action": "review_call"},
+            {"id": "submit_report", "objective_index": 4, "label": "Submit incident report",               "action": "submit_report"},
+        ],
+        "decisions": [
+            {
+                "id": "final_action",
+                "prompt": "Based on your investigation, what is the correct response to this call?",
+                "options": [
+                    {
+                        "id": "read_otp",
+                        "label": "Read the OTP to the caller to secure the account",
+                        "score": 0,
+                        "mistake": "Shared OTP with attacker — account credentials compromised",
+                    },
+                    {
+                        "id": "partial_info",
+                        "label": "Confirm student number but refuse to share the OTP",
+                        "score": 35,
+                        "mistake": "Shared personal details that help attackers refine further attacks",
+                    },
+                    {
+                        "id": "hang_up_verify",
+                        "label": "Hang up, find the official helpdesk number, and call back yourself",
+                        "score": 100,
+                        "good": "Correctly identified social engineering — verified through official channels",
+                    },
+                ],
+            }
+        ],
+    },
     "ransomware": {
         **_base_mission("ransomware"),
         "mission_title": "Ransomware Incident Response",
@@ -315,6 +410,37 @@ WORKSPACE_MISSIONS: dict[str, dict[str, Any]] = {
                 ],
             }
         ],
+    },
+    "mitm": {
+        **_base_mission("mitm"),
+        "mission_title": "Hard Simulation — The Coffee Shop Transaction",
+        "story": (
+            "You are a student at a coffee shop who needs to pay tuition online. "
+            "No hints are provided — every decision you make has a consequence. "
+            "Navigate the scenario carefully: choose your network, verify the URL, "
+            "respond to warnings, and review your transaction before confirming."
+        ),
+        "objectives": [
+            "Select a safe network to connect to",
+            "Verify the payment portal URL before logging in",
+            "Respond correctly to the browser certificate warning",
+            "Review the transaction summary before confirming",
+        ],
+        "skills_learned": [
+            "Network security evaluation",
+            "HTTPS and certificate awareness",
+            "MITM attack recognition",
+            "Secure transaction verification",
+        ],
+        "tools": ["browser", "wifi_selector"],
+        "sim_template": "simulations/mitm_hard.html",
+        "tasks": [
+            {"id": "stage_1", "objective_index": 0, "label": "Choose a network", "action": "wifi_choice"},
+            {"id": "stage_2", "objective_index": 1, "label": "Verify portal URL", "action": "url_choice"},
+            {"id": "stage_3", "objective_index": 2, "label": "Handle certificate warning", "action": "cert_choice"},
+            {"id": "stage_4", "objective_index": 3, "label": "Confirm or cancel transaction", "action": "transfer_choice"},
+        ],
+        "decisions": [],
     },
 }
 

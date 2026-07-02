@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hard Simulation — {{ mission.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/social-hard.css') }}">
+  </head>
+  <body>
+
+<!-- ══ BRIEFING MODAL ══ -->
+<div class="se-briefing" id="se-briefing">
+  <div class="se-briefing__dialog">
+    <div class="se-briefing__badge">HARD SIMULATION</div>
+    <h1 class="se-briefing__title">Social Engineering</h1>
+
+    <div class="se-briefing__scenario">
+      <div class="se-briefing__scenario-icon">📱</div>
+      <p class="se-briefing__scenario-text">
+        It's re-enrollment season at TUP-T. You receive two separate Facebook Messenger
+        conversations — both claim to be from the TUP-T Registrar's Office helping students
+        confirm their re-enrollment details.
+      </p>
+    </div>
+
+    <div class="se-briefing__divider"></div>
+
+    <div class="se-briefing__goal">
+      <h3 class="se-briefing__goal-title">Your Goal</h3>
+      <ul class="se-briefing__goal-list">
+        <li>Go through both conversations one at a time</li>
+        <li>Reply freely — you decide what information to give</li>
+        <li>After both, identify which conversation was the real registrar</li>
+      </ul>
+    </div>
+
+    <p class="se-briefing__warn">
+      One conversation is legitimate. One is an attacker using social engineering.
+      Both will look and sound professional. No hints will be given.
+    </p>
+
+    <p class="se-briefing__note">
+      Points are based on what you share and whether you correctly identify the attacker.
+    </p>
+
+    <button type="button" class="se-briefing__start" id="se-briefing-start">
+      I understand — start simulation
+    </button>
+  </div>
+</div>
+
+<!-- ══ MAIN SIM ══ -->
+<div class="se-sim" id="se-hard-app">
+  <div class="se-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="se-sidebar">
+      <div class="se-sidebar__top">
+        <span class="se-sidebar__label">SIMULATION</span>
+        <h1 class="se-sidebar__title">{{ mission.name }}</h1>
+        <span class="se-sidebar__badge">HARD</span>
+      </div>
+
+      <div class="se-sidebar__section">
+        <h3 class="se-sidebar__section-title">SCENARIO</h3>
+        <p class="se-sidebar__text">Re-enrollment season. Two people message you claiming to be from the Registrar. One is real. One is not.</p>
+      </div>
+
+      <div class="se-sidebar__section">
+        <h3 class="se-sidebar__section-title">TIME ELAPSED</h3>
+        <div class="se-sidebar__timer" id="se-timer">00:00</div>
+      </div>
+
+      <!-- Identity card -->
+      <div class="se-sidebar__section">
+        <h3 class="se-sidebar__section-title">YOU ARE</h3>
+        <div class="se-id-card">
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Name</span>
+            <span class="se-id-card__val" id="sid-name">Juan Dela Cruz</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Student ID</span>
+            <span class="se-id-card__val" id="sid-id">TUPT-21-4892</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">School Email</span>
+            <span class="se-id-card__val" id="sid-email">juan.delacruz@tup.edu.ph</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Course</span>
+            <span class="se-id-card__val" id="sid-course">BSIT 2nd Year</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Section</span>
+            <span class="se-id-card__val" id="sid-section">BSIT 2-1</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Mobile</span>
+            <span class="se-id-card__val" id="sid-mobile">09171234567</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Sr. High School</span>
+            <span class="se-id-card__val" id="sid-shs">Taguig National High School</span>
+          </div>
+          <div class="se-id-card__row">
+            <span class="se-id-card__key">Guardian</span>
+            <span class="se-id-card__val" id="sid-guardian">Maria Dela Cruz</span>
+          </div>
+          <p class="se-id-card__note">Use this info when asked. Only share what's necessary.</p>
+        </div>
+      </div>
+
+      <div class="se-sidebar__section">
+        <h3 class="se-sidebar__section-title">PROGRESS</h3>
+        <div class="se-progress">
+          <div class="se-progress__row">
+            <span class="se-progress__label" id="se-progress-label">Conversation 1 of 2</span>
+          </div>
+          <div class="se-progress__bar">
+            <div class="se-progress__fill" id="se-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="se-sidebar__section">
+        <h3 class="se-sidebar__section-title">EVENT LOG</h3>
+        <ul class="se-log" id="se-log">
+          <li class="se-log__empty">Simulation not started.</li>
+        </ul>
+      </div>
+
+      <button type="button" class="se-end-btn" id="se-end-btn">End Simulation</button>
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="se-exit-btn">← Exit</a>
+    </aside>
+
+    <!-- CENTER: Phone UI -->
+    <main class="se-phone-col" id="se-phone-col">
+
+      <!-- Conversation label bar -->
+      <div class="se-conv-bar">
+        <div class="se-conv-bar__left">
+          <span class="se-conv-bar__icon">💬</span>
+          <span class="se-conv-bar__label" id="se-conv-label">Conversation 1</span>
+        </div>
+        <div class="se-conv-bar__right" id="se-conv-status">Starting…</div>
+      </div>
+
+      <!-- Phone frame -->
+      <div class="se-phone" id="se-phone">
+
+        <!-- Status bar -->
+        <div class="se-phone__statusbar">
+          <span class="se-phone__time" id="se-phone-time">9:41</span>
+          <div class="se-phone__icons"><span>▲</span><span>WiFi</span><span>🔋</span></div>
+        </div>
+
+        <!-- Messenger header -->
+        <div class="se-messenger-header" id="se-messenger-header">
+          <button type="button" class="se-messenger-header__back">←</button>
+          <div class="se-messenger-header__avatar" id="se-sender-avatar">R</div>
+          <div class="se-messenger-header__info">
+            <span class="se-messenger-header__name" id="se-sender-name">Loading…</span>
+            <span class="se-messenger-header__status" id="se-sender-status">Active now</span>
+          </div>
+          <div class="se-messenger-header__actions">
+            <span>📞</span><span>📹</span><span>ℹ</span>
+          </div>
+        </div>
+
+        <!-- Chat area -->
+        <div class="se-chat" id="se-chat">
+          <!-- Messages injected by JS -->
+        </div>
+
+        <!-- Reply input -->
+        <div class="se-reply-bar" id="se-reply-bar">
+          <button type="button" class="se-reply-bar__icon-btn">＋</button>
+          <div class="se-reply-bar__input-wrap">
+            <input
+              type="text"
+              class="se-reply-bar__input"
+              id="se-reply-input"
+              placeholder="Aa"
+              autocomplete="off"
+            >
+          </div>
+          <button type="button" class="se-reply-bar__send" id="se-send-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+
+      </div><!-- /.se-phone -->
+
+    </main>
+
+    <!-- RIGHT: Event feed -->
+    <aside class="se-events">
+      <div class="se-events__header">
+        <span>📡</span>
+        <span class="se-events__title">Event Feed</span>
+      </div>
+      <ul class="se-events__list" id="se-event-feed">
+        <li class="se-event se-event--info">Waiting for simulation to start…</li>
+      </ul>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ══ FINAL QUESTION MODAL ══ -->
+<div class="se-modal" id="se-final-modal" hidden>
+  <div class="se-modal__backdrop"></div>
+  <div class="se-modal__dialog" role="dialog" aria-modal="true">
+    <div class="se-modal__content">
+      <span class="se-modal__badge">Final Question</span>
+      <h2 class="se-modal__title">Which conversation was the legitimate TUP-T Registrar?</h2>
+      <p class="se-modal__desc">Based on both conversations, identify which one was real and which was a social engineering attack.</p>
+      <div class="se-modal__options" id="se-final-options">
+        <button type="button" class="se-final-btn" data-answer="A" id="se-final-a">
+          <span class="se-final-btn__letter">A</span>
+          <span>Conversation A was the legitimate registrar</span>
+        </button>
+        <button type="button" class="se-final-btn" data-answer="B" id="se-final-b">
+          <span class="se-final-btn__letter">B</span>
+          <span>Conversation B was the legitimate registrar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REVEAL OVERLAY ══ -->
+<div class="se-reveal-overlay" id="se-reveal-overlay" hidden>
+  <div class="se-reveal" id="se-reveal-content"></div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script src="{{ url_for('static', filename='js/social-hard.js') }}"></script>
+  </body>
+</html>

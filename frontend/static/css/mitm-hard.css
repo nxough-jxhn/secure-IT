@@ -1,0 +1,613 @@
+/* ══════════════════════════════════════════
+   MITM Hard Simulation
+   Briefing modal → laptop desktop (dark) →
+   Windows-11 WiFi flyout + Chrome window (light)
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a0a; overflow: hidden; font-family: 'Roboto', sans-serif; }
+
+/* ── BRIEFING MODAL ──────────────────────── */
+.mh-briefing {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.92); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.mh-briefing__dialog {
+  width: min(600px,100%); background: #141618;
+  border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+  padding: 40px 44px; display: flex; flex-direction: column; gap: 20px;
+  animation: mhFadeUp .3s ease;
+}
+@keyframes mhFadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:none; }
+}
+.mh-briefing__badge {
+  display: inline-flex; padding: 4px 12px; border-radius: 999px; width: fit-content;
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
+  font-size: .625rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: #f87171;
+}
+.mh-briefing__title {
+  font-size: 1.75rem; font-weight: 800; color: #fff; line-height: 1.2;
+}
+.mh-briefing__scenario {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 16px 18px; border-radius: 12px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+}
+.mh-briefing__scenario-icon { font-size: 1.75rem; flex-shrink: 0; }
+.mh-briefing__scenario-text { font-size: .9375rem; line-height: 1.7; color: #d1d5db; }
+.mh-briefing__divider { height: 1px; background: rgba(255,255,255,.08); }
+.mh-briefing__warn {
+  font-size: .9375rem; line-height: 1.7; color: #fde68a;
+  padding: 12px 16px; border-radius: 10px;
+  background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.2);
+}
+.mh-briefing__tasks {
+  list-style: none; display: flex; flex-direction: column; gap: 8px;
+}
+.mh-briefing__tasks li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: .875rem; color: #e5e7eb;
+}
+.mh-briefing__tasks li::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #00ff9f; flex-shrink: 0;
+}
+.mh-briefing__note {
+  font-size: .8125rem; color: #6b7280; line-height: 1.5;
+}
+.mh-briefing__start {
+  padding: 14px 28px; border-radius: 10px; border: none;
+  background: #00ff9f; color: #0a0a0a;
+  font-family: inherit; font-size: .9375rem; font-weight: 800;
+  cursor: pointer; align-self: flex-start;
+  transition: filter .2s, transform .2s;
+}
+.mh-briefing__start:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+/* ── LAYOUT ──────────────────────────────── */
+.mh-sim {
+  height: 100vh; display: flex; flex-direction: column;
+  background: #0a0a0a; color: #e0e0e0; overflow: hidden;
+}
+.mh-layout {
+  display: grid; grid-template-columns: 240px 1fr 260px;
+  flex: 1; min-height: 0; overflow: hidden;
+}
+
+/* ── LEFT SIDEBAR ────────────────────────── */
+.mh-sidebar {
+  background: #111; border-right: 1px solid rgba(255,255,255,.07);
+  padding: 24px 20px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 22px;
+}
+.mh-sidebar__top { display: flex; flex-direction: column; gap: 8px; }
+.mh-sidebar__label {
+  font-size: .625rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: #555;
+}
+.mh-sidebar__title { font-size: 1.0625rem; font-weight: 800; color: #fff; line-height: 1.3; }
+.mh-sidebar__badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; width: fit-content;
+  font-size: .5625rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: #f87171;
+}
+.mh-sidebar__section { display: flex; flex-direction: column; gap: 8px; }
+.mh-sidebar__section-title {
+  font-size: .625rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: #666;
+}
+.mh-sidebar__text { font-size: .8125rem; line-height: 1.65; color: #aaa; }
+.mh-sidebar__timer {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 2rem; font-weight: 700; color: #00ff9f;
+}
+.mh-progress { display: flex; flex-direction: column; gap: 6px; }
+.mh-progress__row { display: flex; align-items: center; justify-content: space-between; }
+.mh-progress__pct { font-size: .875rem; font-weight: 700; color: #fff; }
+.mh-progress__count { font-size: .75rem; color: #666; }
+.mh-progress__bar { height: 4px; border-radius: 999px; background: rgba(255,255,255,.08); }
+.mh-progress__fill { height: 100%; border-radius: 999px; background: #00ff9f; transition: width .4s ease; }
+.mh-steps { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.mh-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02);
+  font-size: .8125rem; color: #666; transition: all .2s;
+}
+.mh-step--active { border-color: rgba(0,255,159,.3); background: rgba(0,255,159,.06); color: #00ff9f; }
+.mh-step--done   { border-color: rgba(255,255,255,.1); color: #9ca3af; }
+.mh-step__num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,.08); display: grid; place-items: center;
+  font-size: .6875rem; font-weight: 800;
+}
+.mh-step--active .mh-step__num { background: #00ff9f; color: #0a0a0a; }
+.mh-step--done   .mh-step__num { background: rgba(255,255,255,.15); color: #fff; }
+.mh-log { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.mh-log__empty { font-size: .8125rem; color: #555; font-style: italic; }
+.mh-log li {
+  font-size: .75rem; line-height: 1.5; color: #aaa;
+  padding: 5px 8px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.05); background: rgba(255,255,255,.02);
+}
+.mh-log li.good { color: #6effd4; border-color: rgba(0,255,159,.18); }
+.mh-log li.bad  { color: #fca5a5; border-color: rgba(239,68,68,.18); }
+.mh-end-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 10px;
+  background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3);
+  color: #fbbf24; font-family: inherit; font-weight: 700; font-size: .875rem;
+  cursor: pointer; transition: background .2s;
+}
+.mh-end-btn:hover { background: rgba(251,191,36,.18); }
+
+.mh-exit-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: auto; padding: 12px; border-radius: 10px;
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+  color: #f87171; font-weight: 700; font-size: .875rem;
+  text-decoration: none; transition: background .2s;
+}
+.mh-exit-btn:hover { background: rgba(239,68,68,.18); }
+
+/* ── WALLPAPER CENTER DECORATION ─────────── */
+.mh-wallpaper__center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  pointer-events: none; user-select: none;
+  opacity: 0.55;
+}
+
+.mh-wallpaper__logo {
+  width: 80px; height: 80px;
+  filter: drop-shadow(0 4px 16px rgba(255,255,255,0.5));
+}
+
+.mh-wallpaper__label {
+  font-size: 1.0625rem; font-weight: 700;
+  color: black;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  text-shadow: none;
+}
+
+.mh-wallpaper__sub {
+  font-size: 0.75rem; color: black;
+  letter-spacing: 0.06em;
+  text-shadow: none;
+}
+
+/* ── DESKTOP AREA ────────────────────────── */
+.mh-desktop-col {
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  background: #141414;
+}
+.mh-desktop {
+  flex: 1; display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.mh-desktop__wallpaper {
+  flex: 1; overflow: hidden; position: relative;
+  background: linear-gradient(135deg, #c9d8f0 0%, #b8cfe8 40%, #a8c4e0 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── TASKBAR ─────────────────────────────── */
+.mh-taskbar {
+  display: flex; align-items: center;
+  background: rgba(20,22,28,0.92); backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 0 12px; height: 44px; flex-shrink: 0; gap: 8px;
+}
+.mh-taskbar__left { display: flex; align-items: center; gap: 4px; }
+.mh-taskbar__start {
+  width: 34px; height: 34px; border-radius: 6px; border: none;
+  background: transparent; color: #fff; font-size: 1.0625rem; cursor: pointer;
+  transition: background .15s; display: grid; place-items: center;
+}
+.mh-taskbar__start:hover { background: rgba(255,255,255,.1); }
+.mh-taskbar__app-btn {
+  width: 36px; height: 36px; border-radius: 6px; border: none;
+  background: transparent; cursor: pointer; font-size: 1.125rem;
+  display: grid; place-items: center; transition: background .15s;
+  position: relative;
+}
+.mh-taskbar__app-btn:not(:disabled):hover { background: rgba(255,255,255,.1); }
+.mh-taskbar__app-btn:disabled { opacity: .3; cursor: default; }
+.mh-taskbar__app-btn.is-open::after {
+  content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  width: 16px; height: 3px; border-radius: 999px; background: #00c7ff;
+}
+.mh-taskbar__center {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; line-height: 1.2;
+}
+.mh-taskbar__clock { font-size: .8125rem; font-weight: 600; color: #fff; }
+.mh-taskbar__date  { font-size: .6875rem; color: #9ca3af; }
+.mh-taskbar__right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.mh-taskbar__tray-icon { font-size: .875rem; padding: 4px 6px; color: #d1d5db; cursor: default; }
+.mh-taskbar__wifi-btn {
+  display: flex; align-items: center; justify-content: center;
+  padding: 4px 8px; border-radius: 4px; border: none;
+  background: transparent; cursor: pointer; transition: background .15s;
+}
+.mh-taskbar__wifi-btn:hover { background: rgba(255,255,255,.1); }
+.mh-taskbar__wifi-icon { font-size: 1rem; }
+
+/* ── WIFI PANEL (Win11 flyout) ───────────── */
+.mh-wifi-panel {
+  position: absolute; bottom: 48px; right: 8px; z-index: 200;
+  width: 320px; background: #202124; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+  overflow: hidden; animation: mhPanelUp .18s ease;
+}
+.mh-wifi-panel[hidden] { display: none; }
+@keyframes mhPanelUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:none; }
+}
+.mh-wifi-panel__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 10px; border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.mh-wifi-panel__heading { font-size: .9375rem; font-weight: 600; color: #fff; }
+.mh-wifi-panel__toggle-track {
+  width: 40px; height: 22px; border-radius: 999px;
+  background: rgba(255,255,255,.2); position: relative;
+  cursor: default;
+}
+.mh-wifi-panel__toggle-track--on { background: #00b4ff; }
+.mh-wifi-panel__toggle-track::after {
+  content: ''; position: absolute; right: 3px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+}
+.mh-wifi-panel__list { max-height: 340px; overflow-y: auto; }
+/* Each wifi row */
+.mh-wifi-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: background .12s;
+}
+.mh-wifi-row:hover { background: rgba(255,255,255,.07); }
+.mh-wifi-row--connected { background: rgba(0,180,255,.07); }
+.mh-wifi-row__signal { display: flex; align-items: flex-end; gap: 2px; height: 16px; flex-shrink: 0; }
+.mh-wifi-bar { width: 3px; border-radius: 2px; background: rgba(255,255,255,.25); align-self: flex-end; }
+.mh-wifi-bar:nth-child(1) { height: 4px; }
+.mh-wifi-bar:nth-child(2) { height: 7px; }
+.mh-wifi-bar:nth-child(3) { height: 10px; }
+.mh-wifi-bar:nth-child(4) { height: 14px; }
+.mh-wifi-bar--lit { background: #fff; }
+.mh-wifi-bar--lit-blue { background: #00b4ff; }
+.mh-wifi-row__lock { font-size: .75rem; color: rgba(255,255,255,.5); flex-shrink: 0; }
+.mh-wifi-row__info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mh-wifi-row__name { font-size: .875rem; font-weight: 500; color: #fff; }
+.mh-wifi-row__status { font-size: .75rem; color: #9ca3af; }
+.mh-wifi-row--connected .mh-wifi-row__name  { color: #00c7ff; }
+.mh-wifi-row--connected .mh-wifi-row__status { color: #00c7ff; }
+.mh-wifi-row__info-btn {
+  width: 24px; height: 24px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.08); color: #9ca3af; font-size: .8125rem;
+  cursor: pointer; display: grid; place-items: center; flex-shrink: 0; transition: background .15s;
+}
+.mh-wifi-row__info-btn:hover { background: rgba(255,255,255,.16); color: #fff; }
+.mh-wifi-panel__footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-top: 1px solid rgba(255,255,255,.08);
+  font-size: .8125rem; color: #9ca3af;
+}
+.mh-wifi-panel__footer-icons { display: flex; gap: 10px; }
+
+/* ── WIFI DETAIL DRAWER ──────────────────── */
+.mh-wifi-detail {
+  position: fixed; inset: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  pointer-events: none;
+}
+.mh-wifi-detail[hidden] { display: none !important; }
+.mh-wifi-detail:not([hidden]) { pointer-events: auto; }
+.mh-wifi-detail__backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(3px);
+}
+.mh-wifi-detail__panel {
+  position: relative; z-index: 1; width: min(500px,100%);
+  background: #1e2028; border-radius: 16px; border: 1px solid rgba(255,255,255,.1);
+  padding: 32px 36px; animation: mhFadeUp .22s ease;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.mh-wifi-detail__close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.05); color: #9ca3af; font-size: 1.125rem;
+  cursor: pointer; display: grid; place-items: center; transition: background .15s;
+}
+.mh-wifi-detail__close:hover { background: rgba(239,68,68,.2); color: #f87171; }
+.mh-wifi-detail__content { display: flex; flex-direction: column; gap: 12px; }
+.mh-wifi-detail__name { font-size: 1.25rem; font-weight: 700; color: #fff; }
+.mh-wifi-detail__table { display: flex; flex-direction: column; gap: 8px; }
+.mh-wifi-detail__row {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  font-size: .875rem; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.05); background: rgba(255,255,255,.03);
+}
+.mh-wifi-detail__key { color: #9ca3af; flex-shrink: 0; font-weight: 500; }
+.mh-wifi-detail__val { color: #f3f4f6; text-align: right; font-family: 'Roboto Mono', monospace; font-size: .8125rem; }
+.mh-wifi-detail__actions {
+  display: flex; gap: 10px; padding-top: 4px;
+}
+.mh-wifi-detail__btn {
+  flex: 1; padding: 11px; border-radius: 8px; font-family: inherit;
+  font-size: .875rem; font-weight: 700; cursor: pointer; border: none; transition: background .2s;
+}
+.mh-wifi-detail__btn--connect { background: #00b4ff; color: #fff; }
+.mh-wifi-detail__btn--connect:hover { background: #0095d9; }
+.mh-wifi-detail__btn--cancel { background: rgba(255,255,255,.08); color: #d1d5db; border: 1px solid rgba(255,255,255,.12); }
+.mh-wifi-detail__btn--cancel:hover { background: rgba(255,255,255,.13); }
+
+/* ── CHROME WINDOW ───────────────────────── */
+.mh-window {
+  position: absolute; inset: 20px; border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6); overflow: hidden;
+  display: flex; flex-direction: column;
+  animation: mhFadeUp .25s ease;
+}
+.mh-window--hidden { display: none !important; }
+.mh-window__titlebar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: #3c3f41; flex-shrink: 0;
+}
+.mh-window__controls { display: flex; gap: 6px; }
+.mh-window__ctrl {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.mh-window__ctrl--close { background: #ff5f57; }
+.mh-window__ctrl--min   { background: #febc2e; }
+.mh-window__ctrl--max   { background: #28c840; }
+.mh-window__title { font-size: .75rem; color: #aaa; flex: 1; text-align: center; }
+
+/* Chrome browser UI */
+.mh-chrome { flex: 1; display: flex; flex-direction: column; background: #fff; min-height: 0; }
+.mh-chrome__tabbar {
+  display: flex; align-items: flex-end; padding: 6px 8px 0;
+  background: #dee1e6; gap: 2px; flex-shrink: 0;
+}
+.mh-chrome__tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 8px 8px 0 0;
+  background: #dee1e6; font-size: .8125rem; color: #3c4043;
+  max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mh-chrome__tab--active { background: #fff; font-weight: 500; color: #202124; }
+.mh-chrome__tab-favicon { font-size: .8125rem; flex-shrink: 0; }
+.mh-chrome__tab-close { color: #5f6368; margin-left: auto; cursor: pointer; }
+.mh-chrome__newtab {
+  background: none; border: none; color: #5f6368;
+  font-size: 1.0625rem; padding: 4px 8px; cursor: pointer; border-radius: 50%;
+}
+.mh-chrome__toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; background: #f1f3f4; border-bottom: 1px solid #dadce0; flex-shrink: 0;
+}
+.mh-chrome__nav-btns { display: flex; gap: 2px; }
+.mh-chrome__nav-btn {
+  width: 26px; height: 26px; border-radius: 50%; border: none;
+  background: transparent; color: #5f6368; font-size: .9375rem; cursor: pointer;
+  display: grid; place-items: center; transition: background .15s;
+}
+.mh-chrome__nav-btn:hover:not(:disabled) { background: rgba(0,0,0,.07); }
+.mh-chrome__nav-btn:disabled { opacity: .35; cursor: default; }
+
+/* Address bar */
+.mh-chrome__address-wrap {
+  flex: 1; display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px; background: #fff;
+  border: 1px solid transparent; cursor: text;
+  transition: border-color .15s;
+}
+.mh-chrome__address-wrap:focus-within { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,.12); }
+.mh-chrome__security-icon { font-size: .875rem; color: #e8710a; flex-shrink: 0; }
+.mh-chrome__security-icon.secure { color: #0d652d; }
+.mh-chrome__not-secure { font-size: .75rem; font-weight: 600; color: #e8710a; flex-shrink: 0; }
+.mh-chrome__not-secure.hidden-label { display: none; }
+.mh-chrome__url {
+  flex: 1; font-family: 'Roboto Mono', monospace; font-size: .8125rem;
+  color: #202124; outline: none; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mh-chrome__go-btn {
+  background: none; border: none; color: #5f6368;
+  font-size: 1rem; cursor: pointer; padding: 0 4px; transition: color .15s;
+}
+.mh-chrome__go-btn:hover { color: #1a73e8; }
+.mh-chrome__toolbar-right { display: flex; gap: 4px; }
+.mh-chrome__ticon {
+  padding: 4px 6px; color: #5f6368; font-size: 1rem; cursor: pointer;
+  border-radius: 50%; transition: background .15s;
+}
+.mh-chrome__ticon:hover { background: rgba(0,0,0,.07); }
+
+/* Page content */
+.mh-chrome__page { flex: 1; overflow-y: auto; background: #f8f9fa; }
+.mh-page-hidden  { display: none !important; }
+
+/* Portal top bar */
+.mh-portal-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; background: #1a3c5e; color: #fff; flex-shrink: 0;
+}
+.mh-portal-topbar__logo { font-size: 1.25rem; }
+.mh-portal-topbar__name { font-size: .9375rem; font-weight: 700; flex: 1; }
+.mh-portal-topbar__user { font-size: .8125rem; color: rgba(255,255,255,.7); }
+
+.mh-portal-body {
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 28px 20px; min-height: calc(100% - 46px);
+}
+
+/* Login card */
+.mh-login-card {
+  width: 100%; max-width: 360px; background: #fff;
+  border-radius: 12px; border: 1px solid #e0e0e0;
+  padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.mh-login-card__title { font-size: 1.0625rem; font-weight: 700; color: #202124; }
+.mh-login-card__sub   { font-size: .8125rem; color: #5f6368; }
+.mh-form-row   { display: flex; flex-direction: column; gap: 4px; }
+.mh-form-label {
+  font-size: .6875rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: #5f6368;
+}
+.mh-form-input {
+  padding: 9px 12px; border-radius: 8px; border: 1px solid #dadce0;
+  background: #f8f9fa; font-family: inherit; font-size: .9375rem;
+  color: #202124; outline: none; transition: border-color .15s;
+}
+.mh-form-input:focus { border-color: #1a73e8; }
+.mh-form-submit {
+  padding: 11px; border-radius: 8px; border: none;
+  background: #1a3c5e; color: #fff; font-family: inherit;
+  font-weight: 700; font-size: .9375rem; cursor: pointer; transition: background .2s;
+}
+.mh-form-submit:hover { background: #153258; }
+
+/* ── PAYMENT CARD ────────────────────────── */
+.mh-payment-card {
+  width: 100%; max-width: 460px; background: #fff;
+  border-radius: 12px; border: 1px solid #e0e0e0;
+  overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+.mh-payment-card__title {
+  font-size: 1rem; font-weight: 700; color: #202124;
+  padding: 16px 20px; border-bottom: 1px solid #e8eaed;
+}
+.mh-payment-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; padding: 10px 20px; border-bottom: 1px solid #f1f3f4;
+  font-size: .875rem;
+}
+.mh-payment-row:last-of-type { border-bottom: none; }
+.mh-payment-row__label { color: #5f6368; flex-shrink: 0; font-weight: 500; }
+.mh-payment-row__val   { color: #202124; font-weight: 600; text-align: right; }
+.mh-payment-row__val--amount { font-size: 1.0625rem; font-weight: 800; color: #1a3c5e; }
+.mh-payment-divider { height: 1px; background: #e8eaed; margin: 4px 0; }
+.mh-payment-row--muted { opacity: .65; }
+
+/* Editable receiver field */
+.mh-payment-row--receiver { background: #fffde7; }
+.mh-payment-receiver {
+  font-family: 'Roboto Mono', monospace; font-size: .8125rem;
+  color: #202124; text-align: right; outline: none;
+  border-bottom: 1px dashed #bbb; padding: 2px 4px;
+  min-width: 200px; cursor: text;
+  transition: border-color .15s;
+}
+.mh-payment-receiver:focus { border-color: #1a73e8; }
+
+.mh-payment-confirm {
+  display: block; width: 100%; padding: 13px; margin-top: 4px;
+  border: none; background: #1a3c5e; color: #fff;
+  font-family: inherit; font-weight: 700; font-size: .9375rem;
+  cursor: pointer; transition: background .2s;
+}
+.mh-payment-confirm:hover { background: #153258; }
+
+/* ── RIGHT EVENT FEED ────────────────────── */
+.mh-events {
+  background: #111; border-left: 1px solid rgba(255,255,255,.07);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.mh-events__header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,.07); flex-shrink: 0;
+}
+.mh-events__title { font-size: .875rem; font-weight: 700; color: #fff; }
+.mh-events__list {
+  list-style: none; overflow-y: auto; flex: 1;
+  padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.mh-event {
+  padding: 10px 12px; border-radius: 8px; font-size: .75rem;
+  line-height: 1.55; color: #ccc;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+}
+.mh-event--good { border-color: rgba(0,255,159,.2);  background: rgba(0,255,159,.04); color: #6effd4; }
+.mh-event--bad  { border-color: rgba(239,68,68,.2);  background: rgba(239,68,68,.04); color: #fca5a5; }
+.mh-event--warn { border-color: rgba(251,191,36,.2); background: rgba(251,191,36,.04); color: #fde68a; }
+.mh-event--info { border-color: rgba(96,165,250,.2); background: rgba(96,165,250,.04); color: #93c5fd; }
+
+/* ── REVEAL OVERLAY ──────────────────────── */
+.mh-reveal-overlay {
+  position: fixed; inset: 0; z-index: 800;
+  background: rgba(0,0,0,.95); overflow-y: auto;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 24px;
+}
+.mh-reveal-overlay[hidden] { display: none !important; }
+.mh-reveal {
+  width: min(700px,100%); display: flex; flex-direction: column; gap: 24px;
+}
+.mh-reveal__badge {
+  display: inline-flex; padding: 4px 12px; border-radius: 999px; width: fit-content;
+  font-size: .625rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.25); color: #93c5fd;
+}
+.mh-reveal__title { font-size: 1.75rem; font-weight: 800; color: #fff; line-height: 1.2; }
+.mh-reveal__sub   { font-size: .9375rem; line-height: 1.7; color: #9ca3af; }
+.mh-reveal__section-label {
+  font-size: .625rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: #6b7280; margin-bottom: 8px;
+}
+.mh-reveal__items { display: flex; flex-direction: column; gap: 10px; }
+.mh-reveal-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.03);
+}
+.mh-reveal-item--good    { border-color: rgba(0,255,159,.2);  background: rgba(0,255,159,.05); }
+.mh-reveal-item--mistake { border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.05); }
+.mh-reveal-item__icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
+.mh-reveal-item__body { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.mh-reveal-item__step  { font-size: .625rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #6b7280; }
+.mh-reveal-item--good    .mh-reveal-item__step { color: #00ff9f; }
+.mh-reveal-item--mistake .mh-reveal-item__step { color: #f87171; }
+.mh-reveal-item__label  { font-size: .9375rem; font-weight: 600; color: #f3f4f6; }
+.mh-reveal-item__detail { font-size: .8125rem; line-height: 1.55; color: #9ca3af; }
+.mh-reveal__score-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
+}
+.mh-reveal__score-label { font-size: .875rem; font-weight: 600; color: #d1d5db; }
+.mh-reveal__score-value { font-size: 1.75rem; font-weight: 800; color: #00ff9f; }
+.mh-reveal__score-value.low { color: #f87171; }
+.mh-reveal__actions {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; padding-bottom: 24px;
+}
+.mh-reveal__btn {
+  padding: 12px 22px; border-radius: 999px; font-family: inherit;
+  font-weight: 800; font-size: .875rem; cursor: pointer; border: none;
+  text-decoration: none; display: inline-flex; align-items: center;
+  transition: transform .15s, filter .15s;
+}
+.mh-reveal__btn:hover { transform: translateY(-1px); }
+.mh-reveal__btn--primary { background: #00ff9f; color: #0a0a0a; }
+.mh-reveal__btn--ghost {
+  background: transparent; border: 1px solid rgba(255,255,255,.18); color: #e2e8f0;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .mh-layout { grid-template-columns: 220px 1fr; }
+  .mh-events { display: none; }
+}
+@media (max-width: 760px) {
+  .mh-layout { grid-template-columns: 1fr; }
+  .mh-sidebar { display: none; }
+}

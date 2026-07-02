@@ -1,0 +1,403 @@
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/collection.css') }}">
+{% endblock %}
+
+{% block page_ambient %}
+<!-- Animated background orbs -->
+<div class="gc-orbs" aria-hidden="true">
+  <span class="gc-orb gc-orb--1"></span>
+  <span class="gc-orb gc-orb--2"></span>
+  <span class="gc-orb gc-orb--3"></span>
+</div>
+{% endblock %}
+
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+
+{% set active_nc = namecards | selectattr('active') | first %}
+{% if not active_nc %}{% set active_nc = namecards | selectattr('earned') | first %}{% endif %}
+
+<div class="gc-book">
+
+  <!-- ══ LEFT: Profile sidebar ══ -->
+  <aside class="gc-profile">
+
+    <!-- Banner -->
+    <div class="gc-banner"
+         style="{% if active_nc and active_nc.earned %}background: {{ active_nc.gradient }}; --nc-accent: {{ active_nc.accent }};{% endif %}">
+      {% if active_nc and active_nc.earned and active_nc.get('animated') %}
+      <div class="gc-banner__glow"></div>
+      {% endif %}
+
+      <div class="gc-banner__avatar-wrap">
+        {% if profile.profile_picture %}
+        <img class="gc-banner__avatar"
+             src="{{ profile.profile_picture if profile.profile_picture.startswith('http') else url_for('static', filename=profile.profile_picture) }}"
+             alt="">
+        {% else %}
+        <div class="gc-banner__avatar gc-banner__avatar--initials">{{ display_name[:2] | upper }}</div>
+        {% endif %}
+      </div>
+
+      <div class="gc-banner__name">{{ display_name }}</div>
+    </div>
+
+    <!-- Stat rows -->
+    <div class="gc-stats">
+      <div class="gc-stat-row">
+        <span class="gc-stat-row__label">Rank</span>
+        <span class="gc-stat-row__val">{% if user_rank %}#{{ user_rank }}{% else %}—{% endif %}</span>
+      </div>
+      <div class="gc-stat-row">
+        <span class="gc-stat-row__label">Level</span>
+        <span class="gc-stat-row__val">{{ level_progress.level_name }}</span>
+      </div>
+      <div class="gc-stat-row gc-stat-row--title">
+        <span class="gc-stat-row__title-text">
+          {% if user_rank == 1 %}Top Defender
+          {% elif user_rank == 2 %}Elite Guard
+          {% elif user_rank == 3 %}Cyber Ace
+          {% elif user_rank and user_rank <= 10 %}Honor Shield
+          {% else %}Active Learner{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- Achievement rows — SVG icons -->
+    <div class="gc-achieve">
+
+      <div class="gc-achieve-row">
+        <!-- points icon -->
+        <svg class="gc-achieve-row__svg" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="gc-achieve-row__label">Total Points</span>
+        <span class="gc-achieve-row__val">{{ profile.points }}</span>
+      </div>
+
+      <div class="gc-achieve-row">
+        <!-- modules icon -->
+        <svg class="gc-achieve-row__svg" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="11" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="3" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="11" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span class="gc-achieve-row__label">Modules Completed</span>
+        <span class="gc-achieve-row__val">{{ module_status.completed }} / {{ module_status.total }}</span>
+      </div>
+
+      <div class="gc-achieve-row">
+        <!-- badge icon -->
+        <svg class="gc-achieve-row__svg" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2l2.09 4.26L17 7.27l-3.5 3.41.83 4.82L10 13.27l-4.33 2.23.83-4.82L3 7.27l4.91-.71L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span class="gc-achieve-row__label">Badges Earned</span>
+        <span class="gc-achieve-row__val">{{ profile.badges | length }}</span>
+      </div>
+
+      <div class="gc-achieve-row">
+        <!-- certificate icon -->
+        <svg class="gc-achieve-row__svg" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6 7h8M6 10h8M6 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="gc-achieve-row__label">Certificates</span>
+        <span class="gc-achieve-row__val">{{ certificates | selectattr('earned') | list | length }} / {{ certificates | length }}</span>
+      </div>
+
+      <div class="gc-achieve-row">
+        <!-- namecard icon -->
+        <svg class="gc-achieve-row__svg" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="5" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="7" cy="10.5" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M11 9h5M11 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="gc-achieve-row__label">Namecards</span>
+        <span class="gc-achieve-row__val gc-achieve-row__val--accent">
+          {{ namecards | selectattr('earned') | list | length }} / {{ namecards | length }}
+        </span>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ══ RIGHT: Collection browser ══ -->
+  <div class="gc-browser">
+
+    <div class="gc-tabs" role="tablist">
+      <button type="button" class="gc-tab gc-tab--active" data-tab="namecards" role="tab">Namecards</button>
+      <button type="button" class="gc-tab" data-tab="certificates" role="tab">Certificates</button>
+    </div>
+
+    <!-- Namecards panel — 2 columns -->
+    <div class="gc-panel" id="gc-panel-namecards" role="tabpanel">
+      <div class="gc-nc-grid">
+        {% for nc in namecards %}
+        <button
+          type="button"
+          class="gc-nc-thumb{% if not nc.earned %} gc-nc-thumb--locked{% endif %}{% if nc.active %} gc-nc-thumb--active{% endif %}"
+          data-nc='{{ nc | tojson }}'
+          aria-label="{{ nc.name }}"
+        >
+          {% if nc.earned %}
+          <div class="gc-nc-thumb__bg" style="background: {{ nc.gradient }};"></div>
+          {% if nc.get('animated') %}<div class="gc-nc-thumb__glow" style="--nc-accent: {{ nc.accent }};"></div>{% endif %}
+          <span class="gc-nc-thumb__icon">{{ nc.icon }}</span>
+          {% if nc.active %}<span class="gc-nc-thumb__active-dot"></span>{% endif %}
+          {% else %}
+          <!-- lock SVG -->
+          <svg class="gc-nc-thumb__lock-svg" viewBox="0 0 20 20" fill="none">
+            <rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7 9V7a3 3 0 116 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {% endif %}
+          <span class="gc-nc-thumb__name">{{ nc.name | truncate(14, true, '…') }}</span>
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Certificates panel — left list + right preview -->
+    <div class="gc-panel gc-panel--hidden" id="gc-panel-certificates" role="tabpanel">
+      <div class="gc-cert-layout">
+
+        <!-- Left: scrollable list -->
+        <div class="gc-cert-list" id="gc-cert-list">
+          {% for cert in certificates %}
+          <button
+            type="button"
+            class="gc-cert-item{% if not cert.earned %} gc-cert-item--locked{% endif %}"
+            data-cert='{{ cert | tojson }}'
+            style="--cert-color: {{ cert.accent }};"
+          >
+            <div class="gc-cert-item__thumb">
+              <img src="{{ url_for('static', filename=cert.svg) }}" alt="{{ cert.name }}" class="gc-cert-item__img">
+              {% if not cert.earned %}
+              <div class="gc-cert-item__lock-overlay">
+                <svg viewBox="0 0 20 20" fill="none" class="gc-cert-item__lock-svg">
+                  <rect x="4" y="9" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M7 9V6.5a3 3 0 116 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              {% endif %}
+            </div>
+            <div class="gc-cert-item__info">
+              <span class="gc-cert-item__name">{{ cert.name }}</span>
+              <span class="gc-cert-item__cond">{{ cert.condition_short }}</span>
+              <span class="gc-cert-item__status{% if cert.earned %} gc-cert-item__status--earned{% endif %}">
+                {% if cert.earned %}✓ Obtained{% else %}Not obtained{% endif %}
+              </span>
+            </div>
+          </button>
+          {% endfor %}
+        </div>
+
+        <!-- Right: detail preview -->
+        <div class="gc-cert-detail" id="gc-cert-detail">
+          <div class="gc-cert-detail__placeholder" id="gc-cert-placeholder">
+            <svg viewBox="0 0 48 48" fill="none" class="gc-cert-detail__ph-icon">
+              <rect x="6" y="6" width="36" height="36" rx="4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M14 18h20M14 24h20M14 30h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <p>Select a certificate to preview</p>
+          </div>
+          <div class="gc-cert-detail__content" id="gc-cert-content" hidden>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Namecard modal -->
+<div class="gc-modal" id="gc-nc-modal" hidden>
+  <div class="gc-modal__backdrop" id="gc-nc-modal-bd"></div>
+  <div class="gc-modal__dialog">
+    <button type="button" class="gc-modal__close" id="gc-nc-modal-close">×</button>
+    <div id="gc-nc-modal-content"></div>
+  </div>
+</div>
+
+<!-- Certificate modal -->
+<div class="gc-modal" id="gc-cert-modal" hidden>
+  <div class="gc-modal__backdrop" id="gc-cert-modal-bd"></div>
+  <div class="gc-modal__dialog">
+    <button type="button" class="gc-modal__close" id="gc-cert-modal-close">×</button>
+    <div id="gc-cert-modal-content"></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+  const DISPLAY_NAME = {{ display_name | tojson }};
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.gc-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.gc-tab').forEach(t => t.classList.remove('gc-tab--active'));
+      document.querySelectorAll('.gc-panel').forEach(p => p.classList.add('gc-panel--hidden'));
+      tab.classList.add('gc-tab--active');
+      document.getElementById('gc-panel-' + tab.dataset.tab)?.classList.remove('gc-panel--hidden');
+    });
+  });
+
+  /* ── Modals ── */
+  function openModal(id)  { const el = document.getElementById(id); if(el){el.hidden=false; document.body.style.overflow='hidden';} }
+  function closeModal(id) { const el = document.getElementById(id); if(el){el.hidden=true;  document.body.style.overflow='';} }
+
+  ['gc-nc-modal','gc-cert-modal'].forEach(id => {
+    document.getElementById(id+'-bd')?.addEventListener('click',    () => closeModal(id));
+    document.getElementById(id+'-close')?.addEventListener('click', () => closeModal(id));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal('gc-nc-modal'); closeModal('gc-cert-modal'); }
+  });
+
+  /* ── Namecard thumbnails ── */
+  document.querySelectorAll('.gc-nc-thumb').forEach(btn => {
+    btn.addEventListener('click', () => showNcModal(JSON.parse(btn.dataset.nc)));
+  });
+
+  function showNcModal(nc) {
+    const el = document.getElementById('gc-nc-modal-content');
+    if (!nc.earned) {
+      el.innerHTML = `
+        <div class="gc-nc-preview gc-nc-preview--locked">
+          <svg viewBox="0 0 24 24" fill="none" class="gc-nc-preview__lock-svg">
+            <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 11V7a4 4 0 118 0v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="gc-nc-preview__name">${nc.name}</div>
+        </div>
+        <div class="gc-modal__meta">
+          <span class="gc-modal__status gc-modal__status--locked">Not obtained</span>
+          <p class="gc-modal__cond"><strong>How to obtain:</strong> ${nc.condition}</p>
+        </div>`;
+    } else {
+      el.innerHTML = `
+        <div class="gc-nc-preview" style="background:${nc.gradient}; --nc-accent:${nc.accent};">
+          ${nc.animated ? '<div class="gc-nc-preview__glow"></div>' : ''}
+          <div class="gc-nc-preview__icon">${nc.icon}</div>
+          <div class="gc-nc-preview__name">${nc.name}</div>
+          <div class="gc-nc-preview__desc">${nc.desc}</div>
+        </div>
+        <div class="gc-modal__meta">
+          <span class="gc-modal__status gc-modal__status--obtained">✓ Obtained</span>
+          <p class="gc-modal__cond"><strong>Condition:</strong> ${nc.condition}</p>
+          ${nc.active
+            ? '<p class="gc-modal__active-note">This is your active namecard</p>'
+            : `<button class="gc-modal__set-btn" data-id="${nc.id}">Set as Active</button>`}
+        </div>`;
+      el.querySelector('.gc-modal__set-btn')?.addEventListener('click', async () => {
+        const res = await fetch('/collection/set-namecard', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ namecard_id: nc.id }),
+        });
+        if (res.ok) location.reload();
+      });
+    }
+    openModal('gc-nc-modal');
+  }
+
+  /* ── Certificate list items ── */
+  document.querySelectorAll('.gc-cert-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.gc-cert-item').forEach(b => b.classList.remove('gc-cert-item--selected'));
+      btn.classList.add('gc-cert-item--selected');
+      showCertDetail(JSON.parse(btn.dataset.cert));
+    });
+  });
+
+  function showCertDetail(cert) {
+    const placeholder = document.getElementById('gc-cert-placeholder');
+    const content     = document.getElementById('gc-cert-content');
+    if (!placeholder || !content) return;
+
+    placeholder.hidden = true;
+    content.hidden = false;
+
+    const today = new Date().toLocaleDateString('en-PH', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    if (!cert.earned) {
+      content.innerHTML = `
+        <div class="gc-cert-detail__locked">
+          <div class="gc-cert-detail__svg-wrap">
+            <img src="/static/${cert.svg}" alt="${cert.name}" class="gc-cert-detail__svg-img">
+            <div class="gc-cert-detail__lock-veil">
+              <svg viewBox="0 0 40 40" fill="none" class="gc-cert-detail__lock-big">
+                <rect x="6" y="18" width="28" height="20" rx="4" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 18V13a8 8 0 0116 0v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="20" cy="27" r="3" fill="currentColor" opacity="0.7"/>
+              </svg>
+              <p class="gc-cert-detail__lock-msg">Not yet obtained</p>
+            </div>
+          </div>
+          <div class="gc-cert-detail__info" style="--cert-color:${cert.accent};">
+            <h3 class="gc-cert-detail__title">${cert.name}</h3>
+            <div class="gc-cert-detail__status gc-cert-detail__status--locked">Not obtained</div>
+            <p class="gc-cert-detail__how"><strong>How to obtain:</strong><br>${cert.condition}</p>
+            <p class="gc-cert-detail__desc">${cert.desc}</p>
+          </div>
+        </div>`;
+    } else {
+      // For certs with {{NAME}}/{{DATE}} tokens, fetch and inject inline
+      const inlineCerts = ['performance', 'leaderboard', 'completion', 'perfect_score'];
+      if (inlineCerts.includes(cert.id)) {
+        fetch(`/static/${cert.svg}`)
+          .then(r => r.text())
+          .then(svgText => {
+            const filled = svgText
+              .replace(/\{\{NAME\}\}/g, DISPLAY_NAME)
+              .replace(/\{\{DATE\}\}/g, today);
+            content.innerHTML = `
+              <div class="gc-cert-detail__earned">
+                <div class="gc-cert-detail__svg-wrap gc-cert-detail__svg-wrap--inline">
+                  ${filled}
+                </div>
+                <div class="gc-cert-detail__info" style="--cert-color:${cert.accent};">
+                  <h3 class="gc-cert-detail__title">${cert.name}</h3>
+                  <div class="gc-cert-detail__status gc-cert-detail__status--earned">✓ Obtained</div>
+                  <p class="gc-cert-detail__desc">${cert.desc}</p>
+                  <p class="gc-cert-detail__date-line">Generated: ${today}</p>
+                  <button class="gc-cert-detail__dl-btn" style="background:${cert.accent};">⬇ Download PDF</button>
+                </div>
+              </div>`;
+            content.querySelector('.gc-cert-detail__dl-btn')?.addEventListener('click', () => {
+              alert('PDF download will be available once the certificate generation system is connected.');
+            });
+          });
+      } else {
+        content.innerHTML = `
+          <div class="gc-cert-detail__earned">
+            <div class="gc-cert-detail__svg-wrap">
+              <img src="/static/${cert.svg}" alt="${cert.name}" class="gc-cert-detail__svg-img">
+            </div>
+            <div class="gc-cert-detail__info" style="--cert-color:${cert.accent};">
+              <h3 class="gc-cert-detail__title">${cert.name}</h3>
+              <div class="gc-cert-detail__status gc-cert-detail__status--earned">✓ Obtained</div>
+              <p class="gc-cert-detail__desc">${cert.desc}</p>
+              <p class="gc-cert-detail__date-line">Generated: ${today}</p>
+              <button class="gc-cert-detail__dl-btn" style="background:${cert.accent};">⬇ Download PDF</button>
+            </div>
+          </div>`;
+        content.querySelector('.gc-cert-detail__dl-btn')?.addEventListener('click', () => {
+          alert('PDF download will be available once the certificate generation system is connected.');
+        });
+      }
+    }
+  }
+})();
+</script>
+{% endblock %}

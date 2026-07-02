@@ -8,7 +8,9 @@ body:has(#phish-hard-app) { background:#0a0a0a!important; background-image:none!
 body:has(#phish-hard-app) #sidebar,
 body:has(#phish-hard-app) #sidebar-toggle { display:none!important; }
 body:has(#phish-hard-app) .app-layout { grid-template-columns:1fr!important; }
-body:has(#phish-hard-app) .main-content { padding:0!important; }
+body:has(#phish-hard-app) .main-content { padding:0!important; margin:0!important; }
+body:has(#phish-hard-app) .main-content > header { display:none!important; }
+body:has(#phish-hard-app) .main-content > footer { display:none!important; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 

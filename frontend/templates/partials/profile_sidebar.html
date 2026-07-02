@@ -60,10 +60,10 @@
       {% endif %}
     </a>
     <a href="{{ url_for('quizzes_page') }}" class="dash-nav__link {% if active_page == 'quizzes' %}is-active{% endif %}">Quizzes</a>
-    <span class="dash-nav__link dash-nav__link--muted">Leaderboard</span>
+    <a href="{{ url_for('leaderboard_page') }}" class="dash-nav__link {% if active_page == 'leaderboard' %}is-active{% endif %}">Leaderboard</a>
     <span class="dash-nav__link dash-nav__link--muted">Community</span>
-    <span class="dash-nav__link dash-nav__link--muted">Certificates</span>
-    <span class="dash-nav__link dash-nav__link--muted">Namecard Gallery</span>
+    <a href="{{ url_for('collection_page') }}" class="dash-nav__link {% if active_page == 'collection' %}is-active{% endif %}">Certificates</a>
+    <a href="{{ url_for('collection_page') }}" class="dash-nav__link {% if active_page == 'collection' %}is-active{% endif %}">Namecard Gallery</a>
   </nav>
 
   <div class="dash-sidebar__account">

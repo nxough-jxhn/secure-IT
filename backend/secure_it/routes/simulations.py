@@ -109,6 +109,14 @@ EASY_SIMULATION_PAGES: dict[str, dict[str, str]] = {
         "template": "simulations/sql_injection_easy.html",
         "interface_key": "form_data",
     },
+    "social_engineering": {
+        "template": "simulations/social_engineering_easy.html",
+        "interface_key": "call_data",
+    },
+    "mitm": {
+        "template": "simulations/mitm_easy.html",
+        "interface_key": "browser_data",
+    },
 }
 
 

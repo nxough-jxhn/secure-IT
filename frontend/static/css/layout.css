@@ -38,8 +38,6 @@ body.guest-page {
 
 /* ── Header ── */
 .site-header {
-  position: sticky;
-  top: 0;
   z-index: 100;
   padding: 14px clamp(12px, 2vw, 28px) 0;
 }

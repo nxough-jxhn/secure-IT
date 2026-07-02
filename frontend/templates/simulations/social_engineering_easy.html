@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/social-easy.css') }}">
+  </head>
+  <body class="se-sim">
+
+    <div class="se-layout">
+
+      <!-- ── LEFT SIDEBAR ── -->
+      <aside class="se-sidebar">
+        <div class="se-sidebar__header">
+          <span class="se-sidebar__label">SIMULATION</span>
+          <h1 class="se-sidebar__title">{{ attack.name }}</h1>
+          <span class="se-sidebar__badge">BEGINNER</span>
+        </div>
+
+        <div class="se-sidebar__section">
+          <h3 class="se-sidebar__section-title">OBJECTIVE</h3>
+          <p class="se-sidebar__text">Identify the red flags in this phone call to determine if it is a legitimate IT request or a social engineering attack.</p>
+        </div>
+
+        <div class="se-sidebar__section">
+          <h3 class="se-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="se-sidebar__timer" id="se-timer">00:00</div>
+        </div>
+
+        <div class="se-sidebar__section">
+          <h3 class="se-sidebar__section-title">DESCRIPTION</h3>
+          <p class="se-sidebar__text">Attackers use phone calls to impersonate IT staff, create urgency, and trick you into revealing verification codes or personal details.</p>
+        </div>
+
+        <div class="se-sidebar__section">
+          <h3 class="se-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="se-sidebar__list">
+            <li>Click on suspicious parts of the conversation</li>
+            <li>Review all four red flag indicators</li>
+            <li>Decide how to respond to the caller</li>
+          </ul>
+        </div>
+
+        <a href="{{ back_url }}" class="se-sidebar__exit">← Exit Simulation</a>
+      </aside>
+
+      <!-- ── CENTER: Phone call simulation ── -->
+      <main class="se-phone-col">
+
+        <div class="se-phone-header">
+          <span class="se-phone-header__icon">📞</span>
+          <span class="se-phone-header__label">Phone Call Simulation</span>
+        </div>
+
+        <!-- Phone device frame -->
+        <div class="se-phone" id="se-phone">
+
+          <!-- Status bar -->
+          <div class="se-phone__statusbar">
+            <span class="se-phone__time" id="se-phone-time">9:41</span>
+            <div class="se-phone__icons">
+              <span>▲</span><span>WiFi</span><span>🔋</span>
+            </div>
+          </div>
+
+          <!-- Caller info -->
+          <div class="se-phone__caller-screen">
+            <div class="se-phone__call-status">
+              <span class="se-phone__call-dot"></span>
+              <span>{{ call_data.connected_label }}</span>
+            </div>
+            <div class="se-phone__caller-avatar">IT</div>
+
+            <!-- Caller ID — hotspot 1 -->
+            <button
+              type="button"
+              class="se-hotspot se-phone__caller-name"
+              data-indicator="spoofed_caller_id"
+            >
+              <span class="se-flag-num" aria-hidden="true">1</span>
+              {{ call_data.caller_id }}
+            </button>
+            <span class="se-phone__caller-number">{{ call_data.caller_number }}</span>
+
+            <div class="se-phone__call-timer" id="se-call-timer">0:00</div>
+          </div>
+
+          <!-- Transcript -->
+          <div class="se-transcript" id="se-transcript">
+            {% for line in call_data.transcript %}
+            {% if line.flag_id == 'personal_info_bait' %}
+            <div class="se-transcript__bubble se-transcript__bubble--caller">
+              <button type="button" class="se-hotspot se-transcript__hotspot" data-indicator="personal_info_bait">
+                <span class="se-flag-num" aria-hidden="true">2</span>
+                {{ line.text }}
+              </button>
+            </div>
+            {% elif line.flag_id == 'otp_request' %}
+            <div class="se-transcript__bubble se-transcript__bubble--caller">
+              <button type="button" class="se-hotspot se-transcript__hotspot" data-indicator="otp_request">
+                <span class="se-flag-num" aria-hidden="true">3</span>
+                {{ line.text }}
+              </button>
+            </div>
+            {% elif line.flag_id == 'urgency_deadline' %}
+            <div class="se-transcript__bubble se-transcript__bubble--caller">
+              <button type="button" class="se-hotspot se-transcript__hotspot" data-indicator="urgency_deadline">
+                <span class="se-flag-num" aria-hidden="true">4</span>
+                {{ line.text }}
+              </button>
+            </div>
+            {% else %}
+            <div class="se-transcript__bubble se-transcript__bubble--caller">
+              {{ line.text }}
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <!-- "Your" side placeholder -->
+            <div class="se-transcript__you-label">You are listening…</div>
+          </div>
+
+          <!-- Call actions -->
+          <div class="se-phone__actions">
+            <button type="button" class="se-phone__action-btn se-phone__action-btn--mute">
+              <span>🔇</span>
+              <span>Mute</span>
+            </button>
+            <button type="button" class="se-phone__action-btn se-phone__action-btn--end" id="se-end-call-btn" disabled>
+              <span>📵</span>
+              <span>End call</span>
+            </button>
+            <button type="button" class="se-phone__action-btn se-phone__action-btn--speaker">
+              <span>🔊</span>
+              <span>Speaker</span>
+            </button>
+          </div>
+
+        </div><!-- /.se-phone -->
+
+        <!-- Hint bar -->
+        <div class="se-hint-bar">
+          <span class="se-hint-bar__icon">💡</span>
+          <span class="se-hint-bar__label">Hint</span>
+          <span class="se-hint-bar__text">Click on suspicious parts of the call to review red flags, then decide how to respond</span>
+          <button type="button" class="se-hint-bar__complete" id="se-complete-btn" disabled>
+            Complete simulation
+          </button>
+        </div>
+
+      </main>
+
+      <!-- ── RIGHT: Indicators ── -->
+      <aside class="se-indicators">
+        <div class="se-indicators__header">
+          <span class="se-indicators__icon">🚨</span>
+          <span class="se-indicators__title">Indicators</span>
+          <span class="se-indicators__count" id="se-indicator-count">0 / 4 reviewed</span>
+        </div>
+
+        <div class="se-indicators__list" id="se-indicator-list">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="se-verdict">
+          <h3 class="se-verdict__title">Your response</h3>
+          <p class="se-verdict__subtitle">How do you handle this call?</p>
+          <div class="se-verdict__buttons">
+            <button type="button" class="se-verdict__btn se-verdict__btn--legit" id="verdict-legit">
+              <span>✓</span>
+              Trust the caller
+            </button>
+            <button type="button" class="se-verdict__btn se-verdict__btn--attack" id="verdict-attack">
+              <span>⚠</span>
+              Hang up &amp; verify
+            </button>
+          </div>
+        </div>
+      </aside>
+
+    </div><!-- /.se-layout -->
+
+    <!-- Indicator modal -->
+    <div class="se-modal" id="se-modal" hidden>
+      <div class="se-modal__backdrop" id="se-modal-backdrop"></div>
+      <div class="se-modal__dialog" role="dialog" aria-modal="true">
+        <button type="button" class="se-modal__close" id="se-modal-close" aria-label="Close">×</button>
+        <div class="se-modal__content">
+          <span class="se-modal__badge">Red flag spotted</span>
+          <h2 class="se-modal__title" id="se-modal-title"></h2>
+          <p class="se-modal__desc" id="se-modal-desc"></p>
+
+          <div class="se-modal__compare">
+            <div class="se-modal__box se-modal__box--wrong">
+              <span class="se-modal__box-label">What you heard</span>
+              <p class="se-modal__box-text" id="se-modal-wrong"></p>
+            </div>
+            <div class="se-modal__box se-modal__box--correct">
+              <span class="se-modal__box-label">What legitimate IT actually does</span>
+              <p class="se-modal__box-text" id="se-modal-correct"></p>
+            </div>
+          </div>
+
+          <div class="se-modal__tip" id="se-modal-tip" hidden>
+            <span class="se-modal__tip-icon">💡</span>
+            <span class="se-modal__tip-text" id="se-modal-tip-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.SE_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/social-easy.js') }}"></script>
+  </body>
+</html>

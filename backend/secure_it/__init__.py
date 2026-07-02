@@ -107,6 +107,8 @@ def create_app():
     )
     from .routes.dashboard import dashboard_page
     from .routes.landing import landing_page
+    from .routes.leaderboard import leaderboard_page
+    from .routes.collection import collection_page, set_namecard_page
     from .routes.modules import modules_category_page, modules_page
     from .routes.profile import profile_page
     from .routes.quizzes import quizzes_page
@@ -130,6 +132,9 @@ def create_app():
     app.add_url_rule("/auth/firebase", methods=["POST"], endpoint="firebase_login", view_func=firebase_login)
     app.add_url_rule("/verify-email/<token>", methods=["GET"], endpoint="verify_email_page", view_func=verify_email_page)
     app.add_url_rule("/dashboard", endpoint="dashboard_page", view_func=dashboard_page)
+    app.add_url_rule("/leaderboard", endpoint="leaderboard_page", view_func=leaderboard_page)
+    app.add_url_rule("/collection", endpoint="collection_page", view_func=collection_page)
+    app.add_url_rule("/collection/set-namecard", methods=["POST"], endpoint="set_namecard_page", view_func=set_namecard_page)
     app.add_url_rule("/profile", methods=["GET", "POST"], endpoint="profile_page", view_func=profile_page)
     app.add_url_rule("/modules", endpoint="modules_page", view_func=modules_page)
     app.add_url_rule("/modules/category/<category_id>", endpoint="modules_category_page", view_func=modules_category_page)

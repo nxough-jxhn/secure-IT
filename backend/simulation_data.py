@@ -393,35 +393,63 @@ SPYWARE_EASY, SPYWARE_HARD = _simulation_block(
 
 SOCIAL_ENGINEERING_STEPS = [
     {
-        "title": "Urgent IT Support Call",
-        "narrative": "Someone calling from an unknown number claims to be IT support. They say your account will be deleted in 10 minutes unless you read them your verification code.",
-        "interface_type": "phone",
+        "title": "Suspicious IT Support Call",
+        "narrative": "You receive a phone call. The caller ID displays 'TUP-T IT Helpdesk'. The caller knows your name and claims there is suspicious activity on your account.",
+        "interface_type": "phone_call",
         "interface": {
-            "caller": "Unknown Number",
-            "script": "Hi, this is IT. We detected a breach on your account. Read me the 6-digit code we just sent you so we can secure it.",
+            "caller_id": "TUP-T IT Helpdesk",
+            "caller_number": "+63 2 5310-0000",
+            "connected_label": "Connected",
+            "transcript": [
+                {
+                    "speaker": "caller",
+                    "text": "Hello, is this a TUP-T student? This is Mark from the TUP-T IT Security Office.",
+                    "flag_id": None,
+                },
+                {
+                    "speaker": "caller",
+                    "text": "We've detected some suspicious login activity on your TUP-T Portal account. For your security, I need to verify your identity right now.",
+                    "flag_id": "urgency",
+                },
+                {
+                    "speaker": "caller",
+                    "text": "I can see here your student number is 2021-12345 — correct? We just need to confirm a few more details.",
+                    "flag_id": "personal_info_bait",
+                },
+                {
+                    "speaker": "caller",
+                    "text": "We just sent a 6-digit verification code to your registered mobile number. Can you read that code to me so I can secure your account?",
+                    "flag_id": "otp_request",
+                },
+                {
+                    "speaker": "caller",
+                    "text": "Please hurry — if I don't receive the code within the next 5 minutes, your account will be automatically suspended.",
+                    "flag_id": "urgency_deadline",
+                },
+            ],
         },
         "choices": [
             _choice(
-                "code",
-                "Read the verification code aloud",
-                "The attacker used your code to reset your password and access your account.",
-                "MFA codes should never be shared—legitimate IT will never ask for them.",
+                "read_otp",
+                "Read the OTP code to the caller",
+                "The attacker used your code to access your account, change your password, and lock you out.",
+                "Legitimate IT staff will never ask for a one-time password over the phone. OTPs are your second factor — sharing them voids that protection entirely.",
                 0,
             ),
             _choice(
-                "verify",
-                "Hang up and call IT through the official helpdesk number",
-                "Real IT confirmed there was no breach. The social engineering attempt was logged.",
-                "Independent verification defeats impersonation attacks.",
+                "hang_up_verify",
+                "Hang up and call the official TUP-T helpdesk number yourself",
+                "You independently verified there was no breach. The social engineering attempt was logged and reported.",
+                "Hanging up and calling through an official number you look up yourself is the only way to confirm you are actually talking to IT — not an impersonator.",
                 100,
                 is_best=True,
             ),
             _choice(
-                "partial",
-                "Give them your username but not the code",
-                "They used your username to trigger more targeted phishing against you.",
-                "Even partial information helps attackers refine their approach.",
-                40,
+                "give_student_id",
+                "Confirm your student number but refuse to share the OTP",
+                "The attacker used your confirmed student number to craft more targeted attacks against your other accounts.",
+                "Even seemingly harmless information like a student number helps attackers build a profile and launch more convincing follow-up attacks.",
+                35,
             ),
         ],
     },
@@ -430,15 +458,81 @@ SOCIAL_ENGINEERING_STEPS = [
 SOCIAL_ENGINEERING_EASY, SOCIAL_ENGINEERING_HARD = _simulation_block(
     SOCIAL_ENGINEERING_STEPS,
     indicators=[
-        {"element": "escalating_questions", "hint": "Questions are moving from general to personal."},
-        {"element": "deflection", "hint": "The stranger avoids answering questions about themselves."},
-        {"element": "recovery_info", "hint": "They are asking for information used in account recovery."},
+        {
+            "element": "spoofed_caller_id",
+            "title": "Caller ID can be spoofed",
+            "description": (
+                "The phone displays 'TUP-T IT Helpdesk' but caller ID is trivially easy to fake. "
+                "Anyone with a basic VoIP service can display any name or number they choose. "
+                "Seeing a familiar name on your screen is not proof the call is legitimate."
+            ),
+            "wrong_label": "What you see on your screen",
+            "wrong": "TUP-T IT Helpdesk — +63 2 5310-0000",
+            "correct_label": "What this actually proves",
+            "correct": (
+                "Absolutely nothing. Caller ID only shows what the caller chose to display. "
+                "Real IT verification happens when you hang up and call the official number yourself."
+            ),
+            "tip": "Never trust a caller based on what their number looks like. Always call back through a number you find independently.",
+        },
+        {
+            "element": "personal_info_bait",
+            "title": "Using your personal details to seem legitimate",
+            "description": (
+                "The caller already knows your name and student number. This feels convincing — "
+                "but attackers collect this information from social media, leaked databases, and public directories. "
+                "Knowing your details does not mean they are who they claim to be."
+            ),
+            "wrong_label": "What the caller said",
+            "wrong": "I can see here your student number is 2021-12345 — correct?",
+            "correct_label": "Why this is a manipulation tactic",
+            "correct": (
+                "Showing they know basic details builds false trust and makes you feel verified. "
+                "Legitimate IT staff confirm their own identity to you — not yours to them."
+            ),
+            "tip": "Ask the caller for their employee ID and extension, then call the main helpdesk to confirm those details before continuing.",
+        },
+        {
+            "element": "otp_request",
+            "title": "Asking for your one-time password (OTP)",
+            "description": (
+                "No legitimate IT department, bank, university, or organization will ever ask you "
+                "to read a verification code over the phone. OTP codes are specifically designed "
+                "so that only you use them — sharing one is equivalent to handing someone your key."
+            ),
+            "wrong_label": "What the caller asked",
+            "wrong": "Can you read that 6-digit verification code to me so I can secure your account?",
+            "correct_label": "What legitimate IT actually does",
+            "correct": (
+                "Real IT can verify your identity through their own internal systems. "
+                "They never need a code sent to your phone — that code exists purely for you to use, not to share."
+            ),
+            "tip": "If anyone — even someone claiming to be from IT — asks for an OTP, hang up immediately. This is the clearest possible sign of a scam.",
+        },
+        {
+            "element": "urgency_deadline",
+            "title": "Artificial urgency and countdown threat",
+            "description": (
+                "Saying 'your account will be suspended in 5 minutes' is designed to make you panic and act "
+                "without thinking. Urgency is one of social engineering's most effective tools — it bypasses "
+                "critical thinking and pushes victims into rash decisions."
+            ),
+            "wrong_label": "The pressure tactic used",
+            "wrong": "If I don't receive the code within 5 minutes, your account will be automatically suspended.",
+            "correct_label": "How real security alerts work",
+            "correct": (
+                "Genuine account security alerts give you time to verify through official channels. "
+                "They do not demand immediate action over a phone call or threaten instant consequences."
+            ),
+            "tip": "Whenever someone on the phone creates extreme time pressure, treat it as a red flag. Legitimate requests can wait the 60 seconds it takes to hang up and call back.",
+        },
     ],
     signs=[
-        {"id": "escalating_questions", "label": "Questions escalating from general to personal"},
-        {"id": "deflection", "label": "Stranger avoids answering personal questions"},
-        {"id": "topic_steering", "label": "Conversation steered back to personal topics"},
-        {"id": "recovery_info", "label": "Requests for account recovery information"},
+        {"id": "spoofed_caller_id", "label": "Caller ID could be spoofed"},
+        {"id": "urgency", "label": "Artificial urgency and time pressure"},
+        {"id": "personal_info_bait", "label": "Uses personal info to build false trust"},
+        {"id": "otp_request", "label": "Requests a one-time password or verification code"},
+        {"id": "authority_pressure", "label": "Claims authority to pressure immediate compliance"},
     ],
 )
 
@@ -778,42 +872,159 @@ ATTACKS: dict[str, dict[str, Any]] = {
         "icon": "🎭",
         "image": "img/modules/social-engineering/module_social.jpg",
         "difficulty": "Intermediate",
-        "short_description": "Practice responding to manipulative tactics that exploit trust and urgency.",
+        "short_description": "Practice identifying and resisting manipulation tactics that exploit human trust, authority, and urgency.",
         "category": "social_based",
         "category_label": "Social-Based Attacks",
         "overview": {
-            "explanation": "Social engineering manipulates people into revealing information or taking unsafe actions through psychology rather than hacking alone.",
-            "why_used": "Humans are often the weakest link—urgency, authority, and fear bypass technical controls.",
-            "how_encountered": "Phone calls, impersonation, tailgating, fake IT support, and urgent messages.",
+            "explanation": (
+                "Social engineering is the art of manipulating people into revealing confidential information "
+                "or performing actions that compromise security — without exploiting any software vulnerability. "
+                "It works by targeting the human element: trust, authority, fear, and urgency."
+            ),
+            "why_used": (
+                "Attackers use social engineering because it is often easier and cheaper than breaking through "
+                "technical defenses. A single well-crafted phone call or message can bypass firewalls, "
+                "antivirus software, and encryption — because it targets the person, not the system."
+            ),
+            "how_encountered": (
+                "Social engineering appears as phone calls from fake IT support, impersonation of authority figures, "
+                "pretexting scenarios where the attacker fabricates a believable backstory, "
+                "and urgent messages that demand immediate action."
+            ),
             "how_it_happens": [
-                "Attacker researches the target or organization.",
-                "They impersonate someone trusted.",
-                "They create urgency or fear to rush decisions.",
-                "Victim shares credentials or access.",
+                "Attacker researches the target — gathering name, role, contact details from social media or public sources.",
+                "They craft a believable pretext: IT support, university admin, bank security, or a known contact.",
+                "They make contact and use authority, urgency, or fear to push the victim into acting quickly.",
+                "The victim shares sensitive information — passwords, OTPs, or account details — believing the request is legitimate.",
+                "Attacker uses that information to access accounts, steal data, or launch further targeted attacks.",
             ],
             "warning_signs": [
-                "Unusual urgency or secrecy requests",
-                "Callers refusing to verify identity",
-                "Requests to bypass normal procedures",
-                "Pressure to share OTP codes",
+                "Unsolicited calls or messages asking you to verify account details",
+                "Requests for one-time passwords, PINs, or security codes over the phone",
+                "Unusual urgency — threats of account suspension, fines, or immediate consequences",
+                "Caller already knows personal details, using them to seem trustworthy",
+                "Pressure to bypass normal procedures 'just this once'",
+                "Reluctance to let you call back through an official number",
             ],
             "prevention_tips": [
-                "Verify identity through official channels",
-                "Follow established security procedures",
-                "Never share MFA codes with anyone",
-                "Report suspicious contact attempts",
+                "Never share OTPs, PINs, or passwords with anyone over the phone — even IT staff",
+                "Always hang up and call back through a number you look up yourself, not one the caller provides",
+                "Verify the identity of anyone requesting sensitive information before complying",
+                "Slow down — urgency is a manipulation tactic; legitimate requests can wait",
+                "Report suspicious calls to your IT department or security team immediately",
             ],
         },
         "easy_simulation": SOCIAL_ENGINEERING_EASY,
         "hard_simulation": SOCIAL_ENGINEERING_HARD,
         "quiz": [
             {
-                "question": "Social engineering primarily targets:",
-                "options": ["Hardware cooling systems", "Human psychology and trust", "Fiber optic cables", "Power supply units"],
+                "question": "A caller claims to be from TUP-T IT Security and asks you to read them the OTP just sent to your phone. What should you do?",
+                "options": [
+                    "Read the OTP — they already know your student number so they must be legitimate",
+                    "Give them the first three digits only as a compromise",
+                    "Hang up immediately and call the official TUP-T IT helpdesk number yourself",
+                    "Ask them to email you first, then read the OTP if the email looks real",
+                ],
+                "correct": 2,
+                "explanation": "No legitimate IT staff will ever ask for an OTP over the phone. Hanging up and calling through an official number you find yourself is the only way to verify identity.",
+            },
+            {
+                "question": "The caller displays 'TUP-T IT Helpdesk' on your caller ID and knows your name and student number. This means:",
+                "options": [
+                    "The call is definitely legitimate — they passed the identity check",
+                    "Caller ID can be spoofed, and basic personal details are easy to find online",
+                    "You should share the OTP since they already know who you are",
+                    "The university gave them your information for this call",
+                ],
                 "correct": 1,
-                "explanation": "Social engineering exploits human behavior rather than software bugs alone.",
+                "explanation": "Caller ID is trivially easy to fake using VoIP tools. Knowing your name and student number proves nothing — this information is often available through social media, leaks, or public directories.",
+            },
+            {
+                "question": "The caller says your account will be suspended in 5 minutes if you do not provide the code right now. This is an example of:",
+                "options": [
+                    "A standard IT security protocol for urgent account protection",
+                    "An artificial urgency tactic designed to stop you from thinking critically",
+                    "A legitimate warning that you should act on immediately",
+                    "A two-factor authentication step the university requires",
+                ],
+                "correct": 1,
+                "explanation": "Creating extreme time pressure is one of social engineering's most effective tools. It bypasses rational judgment and pushes victims into panicking and complying. Real security alerts give you time to verify.",
+            },
+            {
+                "question": "You decide to hang up. The caller insists you should not hang up and that only they can fix the problem. What does this behavior indicate?",
+                "options": [
+                    "The situation is so urgent you really should stay on the line",
+                    "It is a sign of a legitimate IT process that requires continuous communication",
+                    "It is a manipulation tactic — legitimate staff will always let you call back through official channels",
+                    "You should apologize and give them the code to resolve the issue",
+                ],
+                "correct": 2,
+                "explanation": "A real IT staff member will never pressure you to stay on the line or refuse to let you call back. Resistance to verification is one of the clearest signs you are being manipulated.",
+            },
+            {
+                "question": "After the call, you want to verify whether there was actually suspicious activity on your account. What is the correct approach?",
+                "options": [
+                    "Log into your account using the link the caller sent you",
+                    "Call back the number that appeared on your caller ID",
+                    "Check your account by going directly to the official TUP-T portal URL yourself",
+                    "Wait to see if your account gets suspended, then contact IT",
+                ],
+                "correct": 2,
+                "explanation": "Always navigate to official websites by typing the address yourself or using a trusted bookmark. Never use links or numbers provided by the suspicious caller.",
             },
         ],
+        "info_page": {
+            "media": {
+                "folder": "social-engineering",
+                "spotlight": [
+                    "image1_social.jpg",
+                    "image2_social.jpg",
+                    "image3_social.jpg",
+                ],
+                "video_poster": "video-poster.svg",
+            },
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": (
+                        "Social engineering is the manipulation of people into revealing confidential information "
+                        "or performing unsafe actions — without any technical exploit. It targets the most "
+                        "vulnerable part of any security system: the human. Attackers build false trust through "
+                        "impersonation, fabricated scenarios, and psychological pressure to bypass even the "
+                        "strongest technical defenses."
+                    ),
+                },
+                {
+                    "key": "origin",
+                    "heading": "Origin",
+                    "text": (
+                        "Social engineering predates computers entirely. Con artists and spies have used "
+                        "impersonation and manipulation for centuries. In the digital era, the techniques "
+                        "evolved into vishing (voice phishing), pretexting, and baiting — adapting old "
+                        "psychological tactics to exploit the scale and anonymity of modern communication. "
+                        "The core principle has never changed: it is far easier to trick a person than to "
+                        "break a well-built system."
+                    ),
+                },
+                {
+                    "key": "real_world",
+                    "heading": "Example in Real World",
+                    "text": (
+                        "In 2020, Twitter was breached when attackers called Twitter employees pretending to be "
+                        "internal IT staff. They convinced employees to share credentials that gave access to "
+                        "internal admin tools — resulting in high-profile accounts being hijacked to promote a "
+                        "Bitcoin scam. No software was hacked. The entire breach started with a phone call."
+                    ),
+                },
+            ],
+            "real_world_examples": [
+                "2020 Twitter hack: attackers called employees pretending to be IT, gaining access to internal admin tools",
+                "Bank impersonation calls tricking customers into reading OTPs for fraudulent transactions",
+                "Fake university IT calls targeting students during enrollment periods to harvest portal credentials",
+                "Pretexting attacks where attackers pose as auditors to extract employee account information",
+            ],
+        },
     },
     "keylogger": _placeholder_module(
         "keylogger",
@@ -928,16 +1139,221 @@ ATTACKS: dict[str, dict[str, Any]] = {
         "Malware-Based Attacks",
         image="img/modules/adware/module_adware.jpg",
     ),
-    "mitm": _placeholder_module(
-        "mitm",
-        "Man-in-the-Middle (MITM)",
-        "🔀",
-        "Advanced",
-        "Learn how attackers intercept network traffic on unsecured connections.",
-        "network_based",
-        "Network-Based Attacks",
-        image="img/modules/mitm/module_mitm.jpg",
-    ),
+    "mitm": {
+        "id": "mitm",
+        "name": "Man-in-the-Middle (MITM)",
+        "icon": "🔀",
+        "image": "img/modules/mitm/module_mitm.jpg",
+        "difficulty": "Advanced",
+        "short_description": "Learn how attackers intercept network traffic on unsecured connections.",
+        "category": "network_based",
+        "category_label": "Network-Based Attacks",
+        "overview": {
+            "explanation": (
+                "A Man-in-the-Middle (MITM) attack occurs when an attacker secretly intercepts and potentially "
+                "alters communication between two parties who each believe they are communicating directly with "
+                "the other. The attacker positions themselves in the middle of the connection without either "
+                "victim knowing."
+            ),
+            "why_used": (
+                "MITM attacks are used to eavesdrop on sensitive data — such as login credentials, banking "
+                "details, or private messages — and to inject malicious content into otherwise legitimate "
+                "traffic. They are especially effective on unsecured or public networks."
+            ),
+            "how_encountered": (
+                "You may encounter MITM attacks on public WiFi networks, through ARP spoofing on a local "
+                "network, via rogue hotspots, or through DNS hijacking that redirects you to fake websites "
+                "even when you type the correct address."
+            ),
+            "how_it_happens": [
+                "Attacker gains a foothold on the same network as the victim (e.g., public WiFi or ARP spoofing).",
+                "Attacker intercepts packets flowing between the victim and the legitimate server.",
+                "Data is read, logged, or altered before being forwarded to avoid detection.",
+                "Victim remains unaware — their session appears normal while credentials or data are stolen.",
+            ],
+            "warning_signs": [
+                "Unexpected certificate warnings or SSL/TLS errors in your browser",
+                "Slower-than-usual connection speeds on a network you trust",
+                "Being redirected to login pages when you didn't request them",
+                "Unusual network activity or unknown devices on your local network",
+                "Sites serving HTTP instead of HTTPS on sensitive pages",
+            ],
+            "prevention_tips": [
+                "Always use HTTPS websites — look for the padlock icon before entering credentials",
+                "Avoid sensitive transactions on public or unsecured WiFi networks",
+                "Use a trusted VPN to encrypt all traffic when on public networks",
+                "Enable HSTS (HTTP Strict Transport Security) in supported browsers",
+                "Verify SSL certificates and report unexpected certificate errors immediately",
+            ],
+        },
+        "easy_simulation": {
+            "steps": [
+                {
+                    "title": "Public WiFi Banking Session",
+                    "narrative": (
+                        "You are at a coffee shop using the free WiFi to check your online bank account "
+                        "and make a transfer. Something feels off — your job is to find all the red flags "
+                        "before confirming the transaction."
+                    ),
+                    "interface_type": "browser",
+                    "interface": {
+                        "wifi_name": "CoffeeBrew_Free",
+                        "url": "http://securebank.com/transfer",
+                        "recipient": "Maria Santos — Acct #4421-XXXX",
+                        "amount_entered": "500.00",
+                        "amount_confirmed": "5,000.00",
+                    },
+                }
+            ],
+            "indicators": [
+                {
+                    "element": "no_https",
+                    "title": "No HTTPS — connection is unencrypted",
+                    "description": (
+                        "The address bar shows 'Not Secure' and uses HTTP instead of HTTPS. "
+                        "This means all data you send — including your banking credentials and "
+                        "transaction details — travels over the network in plain text that anyone "
+                        "on the same network can read."
+                    ),
+                    "wrong": "http://securebank.com/transfer  — No padlock, 'Not Secure' label, unencrypted",
+                    "correct": (
+                        "A legitimate bank site always uses HTTPS (the padlock icon). "
+                        "The address should read https://securebank.com with a closed padlock — "
+                        "never HTTP on any page that handles money or personal data."
+                    ),
+                    "tip": (
+                        "Before entering any financial or personal information, always check that the "
+                        "address bar shows HTTPS and a padlock. If it says 'Not Secure', leave immediately."
+                    ),
+                },
+                {
+                    "element": "open_wifi",
+                    "title": "Open WiFi network with no password",
+                    "description": (
+                        "The WiFi network you are connected to — 'CoffeeBrew_Free' — has no password "
+                        "protection (the open lock icon confirms this). On an open network, any device "
+                        "nearby can intercept the traffic flowing between you and the internet, including "
+                        "an attacker performing a MITM attack."
+                    ),
+                    "wrong": "CoffeeBrew_Free 🔓 — Open network, no encryption, anyone can intercept traffic",
+                    "correct": (
+                        "For sensitive tasks like banking, only use your personal mobile data or a trusted "
+                        "password-protected network. If you must use public WiFi, connect through a VPN "
+                        "first to encrypt all your traffic."
+                    ),
+                    "tip": (
+                        "An open WiFi network is like having a conversation in a crowded room — "
+                        "anyone nearby can listen. Never conduct banking or sensitive transactions "
+                        "on an open network without a VPN."
+                    ),
+                },
+                {
+                    "element": "dismissed_cert",
+                    "title": "A certificate warning was dismissed",
+                    "description": (
+                        "A yellow banner at the top of the browser shows that a security certificate "
+                        "warning was dismissed earlier in this session. Certificate warnings appear "
+                        "when your browser cannot verify that the site is who it claims to be — "
+                        "a common sign of a MITM attacker intercepting HTTPS traffic using a fake certificate."
+                    ),
+                    "wrong": "A certificate warning appeared and was clicked away — the site's identity was never verified",
+                    "correct": (
+                        "Certificate warnings should never be dismissed on banking or sensitive sites. "
+                        "If your browser warns that a certificate cannot be verified, close the tab "
+                        "immediately and report it. Legitimate banks do not trigger certificate errors."
+                    ),
+                    "tip": (
+                        "A MITM attacker using SSL stripping or a self-signed certificate will often "
+                        "trigger a browser certificate warning. Clicking 'Proceed anyway' is exactly "
+                        "what the attacker is counting on."
+                    ),
+                },
+                {
+                    "element": "altered_amount",
+                    "title": "Transaction amount was silently altered",
+                    "description": (
+                        "You entered ₱500.00 in the amount field, but the transaction confirmation "
+                        "summary shows ₱5,000.00. This is a classic MITM data injection — the attacker "
+                        "intercepted your form submission and modified the amount before it reached "
+                        "the bank's server, without you seeing any error or warning."
+                    ),
+                    "wrong": "You entered ₱500.00 — the confirmation shows ₱5,000.00 (10× more than intended)",
+                    "correct": (
+                        "Always verify that the confirmation summary exactly matches what you typed before "
+                        "confirming any transaction. Any discrepancy — even a single digit — is a serious "
+                        "red flag that your data may have been tampered with in transit."
+                    ),
+                    "tip": (
+                        "MITM attackers do not just eavesdrop — they can actively modify your data. "
+                        "HTTPS with a valid certificate prevents this. On an unencrypted HTTP connection, "
+                        "any value in any form field can be changed by an attacker before it reaches the server."
+                    ),
+                },
+            ],
+        },
+        "hard_simulation": _placeholder_module(
+            "mitm", "Man-in-the-Middle (MITM)", "🔀", "Advanced",
+            "Learn how attackers intercept network traffic on unsecured connections.",
+            "network_based", "Network-Based Attacks",
+            image="img/modules/mitm/module_mitm.jpg",
+        )["hard_simulation"],
+        "quiz": _placeholder_module(
+            "mitm", "Man-in-the-Middle (MITM)", "🔀", "Advanced",
+            "Learn how attackers intercept network traffic on unsecured connections.",
+            "network_based", "Network-Based Attacks",
+            image="img/modules/mitm/module_mitm.jpg",
+        )["quiz"],
+        "info_page": {
+            "media": {
+                "folder": "mitm",
+                "spotlight": [
+                    "module_mitm.jpg",
+                    "module_mitm.jpg",
+                    "module_mitm.jpg",
+                ],
+                "video_poster": "video-poster.svg",
+            },
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": (
+                        "A Man-in-the-Middle attack is a form of eavesdropping where an attacker secretly "
+                        "relays and can alter communication between two parties. Neither party realizes a "
+                        "third actor is sitting in the middle of their conversation, silently reading — "
+                        "or rewriting — every message that passes through."
+                    ),
+                },
+                {
+                    "key": "origin",
+                    "heading": "How It Works",
+                    "text": (
+                        "The attacker first establishes interception — often via ARP spoofing, a rogue WiFi "
+                        "hotspot, or DNS hijacking — then quietly forwards traffic between victim and server. "
+                        "Because the connection appears normal to both sides, the attack can continue "
+                        "indefinitely without triggering suspicion."
+                    ),
+                },
+                {
+                    "key": "real_world",
+                    "heading": "Real-World Impact",
+                    "text": (
+                        "MITM attacks have targeted banking sessions, corporate VPNs, and public WiFi users "
+                        "at airports and coffee shops. Attackers have stolen session tokens, intercepted "
+                        "two-factor authentication codes, and injected malware into downloads — all while "
+                        "the victim saw nothing unusual in their browser."
+                    ),
+                },
+            ],
+            "real_world_examples": [
+                "Belkin router MITM (2003) — router firmware intercepted HTTP searches and injected ads without user consent",
+                "DigiNotar breach (2011) — fraudulent SSL certificates enabled nation-state MITM on Iranian Gmail users",
+                "Superfish adware (2015) — Lenovo laptops shipped with pre-installed software that performed HTTPS MITM on users",
+                "Public WiFi credential harvesting — security researchers routinely demonstrate live credential capture at conferences using open hotspots",
+                "BGP hijacking (2018) — attackers rerouted Amazon Route 53 DNS traffic to steal cryptocurrency wallet credentials",
+            ],
+        },
+    },
     "evil_twin": _placeholder_module(
         "evil_twin",
         "Evil Twin / Rogue WiFi",

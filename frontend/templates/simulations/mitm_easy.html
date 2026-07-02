@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mitm-easy.css') }}">
+  </head>
+  <body class="mitm-sim">
+
+    <div class="mitm-layout">
+
+      <!-- ══ LEFT SIDEBAR ══ -->
+      <aside class="mitm-sidebar">
+        <div class="mitm-sidebar__header">
+          <span class="mitm-sidebar__label">SIMULATION</span>
+          <h1 class="mitm-sidebar__title">{{ attack.name }}</h1>
+          <span class="mitm-sidebar__badge">BEGINNER</span>
+        </div>
+
+        <div class="mitm-sidebar__section">
+          <h3 class="mitm-sidebar__section-title">OBJECTIVE</h3>
+          <p class="mitm-sidebar__text">Identify the red flags in this browsing session that indicate your connection may be intercepted by a Man-in-the-Middle attacker.</p>
+        </div>
+
+        <div class="mitm-sidebar__section">
+          <h3 class="mitm-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="mitm-sidebar__timer" id="mitm-timer">00:00</div>
+        </div>
+
+        <div class="mitm-sidebar__section">
+          <h3 class="mitm-sidebar__section-title">SCENARIO</h3>
+          <p class="mitm-sidebar__text">You are at a coffee shop using the free WiFi to check your online banking. Something feels off — your job is to find out what.</p>
+        </div>
+
+        <div class="mitm-sidebar__section">
+          <h3 class="mitm-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="mitm-sidebar__list">
+            <li>Click on highlighted elements in the browser</li>
+            <li>Review all four red flag indicators</li>
+            <li>Decide if this connection is safe</li>
+          </ul>
+        </div>
+
+        <a href="{{ back_url }}" class="mitm-sidebar__exit">← Exit Simulation</a>
+      </aside>
+
+      <!-- ══ CENTER: Browser simulation ══ -->
+      <main class="mitm-browser-col">
+
+        <div class="mitm-browser-header">
+          <span class="mitm-browser-header__icon">🌐</span>
+          <span class="mitm-browser-header__label">Browser Simulation</span>
+        </div>
+
+        <!-- OS desktop strip (dark, shows WiFi status) -->
+        <div class="mitm-taskbar">
+          <div class="mitm-taskbar__left">
+            <span class="mitm-taskbar__app mitm-taskbar__app--active">⬛ SecureBank</span>
+            <span class="mitm-taskbar__app">📁 Files</span>
+            <span class="mitm-taskbar__app">📧 Mail</span>
+          </div>
+          <div class="mitm-taskbar__right">
+            <span class="mitm-taskbar__clock" id="mitm-clock">9:41 AM</span>
+            <!-- WiFi hotspot — indicator 2 -->
+            <button
+              type="button"
+              class="mitm-hotspot mitm-taskbar__wifi"
+              data-indicator="open_wifi"
+            >
+              <span class="mitm-flag-num" aria-hidden="true">2</span>
+              <span class="mitm-taskbar__wifi-icon">📶</span>
+              <span class="mitm-taskbar__wifi-name">{{ browser_data.wifi_name }}</span>
+              <span class="mitm-taskbar__wifi-lock mitm-taskbar__wifi-lock--open">🔓</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Browser window — light theme -->
+        <div class="mitm-browser">
+
+          <!-- Browser chrome (tabs + toolbar) -->
+          <div class="mitm-browser__chrome">
+            <div class="mitm-browser__tabs">
+              <div class="mitm-browser__tab mitm-browser__tab--active">
+                <span class="mitm-browser__tab-favicon">🏦</span>
+                <span>SecureBank — Transfer Funds</span>
+                <span class="mitm-browser__tab-close">×</span>
+              </div>
+              <button type="button" class="mitm-browser__tab-new">+</button>
+            </div>
+
+            <div class="mitm-browser__toolbar">
+              <div class="mitm-browser__nav">
+                <button type="button" class="mitm-browser__nav-btn" disabled>←</button>
+                <button type="button" class="mitm-browser__nav-btn">→</button>
+                <button type="button" class="mitm-browser__nav-btn">↺</button>
+              </div>
+
+              <!-- Address bar — indicator 1 (HTTP / not secure) -->
+              <button
+                type="button"
+                class="mitm-hotspot mitm-browser__address"
+                data-indicator="no_https"
+              >
+                <span class="mitm-flag-num" aria-hidden="true">1</span>
+                <span class="mitm-browser__security-icon mitm-browser__security-icon--warn">⚠</span>
+                <span class="mitm-browser__not-secure">Not Secure</span>
+                <span class="mitm-browser__url">{{ browser_data.url }}</span>
+              </button>
+
+              <div class="mitm-browser__toolbar-actions">
+                <span class="mitm-browser__toolbar-icon">★</span>
+                <span class="mitm-browser__toolbar-icon">⋮</span>
+              </div>
+            </div>
+
+            <!-- Certificate warning banner — indicator 3 -->
+            <button
+              type="button"
+              class="mitm-hotspot mitm-browser__cert-banner"
+              data-indicator="dismissed_cert"
+            >
+              <span class="mitm-flag-num" aria-hidden="true">3</span>
+              <span class="mitm-browser__cert-icon">🔔</span>
+              <span class="mitm-browser__cert-text">You dismissed a security certificate warning for this site.</span>
+              <span class="mitm-browser__cert-cta">Learn more</span>
+            </button>
+          </div>
+
+          <!-- Page content — light background -->
+          <div class="mitm-browser__page">
+
+            <!-- Fake bank page header -->
+            <div class="mitm-page__topbar">
+              <div class="mitm-page__brand">
+                <span class="mitm-page__brand-icon">🏦</span>
+                <span class="mitm-page__brand-name">SecureBank</span>
+              </div>
+              <nav class="mitm-page__nav">
+                <span>Dashboard</span>
+                <span class="mitm-page__nav-active">Transfer</span>
+                <span>History</span>
+                <span>Settings</span>
+              </nav>
+              <div class="mitm-page__user">
+                <span class="mitm-page__user-avatar">J</span>
+                <span>Juan D.</span>
+              </div>
+            </div>
+
+            <!-- Transfer form -->
+            <div class="mitm-page__body">
+              <div class="mitm-page__card">
+                <h2 class="mitm-page__card-title">Transfer Funds</h2>
+
+                <div class="mitm-page__form-row">
+                  <label class="mitm-page__label">Recipient Account</label>
+                  <input type="text" class="mitm-page__input" value="{{ browser_data.recipient }}" readonly>
+                </div>
+                <div class="mitm-page__form-row">
+                  <label class="mitm-page__label">Amount (₱)</label>
+                  <input type="text" class="mitm-page__input" value="{{ browser_data.amount_entered }}" readonly>
+                </div>
+                <div class="mitm-page__form-row">
+                  <label class="mitm-page__label">Note</label>
+                  <input type="text" class="mitm-page__input" value="Tuition payment" readonly>
+                </div>
+
+                <div class="mitm-page__divider"></div>
+
+                <!-- Confirmation summary — indicator 4 (amount altered) -->
+                <div class="mitm-page__summary">
+                  <h3 class="mitm-page__summary-title">Transaction Summary</h3>
+                  <div class="mitm-page__summary-row">
+                    <span class="mitm-page__summary-key">To</span>
+                    <span class="mitm-page__summary-val">{{ browser_data.recipient }}</span>
+                  </div>
+                  <div class="mitm-page__summary-row">
+                    <span class="mitm-page__summary-key">You entered</span>
+                    <span class="mitm-page__summary-val">₱{{ browser_data.amount_entered }}</span>
+                  </div>
+                  <div class="mitm-page__summary-row mitm-page__summary-row--highlight">
+                    <span class="mitm-page__summary-key">Confirmation shows</span>
+                    <!-- Altered amount — hotspot 4 -->
+                    <button
+                      type="button"
+                      class="mitm-hotspot mitm-page__amount-btn"
+                      data-indicator="altered_amount"
+                    >
+                      <span class="mitm-flag-num" aria-hidden="true">4</span>
+                      <span class="mitm-page__amount-val">₱{{ browser_data.amount_confirmed }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button type="button" class="mitm-page__confirm-btn" disabled>Confirm Transfer</button>
+                <p class="mitm-page__disclaimer">Powered by SecureBank Online © 2025</p>
+              </div>
+            </div>
+
+          </div><!-- /.mitm-browser__page -->
+        </div><!-- /.mitm-browser -->
+
+        <!-- Hint bar -->
+        <div class="mitm-hint-bar">
+          <span class="mitm-hint-bar__icon">💡</span>
+          <span class="mitm-hint-bar__label">Hint</span>
+          <span class="mitm-hint-bar__text">Click on flagged elements in the browser to review each red flag, then decide if this connection is safe</span>
+          <button type="button" class="mitm-hint-bar__complete" id="mitm-complete-btn" disabled>
+            Complete simulation
+          </button>
+        </div>
+
+      </main>
+
+      <!-- ══ RIGHT: Indicators ══ -->
+      <aside class="mitm-indicators">
+        <div class="mitm-indicators__header">
+          <span class="mitm-indicators__icon">🚨</span>
+          <span class="mitm-indicators__title">Indicators</span>
+          <span class="mitm-indicators__count" id="mitm-indicator-count">0 / 4 reviewed</span>
+        </div>
+
+        <div class="mitm-indicators__list" id="mitm-indicator-list">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="mitm-verdict">
+          <h3 class="mitm-verdict__title">Is this connection safe?</h3>
+          <p class="mitm-verdict__subtitle">Based on what you have found, is it safe to continue this transaction?</p>
+          <div class="mitm-verdict__buttons">
+            <button type="button" class="mitm-verdict__btn mitm-verdict__btn--safe" id="verdict-safe">
+              <span>✓</span> Yes, it's safe
+            </button>
+            <button type="button" class="mitm-verdict__btn mitm-verdict__btn--danger" id="verdict-danger">
+              <span>⚠</span> No, it's compromised
+            </button>
+          </div>
+        </div>
+      </aside>
+
+    </div><!-- /.mitm-layout -->
+
+    <!-- Indicator modal -->
+    <div class="mitm-modal" id="mitm-modal" hidden>
+      <div class="mitm-modal__backdrop" id="mitm-modal-backdrop"></div>
+      <div class="mitm-modal__dialog" role="dialog" aria-modal="true">
+        <button type="button" class="mitm-modal__close" id="mitm-modal-close" aria-label="Close">×</button>
+        <div class="mitm-modal__content">
+          <span class="mitm-modal__badge">Red flag spotted</span>
+          <h2 class="mitm-modal__title" id="mitm-modal-title"></h2>
+          <p class="mitm-modal__desc" id="mitm-modal-desc"></p>
+
+          <div class="mitm-modal__compare">
+            <div class="mitm-modal__box mitm-modal__box--wrong">
+              <span class="mitm-modal__box-label">What you see</span>
+              <p class="mitm-modal__box-text" id="mitm-modal-wrong"></p>
+            </div>
+            <div class="mitm-modal__box mitm-modal__box--correct">
+              <span class="mitm-modal__box-label">What you should expect</span>
+              <p class="mitm-modal__box-text" id="mitm-modal-correct"></p>
+            </div>
+          </div>
+
+          <div class="mitm-modal__tip" id="mitm-modal-tip" hidden>
+            <span class="mitm-modal__tip-icon">💡</span>
+            <span class="mitm-modal__tip-text" id="mitm-modal-tip-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.MITM_EASY = {
+        completeUrl:      {{ complete_url | tojson }},
+        redirectUrl:      {{ back_url | tojson }},
+        totalIndicators:  {{ indicators | length }},
+        indicators:       {{ indicators | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/mitm-easy.js') }}"></script>
+  </body>
+</html>

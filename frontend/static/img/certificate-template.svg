@@ -1,0 +1,256 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 720" width="1020" height="720">
+  <defs>
+    <!-- Background gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0a2a1a"/>
+      <stop offset="60%" stop-color="#061510"/>
+      <stop offset="100%" stop-color="#020a06"/>
+    </radialGradient>
+    <!-- Green glow gradient for border -->
+    <linearGradient id="borderGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff9f" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#00cc77" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#00ff9f" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Sweep glow left -->
+    <linearGradient id="sweepLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff9f" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#00ff9f" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Sweep glow right -->
+    <linearGradient id="sweepRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00ff9f" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#00ff9f" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Title gradient -->
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7fffcf"/>
+      <stop offset="50%" stop-color="#00ff9f"/>
+      <stop offset="100%" stop-color="#00bb6e"/>
+    </linearGradient>
+    <!-- Shield gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a4a2e"/>
+      <stop offset="100%" stop-color="#0a2018"/>
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowStrong" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="textGlow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1020" height="720" fill="url(#bgGrad)"/>
+
+  <!-- Diagonal sweep glows -->
+  <path d="M0 400 L300 0 L0 0 Z" fill="url(#sweepLeft)" opacity="0.6"/>
+  <path d="M1020 320 L720 720 L1020 720 Z" fill="url(#sweepRight)" opacity="0.6"/>
+
+  <!-- Subtle dot grid texture (left) -->
+  <g opacity="0.12">
+    <rect x="30" y="100" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="50" y="100" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="70" y="100" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="30" y="120" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="50" y="120" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="70" y="120" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="30" y="140" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="50" y="140" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="70" y="140" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="30" y="160" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="50" y="160" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="70" y="160" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="30" y="180" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="50" y="180" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="70" y="180" width="2" height="2" fill="#00ff9f" rx="1"/>
+  </g>
+  <!-- Dot grid (right) -->
+  <g opacity="0.12">
+    <rect x="930" y="440" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="950" y="440" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="970" y="440" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="930" y="460" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="950" y="460" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="970" y="460" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="930" y="480" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="950" y="480" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="970" y="480" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="930" y="500" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="950" y="500" width="2" height="2" fill="#00ff9f" rx="1"/>
+    <rect x="970" y="500" width="2" height="2" fill="#00ff9f" rx="1"/>
+  </g>
+
+  <!-- Outer border frame -->
+  <rect x="18" y="18" width="984" height="684" rx="4" fill="none" stroke="url(#borderGlow)" stroke-width="2" opacity="0.7"/>
+  <!-- Inner border frame -->
+  <rect x="30" y="30" width="960" height="660" rx="2" fill="none" stroke="#00ff9f" stroke-width="0.75" opacity="0.35"/>
+
+  <!-- Corner accents — top-left -->
+  <g filter="url(#glow)" opacity="0.9">
+    <line x1="18" y1="18" x2="80" y2="18" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="18" y1="18" x2="18" y2="80" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="30" y1="50" x2="60" y2="50" stroke="#00ff9f" stroke-width="1"/>
+    <line x1="50" y1="30" x2="50" y2="60" stroke="#00ff9f" stroke-width="1"/>
+  </g>
+  <!-- Corner accents — top-right -->
+  <g filter="url(#glow)" opacity="0.9">
+    <line x1="1002" y1="18" x2="940" y2="18" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="1002" y1="18" x2="1002" y2="80" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="990" y1="50" x2="960" y2="50" stroke="#00ff9f" stroke-width="1"/>
+    <line x1="970" y1="30" x2="970" y2="60" stroke="#00ff9f" stroke-width="1"/>
+  </g>
+  <!-- Corner accents — bottom-left -->
+  <g filter="url(#glow)" opacity="0.9">
+    <line x1="18" y1="702" x2="80" y2="702" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="18" y1="702" x2="18" y2="640" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="30" y1="670" x2="60" y2="670" stroke="#00ff9f" stroke-width="1"/>
+    <line x1="50" y1="690" x2="50" y2="660" stroke="#00ff9f" stroke-width="1"/>
+  </g>
+  <!-- Corner accents — bottom-right -->
+  <g filter="url(#glow)" opacity="0.9">
+    <line x1="1002" y1="702" x2="940" y2="702" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="1002" y1="702" x2="1002" y2="640" stroke="#00ff9f" stroke-width="2.5"/>
+    <line x1="990" y1="670" x2="960" y2="670" stroke="#00ff9f" stroke-width="1"/>
+    <line x1="970" y1="690" x2="970" y2="660" stroke="#00ff9f" stroke-width="1"/>
+  </g>
+
+  <!-- ── SHIELD BADGE (top right) ── -->
+  <g transform="translate(840, 48)">
+    <!-- Shield shape -->
+    <path d="M70 0 L140 30 L140 90 Q140 140 70 170 Q0 140 0 90 L0 30 Z"
+          fill="url(#shieldGrad)" stroke="#00ff9f" stroke-width="1.5" opacity="0.9"/>
+    <!-- Shield inner border -->
+    <path d="M70 12 L128 38 L128 92 Q128 132 70 158 Q12 132 12 92 L12 38 Z"
+          fill="none" stroke="#00ff9f" stroke-width="0.75" opacity="0.4"/>
+    <!-- Star in shield -->
+    <polygon points="70,52 77,72 98,72 82,84 88,104 70,92 52,104 58,84 42,72 63,72"
+             fill="#00ff9f" filter="url(#glow)"/>
+    <!-- 3 small stars above shield star -->
+    <polygon points="45,32 47.5,39 55,39 49,43 51.5,50 45,46 38.5,50 41,43 35,39 42.5,39" fill="#00ff9f" opacity="0.7" transform="scale(0.55) translate(38,10)"/>
+    <polygon points="70,28 72.5,35 80,35 74,39 76.5,46 70,42 63.5,46 66,39 60,35 67.5,35" fill="#00ff9f" opacity="0.85" transform="scale(0.55) translate(57,8)"/>
+    <polygon points="95,32 97.5,39 105,39 99,43 101.5,50 95,46 88.5,50 91,43 85,39 92.5,39" fill="#00ff9f" opacity="0.7" transform="scale(0.55) translate(76,10)"/>
+    <!-- Laurel hints on shield -->
+    <text x="70" y="148" text-anchor="middle" font-size="11" fill="#00ff9f" opacity="0.6" font-family="serif">✦ ✦ ✦</text>
+    <!-- Ribbon below shield -->
+    <path d="M50 170 L30 200 L50 190 L70 210 L90 190 L110 200 L90 170 Z" fill="#0a2a1a" stroke="#00ff9f" stroke-width="1" opacity="0.8"/>
+  </g>
+
+  <!-- ── TOP: Logo + brand ── -->
+  <!-- Briefcase icon -->
+  <g transform="translate(488, 44)" filter="url(#glow)">
+    <rect x="0" y="6" width="44" height="32" rx="3" fill="none" stroke="#00ff9f" stroke-width="1.5"/>
+    <path d="M14 6 L14 2 Q14 0 16 0 L28 0 Q30 0 30 2 L30 6" fill="none" stroke="#00ff9f" stroke-width="1.5"/>
+    <line x1="0" y1="18" x2="44" y2="18" stroke="#00ff9f" stroke-width="1" opacity="0.5"/>
+  </g>
+  <text x="510" y="98" text-anchor="middle" font-family="'Courier New', monospace" font-size="11" fill="#00ff9f" letter-spacing="3" filter="url(#glow)">SECURE - IT</text>
+
+  <!-- Stars row -->
+  <g filter="url(#glow)">
+    <!-- 5 stars, centre star larger -->
+    <polygon points="370,132 374,145 387,145 377,153 381,166 370,158 359,166 363,153 353,145 366,145" fill="#00ff9f"/>
+    <polygon points="420,128 425,143 440,143 429,152 433,167 420,158 407,167 411,152 400,143 415,143" fill="#00ff9f" transform="scale(1.15) translate(-55,-16)"/>
+    <polygon points="510,124 515,139 530,139 519,148 523,163 510,154 497,163 501,148 490,139 505,139" fill="#00ff9f" transform="scale(1.3) translate(-118,-30)"/>
+    <polygon points="600,128 605,143 620,143 609,152 613,167 600,158 587,167 591,152 580,143 595,143" fill="#00ff9f" transform="scale(1.15) translate(-176,-16)"/>
+    <polygon points="650,132 654,145 667,145 657,153 661,166 650,158 639,166 643,153 633,145 646,145" fill="#00ff9f"/>
+  </g>
+
+  <!-- ── CERTIFICATE (main title) ── -->
+  <text x="510" y="230" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="78" font-weight="bold" letter-spacing="8"
+        fill="url(#titleGrad)" filter="url(#glowStrong)">CERTIFICATE</text>
+
+  <!-- OF TITLE subtitle -->
+  <text x="510" y="268" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="22" letter-spacing="12"
+        fill="#00ff9f" opacity="0.85" filter="url(#glow)">OF ACHIEVEMENT</text>
+
+  <!-- Decorative lines flanking subtitle -->
+  <line x1="200" y1="260" x2="380" y2="260" stroke="#00ff9f" stroke-width="0.75" opacity="0.4"/>
+  <line x1="640" y1="260" x2="820" y2="260" stroke="#00ff9f" stroke-width="0.75" opacity="0.4"/>
+
+  <!-- ── PRESENTED TO banner ── -->
+  <rect x="220" y="288" width="580" height="36" rx="2" fill="#00ff9f" opacity="0.12"/>
+  <rect x="220" y="288" width="580" height="36" rx="2" fill="none" stroke="#00ff9f" stroke-width="0.75" opacity="0.5"/>
+  <text x="510" y="312" text-anchor="middle"
+        font-family="'Courier New', monospace"
+        font-size="13" letter-spacing="3" fill="#00ff9f" font-weight="bold">THIS CERTIFICATE IS PROUDLY PRESENTED TO:</text>
+
+  <!-- ── Recipient name ── -->
+  <text x="510" y="376" text-anchor="middle"
+        font-family="'Palatino Linotype', Palatino, Georgia, serif"
+        font-size="48" font-style="italic"
+        fill="#00ff9f" filter="url(#glowStrong)" opacity="0.95">Recipient Name</text>
+  <!-- Underline below name -->
+  <line x1="320" y1="388" x2="700" y2="388" stroke="#00ff9f" stroke-width="0.75" opacity="0.4"/>
+  <!-- Small diamond accent -->
+  <polygon points="510,393 514,397 510,401 506,397" fill="#00ff9f" opacity="0.6"/>
+
+  <!-- ── Body description ── -->
+  <text x="510" y="430" text-anchor="middle"
+        font-family="Georgia, serif" font-size="14.5" fill="#a8e6c8" opacity="0.9">
+    On behalf of Secure-IT Family, we extend our deepest appreciation for your
+  </text>
+  <text x="510" y="452" text-anchor="middle"
+        font-family="Georgia, serif" font-size="14.5" fill="#a8e6c8" opacity="0.9">
+    dedication and commitment to cybersecurity awareness. We are confident that you will
+  </text>
+  <text x="510" y="474" text-anchor="middle"
+        font-family="Georgia, serif" font-size="14.5" fill="#a8e6c8" opacity="0.9">
+    continue to thrive and make significant contributions in your future endeavours.
+  </text>
+
+  <!-- ── Signature block ── -->
+  <!-- Signature script text -->
+  <text x="510" y="530" text-anchor="middle"
+        font-family="'Palatino Linotype', Palatino, Georgia, serif"
+        font-size="32" font-style="italic" fill="#00ff9f" opacity="0.85" filter="url(#glow)">Secure-IT Family</text>
+  <!-- Signature underline -->
+  <line x1="360" y1="538" x2="660" y2="538" stroke="#00ff9f" stroke-width="0.75" opacity="0.45"/>
+
+  <!-- Name below signature -->
+  <text x="510" y="562" text-anchor="middle"
+        font-family="'Courier New', monospace"
+        font-size="13" letter-spacing="2.5" fill="#00ff9f" font-weight="bold">SECURE-IT FAMILY</text>
+  <text x="510" y="580" text-anchor="middle"
+        font-family="'Courier New', monospace"
+        font-size="11" letter-spacing="2" fill="#00ff9f" opacity="0.6">PLATFORM</text>
+
+  <!-- ── Bottom: Laurel + lock badge ── -->
+  <!-- Left laurel branch -->
+  <g transform="translate(295, 610)" fill="none" stroke="#00ff9f" stroke-width="1.2" opacity="0.7" filter="url(#glow)">
+    <path d="M100 20 Q80 5 55 12 Q70 20 65 35 Q50 20 30 28 Q48 35 45 50 Q32 38 15 46 Q30 50 30 65"/>
+    <path d="M100 20 Q95 8 80 10"/>
+    <path d="M85 32 Q78 22 65 24"/>
+    <path d="M72 46 Q63 36 52 40"/>
+  </g>
+  <!-- Right laurel branch (mirrored) -->
+  <g transform="translate(625, 610) scale(-1,1)" fill="none" stroke="#00ff9f" stroke-width="1.2" opacity="0.7" filter="url(#glow)">
+    <path d="M100 20 Q80 5 55 12 Q70 20 65 35 Q50 20 30 28 Q48 35 45 50 Q32 38 15 46 Q30 50 30 65"/>
+    <path d="M100 20 Q95 8 80 10"/>
+    <path d="M85 32 Q78 22 65 24"/>
+    <path d="M72 46 Q63 36 52 40"/>
+  </g>
+
+  <!-- Lock badge (bottom center) -->
+  <g transform="translate(488, 614)" filter="url(#glow)">
+    <!-- Lock body -->
+    <rect x="8" y="20" width="28" height="22" rx="3" fill="#0a2a1a" stroke="#00ff9f" stroke-width="1.25"/>
+    <!-- Lock shackle -->
+    <path d="M13 20 L13 13 Q22 5 31 13 L31 20" fill="none" stroke="#00ff9f" stroke-width="1.25"/>
+    <!-- Keyhole -->
+    <circle cx="22" cy="29" r="3.5" fill="#00ff9f" opacity="0.8"/>
+    <rect x="20" y="30" width="4" height="5" rx="1" fill="#00ff9f" opacity="0.8"/>
+  </g>
+
+</svg>

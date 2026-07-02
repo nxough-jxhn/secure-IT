@@ -1,0 +1,320 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 720" width="1020" height="720">
+  <defs>
+    <!-- Background -->
+    <radialGradient id="bg" cx="50%" cy="45%" r="65%">
+      <stop offset="0%"   stop-color="#071a0f"/>
+      <stop offset="55%"  stop-color="#040e08"/>
+      <stop offset="100%" stop-color="#020704"/>
+    </radialGradient>
+    <!-- Central bloom -->
+    <radialGradient id="bloom" cx="50%" cy="42%" r="38%">
+      <stop offset="0%"   stop-color="#00ff9f" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#00ff9f" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Shine sweep — left diagonal -->
+    <linearGradient id="shineL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="42%"  stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="48%"  stop-color="#00ff9f" stop-opacity="0.07"/>
+      <stop offset="52%"  stop-color="#ffffff" stop-opacity="0.11"/>
+      <stop offset="56%"  stop-color="#00ff9f" stop-opacity="0.07"/>
+      <stop offset="62%"  stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Shine sweep — right side -->
+    <linearGradient id="shineR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="35%"  stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="44%"  stop-color="#00ff9f" stop-opacity="0.05"/>
+      <stop offset="50%"  stop-color="#ffffff" stop-opacity="0.09"/>
+      <stop offset="56%"  stop-color="#00ff9f" stop-opacity="0.05"/>
+      <stop offset="65%"  stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Title gradient -->
+    <linearGradient id="titleG" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#c8ffe8"/>
+      <stop offset="38%"  stop-color="#00ff9f"/>
+      <stop offset="100%" stop-color="#00a35a"/>
+    </linearGradient>
+    <!-- Shield gradient -->
+    <linearGradient id="shieldG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0d2e1a"/>
+      <stop offset="100%" stop-color="#061509"/>
+    </linearGradient>
+    <!-- Badge seal gradient -->
+    <radialGradient id="sealG" cx="50%" cy="35%" r="60%">
+      <stop offset="0%"   stop-color="#1a4a2c"/>
+      <stop offset="100%" stop-color="#061209"/>
+    </radialGradient>
+    <!-- Soft glow -->
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="2.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Strong glow -->
+    <filter id="glowStrong" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Title bloom -->
+    <filter id="titleBloom" x="-20%" y="-30%" width="140%" height="160%">
+      <feGaussianBlur stdDeviation="9"  result="b1"/>
+      <feGaussianBlur stdDeviation="3"  result="b2" in="SourceGraphic"/>
+      <feMerge><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Name glow -->
+    <filter id="nameGlow" x="-15%" y="-30%" width="130%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ══ BACKGROUND ══ -->
+  <rect width="1020" height="720" fill="url(#bg)"/>
+  <rect width="1020" height="720" fill="url(#bloom)"/>
+
+  <!-- ══ SHINE SWEEPS (the shining side effect) ══ -->
+  <!-- Left diagonal shine -->
+  <rect width="1020" height="720" fill="url(#shineL)" opacity="1"/>
+  <!-- Right diagonal shine -->
+  <rect width="1020" height="720" fill="url(#shineR)" opacity="1"/>
+  <!-- Extra thin bright streak — top-left to bottom-right -->
+  <line x1="0" y1="60" x2="420" y2="720"
+        stroke="rgba(255,255,255,0.06)" stroke-width="60"/>
+  <!-- Right side thin streak -->
+  <line x1="1020" y1="80" x2="650" y2="720"
+        stroke="rgba(255,255,255,0.04)" stroke-width="40"/>
+
+  <!-- Binary code strip — left edge -->
+  <g opacity="0.055" font-family="'Courier New', monospace" font-size="9" fill="#00ff9f">
+    <text x="8" y="60">01001110</text><text x="8" y="74">10110001</text>
+    <text x="8" y="88">00111010</text><text x="8" y="102">11001100</text>
+    <text x="8" y="116">01010101</text><text x="8" y="130">10100110</text>
+    <text x="8" y="144">00011101</text><text x="8" y="158">11100010</text>
+    <text x="8" y="172">01001010</text><text x="8" y="186">10111001</text>
+    <text x="8" y="200">00100111</text><text x="8" y="214">11010100</text>
+    <text x="8" y="228">01110000</text><text x="8" y="242">10001011</text>
+    <text x="8" y="256">00110101</text><text x="8" y="270">11101000</text>
+    <text x="8" y="284">01011110</text><text x="8" y="298">10000011</text>
+    <text x="8" y="312">00101101</text><text x="8" y="326">11110010</text>
+    <text x="8" y="340">01100001</text><text x="8" y="354">10011100</text>
+    <text x="8" y="368">00010110</text><text x="8" y="382">11000101</text>
+    <text x="8" y="396">01111010</text><text x="8" y="410">10100000</text>
+    <text x="8" y="424">00001111</text><text x="8" y="438">11011011</text>
+    <text x="8" y="452">01000100</text><text x="8" y="466">10110110</text>
+    <text x="8" y="480">00111001</text><text x="8" y="494">11001010</text>
+    <text x="8" y="508">01010000</text><text x="8" y="522">10101111</text>
+    <text x="8" y="536">00100010</text><text x="8" y="550">11110101</text>
+    <text x="8" y="564">01101100</text><text x="8" y="578">10010001</text>
+    <text x="8" y="592">00011010</text><text x="8" y="606">11100110</text>
+    <text x="8" y="620">01001001</text><text x="8" y="634">10111100</text>
+    <text x="8" y="648">00110000</text><text x="8" y="662">11001111</text>
+    <text x="8" y="676">01110111</text><text x="8" y="690">10000000</text>
+    <text x="8" y="704">00101010</text><text x="8" y="718">11111101</text>
+  </g>
+
+  <!-- Network mesh — lower right -->
+  <g opacity="0.065" stroke="#00ff9f" stroke-width="0.6" fill="none">
+    <line x1="720" y1="560" x2="780" y2="520"/><line x1="780" y1="520" x2="850" y2="545"/>
+    <line x1="850" y1="545" x2="890" y2="490"/><line x1="890" y1="490" x2="960" y2="510"/>
+    <line x1="720" y1="560" x2="760" y2="610"/><line x1="760" y1="610" x2="830" y2="600"/>
+    <line x1="830" y1="600" x2="850" y2="545"/><line x1="830" y1="600" x2="880" y2="640"/>
+    <line x1="880" y1="640" x2="950" y2="620"/><line x1="950" y1="620" x2="960" y2="510"/>
+    <line x1="780" y1="520" x2="830" y2="600"/><line x1="890" y1="490" x2="950" y2="620"/>
+    <circle cx="720" cy="560" r="3" fill="#00ff9f"/><circle cx="780" cy="520" r="3" fill="#00ff9f"/>
+    <circle cx="850" cy="545" r="3" fill="#00ff9f"/><circle cx="890" cy="490" r="3" fill="#00ff9f"/>
+    <circle cx="760" cy="610" r="3" fill="#00ff9f"/><circle cx="830" cy="600" r="3" fill="#00ff9f"/>
+    <circle cx="880" cy="640" r="3" fill="#00ff9f"/><circle cx="950" cy="620" r="3" fill="#00ff9f"/>
+    <circle cx="960" cy="510" r="3" fill="#00ff9f"/>
+  </g>
+
+  <!-- ══ BORDER ══ -->
+  <rect x="22" y="22" width="976" height="676" rx="3"
+        fill="none" stroke="#00ff9f" stroke-width="1" opacity="0.35"/>
+  <rect x="28" y="28" width="964" height="664" rx="2"
+        fill="none" stroke="#00ff9f" stroke-width="0.4" opacity="0.18"/>
+
+  <!-- Corner brackets -->
+  <g filter="url(#glow)" opacity="0.85" stroke="#00ff9f" stroke-width="2" fill="none">
+    <path d="M22 65 L22 22 L65 22"/>
+    <path d="M955 22 L998 22 L998 65"/>
+    <path d="M22 655 L22 698 L65 698"/>
+    <path d="M955 698 L998 698 L998 655"/>
+  </g>
+  <g opacity="0.4" stroke="#00ff9f" stroke-width="0.75" fill="none">
+    <path d="M22 50 L40 50 M50 22 L50 40"/>
+    <path d="M998 50 L980 50 M970 22 L970 40"/>
+    <path d="M22 670 L40 670 M50 698 L50 680"/>
+    <path d="M998 670 L980 670 M970 698 L970 680"/>
+  </g>
+
+  <!-- ══ TOP SHIELD + CIRCUIT ══ -->
+  <g transform="translate(447, 30)">
+    <g stroke="#00ff9f" stroke-width="0.75" opacity="0.28" fill="none">
+      <line x1="63" y1="72" x2="10" y2="72"/><line x1="10" y1="72" x2="10" y2="46"/>
+      <line x1="10" y1="46" x2="-20" y2="46"/>
+      <circle cx="-20" cy="46" r="2" fill="#00ff9f" opacity="0.4"/>
+      <line x1="10" y1="72" x2="10" y2="96"/><line x1="10" y1="96" x2="-15" y2="96"/>
+      <circle cx="-15" cy="96" r="2" fill="#00ff9f" opacity="0.32"/>
+      <line x1="63" y1="72" x2="116" y2="72"/><line x1="116" y1="72" x2="116" y2="46"/>
+      <line x1="116" y1="46" x2="146" y2="46"/>
+      <circle cx="146" cy="46" r="2" fill="#00ff9f" opacity="0.4"/>
+      <line x1="116" y1="72" x2="116" y2="96"/><line x1="116" y1="96" x2="141" y2="96"/>
+      <circle cx="141" cy="96" r="2" fill="#00ff9f" opacity="0.32"/>
+    </g>
+    <path d="M63 4 L110 24 L110 66 Q110 104 63 122 Q16 104 16 66 L16 24 Z"
+          fill="url(#shieldG)" stroke="#00ff9f" stroke-width="1.25" opacity="0.95" filter="url(#glow)"/>
+    <path d="M63 14 L100 30 L100 67 Q100 96 63 112 Q26 96 26 67 L26 30 Z"
+          fill="none" stroke="#00ff9f" stroke-width="0.5" opacity="0.28"/>
+    <rect x="47" y="62" width="32" height="26" rx="4"
+          fill="none" stroke="#00ff9f" stroke-width="1.5" filter="url(#glow)"/>
+    <path d="M53 62 L53 55 Q63 46 73 55 L73 62"
+          fill="none" stroke="#00ff9f" stroke-width="1.5" stroke-linecap="round" filter="url(#glow)"/>
+    <circle cx="63" cy="74" r="4" fill="#00ff9f" opacity="0.85"/>
+    <rect x="61" y="76" width="4" height="6" rx="1" fill="#00ff9f" opacity="0.85"/>
+    <circle cx="36" cy="46" r="2.5" fill="none" stroke="#00ff9f" stroke-width="0.8" opacity="0.45"/>
+    <circle cx="90" cy="46" r="2.5" fill="none" stroke="#00ff9f" stroke-width="0.8" opacity="0.45"/>
+  </g>
+
+  <text x="510" y="178" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="10.5"
+        fill="#00ff9f" letter-spacing="5" opacity="0.7" filter="url(#glow)">SECURE - IT</text>
+
+  <!-- Particles -->
+  <g filter="url(#glow)" opacity="0.55">
+    <circle cx="210" cy="215" r="1.5" fill="#00ff9f" opacity="0.8"/>
+    <circle cx="240" cy="200" r="1"   fill="#00ff9f" opacity="0.6"/>
+    <circle cx="195" cy="240" r="1"   fill="#00ff9f" opacity="0.5"/>
+    <circle cx="800" cy="210" r="1.5" fill="#00ff9f" opacity="0.8"/>
+    <circle cx="775" cy="198" r="1"   fill="#00ff9f" opacity="0.6"/>
+    <circle cx="820" cy="238" r="1"   fill="#00ff9f" opacity="0.5"/>
+    <circle cx="420" cy="190" r="1"   fill="#00ff9f" opacity="0.4"/>
+    <circle cx="600" cy="188" r="1"   fill="#00ff9f" opacity="0.4"/>
+    <circle cx="510" cy="192" r="1.5" fill="#00ff9f" opacity="0.5"/>
+  </g>
+
+  <!-- 3 stars -->
+  <g filter="url(#glow)" opacity="0.88">
+    <polygon points="440,208 444,220 457,220 447,228 451,240 440,232 429,240 433,228 423,220 436,220" fill="#00ff9f"/>
+    <polygon points="510,202 515,217 530,217 519,226 523,241 510,233 497,241 501,226 490,217 505,217" fill="#00ff9f"/>
+    <polygon points="580,208 584,220 597,220 587,228 591,240 580,232 569,240 573,228 563,220 576,220" fill="#00ff9f"/>
+  </g>
+
+  <!-- ══ TITLE ══ -->
+  <text x="510" y="310" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="86" font-weight="bold" letter-spacing="10"
+        fill="url(#titleG)" filter="url(#titleBloom)">CERTIFICATE</text>
+
+  <!-- Subtitle -->
+  <line x1="148" y1="332" x2="340" y2="332" stroke="#00ff9f" stroke-width="0.6" opacity="0.32"/>
+  <line x1="680" y1="332" x2="872" y2="332" stroke="#00ff9f" stroke-width="0.6" opacity="0.32"/>
+  <text x="510" y="338" text-anchor="middle"
+        font-family="Georgia, serif" font-size="15" letter-spacing="11"
+        fill="#00ff9f" opacity="0.65" filter="url(#glow)">OF PERFORMANCE</text>
+
+  <!-- ══ CYBER PANEL ══ -->
+  <path d="M188 358 L218 344 L802 344 L832 358 L832 380 L802 394 L218 394 L188 380 Z"
+        fill="rgba(0,255,159,0.07)" stroke="#00ff9f" stroke-width="0.75" opacity="0.65"/>
+  <path d="M194 362 L220 350 L800 350 L826 362 L826 376 L800 388 L220 388 L194 376 Z"
+        fill="none" stroke="#00ff9f" stroke-width="0.3" opacity="0.28"/>
+  <g stroke="#00ff9f" stroke-width="1" opacity="0.55">
+    <line x1="218" y1="344" x2="228" y2="344"/><line x1="218" y1="344" x2="218" y2="354"/>
+    <line x1="802" y1="344" x2="792" y2="344"/><line x1="802" y1="344" x2="802" y2="354"/>
+    <line x1="218" y1="394" x2="228" y2="394"/><line x1="218" y1="394" x2="218" y2="384"/>
+    <line x1="802" y1="394" x2="792" y2="394"/><line x1="802" y1="394" x2="802" y2="384"/>
+  </g>
+  <text x="510" y="374" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="11.5"
+        letter-spacing="3.5" fill="#00ff9f" font-weight="bold">THIS CERTIFICATE IS PROUDLY PRESENTED TO:</text>
+
+  <!-- ══ RECIPIENT NAME — replaced by JS ══ -->
+  <text id="cert-recipient-name" x="510" y="450" text-anchor="middle"
+        font-family="'Palatino Linotype', Palatino, Georgia, serif"
+        font-size="52" font-style="italic"
+        fill="#00ff9f" filter="url(#nameGlow)" opacity="0.95">{{NAME}}</text>
+  <line x1="280" y1="464" x2="500" y2="464" stroke="#00ff9f" stroke-width="0.6" opacity="0.28"/>
+  <line x1="520" y1="464" x2="740" y2="464" stroke="#00ff9f" stroke-width="0.6" opacity="0.28"/>
+  <circle cx="510" cy="464" r="3" fill="#00ff9f" opacity="0.5" filter="url(#glow)"/>
+
+  <!-- ══ DESCRIPTION ══ -->
+  <text x="510" y="496" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#9ae8c0" opacity="0.82" letter-spacing="0.3">
+    This certificate is awarded in recognition of consistent dedication, commitment,
+  </text>
+  <text x="510" y="514" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#9ae8c0" opacity="0.82" letter-spacing="0.3">
+    and measurable progress across all cybersecurity awareness training modules
+  </text>
+  <text x="510" y="532" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#9ae8c0" opacity="0.82" letter-spacing="0.3">
+    on the Secure-IT platform. Your performance reflects a growing understanding
+  </text>
+  <text x="510" y="550" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#9ae8c0" opacity="0.82" letter-spacing="0.3">
+    of modern cyber threats and the vigilance required to defend against them.
+  </text>
+
+  <!-- ══ SIGNATURE SECTION ══ -->
+  <!-- Clean separator -->
+  <line x1="340" y1="578" x2="680" y2="578" stroke="#00ff9f" stroke-width="0.5" opacity="0.28"/>
+  <!-- Secure-IT Family label -->
+  <text x="510" y="600" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="18" font-style="italic"
+        fill="#00ff9f" opacity="0.8" filter="url(#glow)">Secure-IT Family</text>
+  <line x1="360" y1="608" x2="660" y2="608" stroke="#00ff9f" stroke-width="0.5" opacity="0.25"/>
+  <text x="510" y="625" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="10.5"
+        letter-spacing="2.5" fill="#00ff9f" font-weight="bold" opacity="0.75">SECURE-IT PLATFORM</text>
+
+  <!-- ══ DATE — replaced by JS ══ -->
+  <text id="cert-date" x="510" y="644" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="10"
+        letter-spacing="2" fill="#00ff9f" opacity="0.45">Issued: {{DATE}}</text>
+
+  <!-- ══ PREMIUM BADGE — right ══ -->
+  <g transform="translate(852, 56)">
+    <circle cx="56" cy="56" r="52"
+            fill="url(#sealG)" stroke="#00ff9f" stroke-width="1"
+            opacity="0.85" filter="url(#glow)"/>
+    <circle cx="56" cy="56" r="46"
+            fill="none" stroke="#00ff9f" stroke-width="0.4" opacity="0.28"/>
+    <path d="M56 18 L84 30 L84 58 Q84 80 56 92 Q28 80 28 58 L28 30 Z"
+          fill="#071a0f" stroke="#00ff9f" stroke-width="1" opacity="0.9"/>
+    <rect x="44" y="52" width="24" height="18" rx="3"
+          fill="none" stroke="#00ff9f" stroke-width="1.2" filter="url(#glow)"/>
+    <path d="M49 52 L49 47 Q56 40 63 47 L63 52"
+          fill="none" stroke="#00ff9f" stroke-width="1.2" stroke-linecap="round" filter="url(#glow)"/>
+    <circle cx="56" cy="60" r="3" fill="#00ff9f" opacity="0.8"/>
+    <g stroke="#00ff9f" stroke-width="0.8" opacity="0.45">
+      <line x1="56" y1="4"   x2="56" y2="10"/>
+      <line x1="56" y1="102" x2="56" y2="108"/>
+      <line x1="4"  y1="56"  x2="10" y2="56"/>
+      <line x1="102" y1="56" x2="108" y2="56"/>
+      <line x1="16" y1="16"  x2="20" y2="20"/>
+      <line x1="96" y1="16"  x2="92" y2="20"/>
+      <line x1="16" y1="96"  x2="20" y2="92"/>
+      <line x1="96" y1="96"  x2="92" y2="92"/>
+    </g>
+    <path d="M30 108 L16 130 L30 122 L56 136 L82 122 L96 130 L82 108 Z"
+          fill="#071a0f" stroke="#00ff9f" stroke-width="0.75" opacity="0.65"/>
+  </g>
+
+  <!-- ══ BOTTOM DIVIDER + LOCK ══ -->
+  <!-- Simple clean divider lines instead of laurel -->
+  <line x1="60" y1="672" x2="460" y2="672" stroke="#00ff9f" stroke-width="0.6" opacity="0.3"/>
+  <line x1="560" y1="672" x2="960" y2="672" stroke="#00ff9f" stroke-width="0.6" opacity="0.3"/>
+  <!-- Lock badge bottom center -->
+  <g transform="translate(487, 654)" filter="url(#glow)">
+    <circle cx="23" cy="23" r="20" fill="#040e08" stroke="#00ff9f" stroke-width="0.75" opacity="0.75"/>
+    <rect x="13" y="22" width="20" height="14" rx="2.5"
+          fill="none" stroke="#00ff9f" stroke-width="1.1"/>
+    <path d="M16 22 L16 17 Q23 11 30 17 L30 22"
+          fill="none" stroke="#00ff9f" stroke-width="1.1" stroke-linecap="round"/>
+    <circle cx="23" cy="28" r="2.5" fill="#00ff9f" opacity="0.75"/>
+    <rect x="21.5" y="29" width="3" height="4" rx="0.8" fill="#00ff9f" opacity="0.75"/>
+  </g>
+
+</svg>

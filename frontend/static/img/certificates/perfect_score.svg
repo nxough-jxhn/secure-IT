@@ -1,0 +1,336 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 720" width="1020" height="720">
+  <defs>
+    <!-- Background -->
+    <radialGradient id="bg" cx="50%" cy="45%" r="65%">
+      <stop offset="0%"   stop-color="#1a1200"/>
+      <stop offset="55%"  stop-color="#0e0c00"/>
+      <stop offset="100%" stop-color="#060500"/>
+    </radialGradient>
+    <!-- Breathing bloom — animated via JS-free SVG -->
+    <radialGradient id="bloom" cx="50%" cy="42%" r="40%">
+      <stop offset="0%"   stop-color="#fbbf24" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Moving light sweep gradient (animates left to right) -->
+    <linearGradient id="sweep" x1="-80%" y1="0%" x2="-20%" y2="0%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="40%"  stop-color="#fbbf24" stop-opacity="0.03"/>
+      <stop offset="50%"  stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="60%"  stop-color="#fbbf24" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+      <!-- Animate the sweep across the cert -->
+      <animate attributeName="x1" values="-80%;120%;120%" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="-20%;180%;180%" dur="4s" repeatCount="indefinite"/>
+    </linearGradient>
+    <!-- Secondary diagonal sweep -->
+    <linearGradient id="sweep2" x1="120%" y1="-20%" x2="60%" y2="60%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="45%"  stop-color="#fbbf24" stop-opacity="0.02"/>
+      <stop offset="50%"  stop-color="#ffffff" stop-opacity="0.07"/>
+      <stop offset="55%"  stop-color="#fbbf24" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+      <animate attributeName="x1" values="120%;-20%;-20%" dur="6s" begin="2s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="60%;-80%;-80%" dur="6s" begin="2s" repeatCount="indefinite"/>
+    </linearGradient>
+    <!-- Title gradient -->
+    <linearGradient id="titleG" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#fef9c3"/>
+      <stop offset="38%"  stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <!-- Shield gradient (for top-right badge) -->
+    <radialGradient id="sealG" cx="50%" cy="35%" r="60%">
+      <stop offset="0%"   stop-color="#3a2e00"/>
+      <stop offset="100%" stop-color="#120e00"/>
+    </radialGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="2.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="titleBloom" x="-20%" y="-30%" width="140%" height="160%">
+      <feGaussianBlur stdDeviation="9"  result="b1"/>
+      <feGaussianBlur stdDeviation="3"  result="b2" in="SourceGraphic"/>
+      <feMerge><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="nameGlow" x="-15%" y="-30%" width="130%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1020" height="720" fill="url(#bg)"/>
+
+  <!-- Breathing bloom (animated opacity) -->
+  <rect width="1020" height="720" fill="url(#bloom)">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- ══ ANIMATED LIGHT SWEEPS ══ -->
+  <rect width="1020" height="720" fill="url(#sweep)"/>
+  <rect width="1020" height="720" fill="url(#sweep2)"/>
+
+  <!-- Binary strip left -->
+  <g opacity="0.05" font-family="'Courier New', monospace" font-size="9" fill="#fbbf24">
+    <text x="8" y="60">01001110</text><text x="8" y="74">10110001</text>
+    <text x="8" y="88">00111010</text><text x="8" y="102">11001100</text>
+    <text x="8" y="116">01010101</text><text x="8" y="130">10100110</text>
+    <text x="8" y="144">00011101</text><text x="8" y="158">11100010</text>
+    <text x="8" y="172">01001010</text><text x="8" y="186">10111001</text>
+    <text x="8" y="200">00100111</text><text x="8" y="214">11010100</text>
+    <text x="8" y="228">01110000</text><text x="8" y="242">10001011</text>
+    <text x="8" y="256">00110101</text><text x="8" y="270">11101000</text>
+    <text x="8" y="284">01011110</text><text x="8" y="298">10000011</text>
+    <text x="8" y="312">00101101</text><text x="8" y="326">11110010</text>
+    <text x="8" y="340">01100001</text><text x="8" y="354">10011100</text>
+    <text x="8" y="368">00010110</text><text x="8" y="382">11000101</text>
+    <text x="8" y="396">01111010</text><text x="8" y="410">10100000</text>
+    <text x="8" y="424">00001111</text><text x="8" y="438">11011011</text>
+    <text x="8" y="452">01000100</text><text x="8" y="466">10110110</text>
+    <text x="8" y="480">00111001</text><text x="8" y="494">11001010</text>
+    <text x="8" y="508">01010000</text><text x="8" y="522">10101111</text>
+    <text x="8" y="536">00100010</text><text x="8" y="550">11110101</text>
+    <text x="8" y="564">01101100</text><text x="8" y="578">10010001</text>
+    <text x="8" y="592">00011010</text><text x="8" y="606">11100110</text>
+    <text x="8" y="620">01001001</text><text x="8" y="634">10111100</text>
+    <text x="8" y="648">00110000</text><text x="8" y="662">11001111</text>
+    <text x="8" y="676">01110111</text><text x="8" y="690">10000000</text>
+    <text x="8" y="704">00101010</text><text x="8" y="718">11111101</text>
+  </g>
+
+  <!-- Network mesh lower right -->
+  <g opacity="0.065" stroke="#fbbf24" stroke-width="0.6" fill="none">
+    <line x1="720" y1="560" x2="780" y2="520"/><line x1="780" y1="520" x2="850" y2="545"/>
+    <line x1="850" y1="545" x2="890" y2="490"/><line x1="890" y1="490" x2="960" y2="510"/>
+    <line x1="720" y1="560" x2="760" y2="610"/><line x1="760" y1="610" x2="830" y2="600"/>
+    <line x1="830" y1="600" x2="850" y2="545"/><line x1="830" y1="600" x2="880" y2="640"/>
+    <line x1="880" y1="640" x2="950" y2="620"/><line x1="950" y1="620" x2="960" y2="510"/>
+    <line x1="780" y1="520" x2="830" y2="600"/><line x1="890" y1="490" x2="950" y2="620"/>
+    <circle cx="720" cy="560" r="3" fill="#fbbf24"/><circle cx="780" cy="520" r="3" fill="#fbbf24"/>
+    <circle cx="850" cy="545" r="3" fill="#fbbf24"/><circle cx="890" cy="490" r="3" fill="#fbbf24"/>
+    <circle cx="760" cy="610" r="3" fill="#fbbf24"/><circle cx="830" cy="600" r="3" fill="#fbbf24"/>
+    <circle cx="880" cy="640" r="3" fill="#fbbf24"/><circle cx="950" cy="620" r="3" fill="#fbbf24"/>
+    <circle cx="960" cy="510" r="3" fill="#fbbf24"/>
+  </g>
+
+  <!-- ══ ANIMATED BORDER ══ -->
+  <!-- Outer border — pulsing glow -->
+  <rect x="22" y="22" width="976" height="676" rx="3"
+        fill="none" stroke="#fbbf24" stroke-width="1.5">
+    <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/>
+  </rect>
+  <!-- Inner border — offset phase -->
+  <rect x="28" y="28" width="964" height="664" rx="2"
+        fill="none" stroke="#fbbf24" stroke-width="0.4">
+    <animate attributeName="opacity" values="0.15;0.35;0.15" dur="2.5s" begin="1.25s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- ══ ANIMATED CORNER BRACKETS ══ -->
+  <g filter="url(#glow)" stroke="#fbbf24" stroke-width="2" fill="none">
+    <g>
+      <path d="M22 65 L22 22 L65 22"/>
+      <path d="M955 22 L998 22 L998 65"/>
+      <path d="M22 655 L22 698 L65 698"/>
+      <path d="M955 698 L998 698 L998 655"/>
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
+    </g>
+  </g>
+  <g opacity="0.4" stroke="#fbbf24" stroke-width="0.75" fill="none">
+    <path d="M22 50 L40 50 M50 22 L50 40"/>
+    <path d="M998 50 L980 50 M970 22 L970 40"/>
+    <path d="M22 670 L40 670 M50 698 L50 680"/>
+    <path d="M998 670 L980 670 M970 698 L970 680"/>
+  </g>
+
+  <!-- ══ CIRCUIT LINES from top center ══ -->
+  <g stroke="#fbbf24" stroke-width="0.75" opacity="0.25" fill="none">
+    <line x1="510" y1="100" x2="510" y2="70"/>
+    <line x1="510" y1="70"  x2="460" y2="70"/>
+    <line x1="460" y1="70"  x2="460" y2="46"/>
+    <circle cx="460" cy="46" r="2.5" fill="#fbbf24" opacity="0.4"/>
+    <line x1="510" y1="70"  x2="560" y2="70"/>
+    <line x1="560" y1="70"  x2="560" y2="46"/>
+    <circle cx="560" cy="46" r="2.5" fill="#fbbf24" opacity="0.4"/>
+    <line x1="460" y1="70"  x2="420" y2="70"/>
+    <line x1="420" y1="70"  x2="420" y2="54"/>
+    <circle cx="420" cy="54" r="2" fill="#fbbf24" opacity="0.3"/>
+    <line x1="560" y1="70"  x2="600" y2="70"/>
+    <line x1="600" y1="70"  x2="600" y2="54"/>
+    <circle cx="600" cy="54" r="2" fill="#fbbf24" opacity="0.3"/>
+  </g>
+
+  <!-- SECURE - IT label -->
+  <text x="510" y="138" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="10.5"
+        fill="#fbbf24" letter-spacing="5" opacity="0.7" filter="url(#glow)">SECURE - IT</text>
+
+  <!-- ══ SINGLE LARGE STAR — top center ══ -->
+  <g transform="translate(510, 175)" filter="url(#starGlow)">
+    <!-- Outer glow ring -->
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#fbbf24" stroke-width="0.5" opacity="0.2">
+      <animate attributeName="r" values="34;40;34" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.15;0.35;0.15" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Star with slow rotation -->
+    <polygon points="0,-30 6,-10 28,-10 12,2 18,24 0,12 -18,24 -12,2 -28,-10 -6,-10"
+             fill="#fbbf24" opacity="0.95">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0;5;0;-5;0" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.85;1;0.85" dur="3s" repeatCount="indefinite"/>
+    </polygon>
+    <!-- Centre glow dot -->
+    <circle cx="0" cy="0" r="4" fill="#fef9c3" opacity="0.6"/>
+  </g>
+
+  <!-- Decorative thin horizontal rule replacing multi-star row -->
+  <g opacity="0.35">
+    <line x1="160" y1="218" x2="420" y2="218" stroke="#fbbf24" stroke-width="0.5"/>
+    <polygon points="510,214 514,218 510,222 506,218" fill="#fbbf24" opacity="0.6"/>
+    <line x1="600" y1="218" x2="860" y2="218" stroke="#fbbf24" stroke-width="0.5"/>
+  </g>
+
+  <!-- CERTIFICATE title -->
+  <text x="510" y="304" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="86" font-weight="bold" letter-spacing="10"
+        fill="url(#titleG)" filter="url(#titleBloom)">CERTIFICATE</text>
+
+  <!-- Subtitle -->
+  <line x1="148" y1="326" x2="340" y2="326" stroke="#fbbf24" stroke-width="0.6" opacity="0.32"/>
+  <line x1="680" y1="326" x2="872" y2="326" stroke="#fbbf24" stroke-width="0.6" opacity="0.32"/>
+  <text x="510" y="332" text-anchor="middle"
+        font-family="Georgia, serif" font-size="15" letter-spacing="11"
+        fill="#fbbf24" opacity="0.65" filter="url(#glow)">OF PERFECTION</text>
+
+  <!-- Cyber panel -->
+  <path d="M188 352 L218 338 L802 338 L832 352 L832 374 L802 388 L218 388 L188 374 Z"
+        fill="rgba(251,191,36,0.07)" stroke="#fbbf24" stroke-width="0.75" opacity="0.65"/>
+  <path d="M194 356 L220 344 L800 344 L826 356 L826 370 L800 382 L220 382 L194 370 Z"
+        fill="none" stroke="#fbbf24" stroke-width="0.3" opacity="0.28"/>
+  <g stroke="#fbbf24" stroke-width="1" opacity="0.55">
+    <line x1="218" y1="338" x2="228" y2="338"/><line x1="218" y1="338" x2="218" y2="348"/>
+    <line x1="802" y1="338" x2="792" y2="338"/><line x1="802" y1="338" x2="802" y2="348"/>
+    <line x1="218" y1="388" x2="228" y2="388"/><line x1="218" y1="388" x2="218" y2="378"/>
+    <line x1="802" y1="388" x2="792" y2="388"/><line x1="802" y1="388" x2="802" y2="378"/>
+  </g>
+  <text x="510" y="368" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="11.5"
+        letter-spacing="3.5" fill="#fbbf24" font-weight="bold">THIS CERTIFICATE IS PROUDLY PRESENTED TO:</text>
+
+  <!-- Recipient name -->
+  <text x="510" y="444" text-anchor="middle"
+        font-family="'Palatino Linotype', Palatino, Georgia, serif"
+        font-size="52" font-style="italic"
+        fill="#fbbf24" filter="url(#nameGlow)" opacity="0.95">{{NAME}}</text>
+  <line x1="280" y1="458" x2="500" y2="458" stroke="#fbbf24" stroke-width="0.6" opacity="0.28"/>
+  <line x1="520" y1="458" x2="740" y2="458" stroke="#fbbf24" stroke-width="0.6" opacity="0.28"/>
+  <circle cx="510" cy="458" r="3" fill="#fbbf24" opacity="0.5" filter="url(#glow)">
+    <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Description -->
+  <text x="510" y="490" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#fde68a" opacity="0.82" letter-spacing="0.3">
+    This certificate is awarded for achieving the maximum possible score across
+  </text>
+  <text x="510" y="508" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#fde68a" opacity="0.82" letter-spacing="0.3">
+    all ten cybersecurity modules on the Secure-IT platform — a rare distinction
+  </text>
+  <text x="510" y="526" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#fde68a" opacity="0.82" letter-spacing="0.3">
+    that reflects absolute mastery, precision, and an unwavering commitment
+  </text>
+  <text x="510" y="544" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13.5" fill="#fde68a" opacity="0.82" letter-spacing="0.3">
+    to cybersecurity awareness excellence.
+  </text>
+
+  <!-- Signature -->
+  <line x1="340" y1="572" x2="680" y2="572" stroke="#fbbf24" stroke-width="0.5" opacity="0.28"/>
+  <text x="510" y="594" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="18" font-style="italic"
+        fill="#fbbf24" opacity="0.8" filter="url(#glow)">Secure-IT Family</text>
+  <line x1="360" y1="602" x2="660" y2="602" stroke="#fbbf24" stroke-width="0.5" opacity="0.25"/>
+  <text x="510" y="619" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="10.5"
+        letter-spacing="2.5" fill="#fbbf24" font-weight="bold" opacity="0.75">SECURE-IT PLATFORM</text>
+
+  <!-- Date -->
+  <text x="510" y="638" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="10"
+        letter-spacing="2" fill="#fbbf24" opacity="0.45">Issued: {{DATE}}</text>
+
+  <!-- ══ TOP-RIGHT BADGE: Eye of Horus / All-seeing circuit eye ══
+       Symbolizes surveillance, cybersecurity vigilance, threat detection -->
+  <g transform="translate(856, 58)">
+    <!-- Outer hexagon ring -->
+    <polygon points="56,4 100,28 100,84 56,108 12,84 12,28"
+             fill="url(#sealG)" stroke="#fbbf24" stroke-width="1" opacity="0.9" filter="url(#glow)"/>
+    <polygon points="56,12 92,32 92,80 56,100 20,80 20,32"
+             fill="none" stroke="#fbbf24" stroke-width="0.4" opacity="0.28"/>
+    <!-- Outer eye oval -->
+    <ellipse cx="56" cy="56" rx="28" ry="18"
+             fill="none" stroke="#fbbf24" stroke-width="1.2" opacity="0.8"/>
+    <!-- Iris circle -->
+    <circle cx="56" cy="56" r="11"
+            fill="#120e00" stroke="#fbbf24" stroke-width="1" opacity="0.9"/>
+    <!-- Pupil -->
+    <circle cx="56" cy="56" r="5" fill="#fbbf24" opacity="0.85"/>
+    <!-- Pupil highlight -->
+    <circle cx="59" cy="53" r="1.5" fill="#fef9c3" opacity="0.7"/>
+    <!-- Circuit lines extending from eye corners -->
+    <line x1="28" y1="56" x2="14" y2="56" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/>
+    <line x1="14" y1="56" x2="14" y2="44" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/>
+    <circle cx="14" cy="44" r="2" fill="#fbbf24" opacity="0.4"/>
+    <line x1="84" y1="56" x2="98" y2="56" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/>
+    <line x1="98" y1="56" x2="98" y2="44" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/>
+    <circle cx="98" cy="44" r="2" fill="#fbbf24" opacity="0.4"/>
+    <!-- Eyelid lines top -->
+    <path d="M28 56 Q56 36 84 56" fill="none" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/>
+    <!-- Eyelid lines bottom -->
+    <path d="M28 56 Q56 74 84 56" fill="none" stroke="#fbbf24" stroke-width="0.8" opacity="0.4"/>
+    <!-- Iris blink animation -->
+    <circle cx="56" cy="56" r="11" fill="#120e00" stroke="none">
+      <animate attributeName="ry" values="11;2;11" dur="5s" begin="2s" repeatCount="indefinite"
+               attributeType="XML"/>
+    </circle>
+    <!-- Ribbon below hex -->
+    <path d="M30 108 L16 130 L30 122 L56 136 L82 122 L96 130 L82 108 Z"
+          fill="#120e00" stroke="#fbbf24" stroke-width="0.75" opacity="0.65"/>
+  </g>
+
+  <!-- ══ ANIMATED BORDER TRAVEL HIGHLIGHT ══ -->
+  <!-- A bright dot that travels around the border -->
+  <circle r="3" fill="#fbbf24" opacity="0.7" filter="url(#glow)">
+    <animateMotion dur="8s" repeatCount="indefinite">
+      <mpath href="#borderPath"/>
+    </animateMotion>
+  </circle>
+  <!-- Define the border path for motion -->
+  <path id="borderPath"
+        d="M22 22 L998 22 L998 698 L22 698 Z"
+        fill="none" stroke="none"/>
+
+  <!-- Bottom divider + lock -->
+  <line x1="60"  y1="666" x2="460" y2="666" stroke="#fbbf24" stroke-width="0.6" opacity="0.3"/>
+  <line x1="560" y1="666" x2="960" y2="666" stroke="#fbbf24" stroke-width="0.6" opacity="0.3"/>
+  <g transform="translate(487, 648)" filter="url(#glow)">
+    <circle cx="23" cy="23" r="20" fill="#060500" stroke="#fbbf24" stroke-width="0.75" opacity="0.75">
+      <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="13" y="22" width="20" height="14" rx="2.5"
+          fill="none" stroke="#fbbf24" stroke-width="1.1"/>
+    <path d="M16 22 L16 17 Q23 11 30 17 L30 22"
+          fill="none" stroke="#fbbf24" stroke-width="1.1" stroke-linecap="round"/>
+    <circle cx="23" cy="28" r="2.5" fill="#fbbf24" opacity="0.75"/>
+    <rect x="21.5" y="29" width="3" height="4" rx="0.8" fill="#fbbf24" opacity="0.75"/>
+  </g>
+
+</svg>

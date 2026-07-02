@@ -1,0 +1,161 @@
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboard.css') }}">
+{% endblock %}
+
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+<div class="lb-page">
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="lb-header">
+    <div class="lb-header__left">
+      <h1 class="lb-header__title">Leaderboard</h1>
+      <p class="lb-header__sub">Global rankings — updated in real time based on total points earned.</p>
+    </div>
+    {% if user_rank %}
+    <div class="lb-header__your-rank">
+      <span class="lb-header__rank-label">Your Rank</span>
+      <span class="lb-header__rank-num">#{{ user_rank }}</span>
+      <span class="lb-header__rank-title">{{ user_rank_title }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="lb-layout">
+
+    <!-- ══ LEFT: Rankings ══ -->
+    <div class="lb-main">
+
+      <!-- Top 3 podium -->
+      {% if top3 %}
+      <div class="lb-podium">
+        {% for entry in top3 %}
+        <div class="lb-podium__card lb-podium__card--{{ loop.index }}{% if entry.is_current_user %} lb-podium__card--you{% endif %}">
+          <div class="lb-podium__medal">{{ entry.medal }}</div>
+          <div class="lb-podium__avatar">{{ entry.name[:2] | upper }}</div>
+          <div class="lb-podium__name">{{ entry.name }}</div>
+          <div class="lb-podium__title">{{ entry.rank_title }}</div>
+          <div class="lb-podium__pts">{{ entry.points }} <span>pts</span></div>
+          <div class="lb-podium__rank">#{{ entry.rank }}</div>
+          {% if entry.is_current_user %}<div class="lb-podium__you-badge">You</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Ranks 4+ table -->
+      {% if rest %}
+      <div class="lb-table-wrap">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th class="lb-table__th lb-table__th--rank">Rank</th>
+              <th class="lb-table__th">Player</th>
+              <th class="lb-table__th lb-table__th--title">Title</th>
+              <th class="lb-table__th lb-table__th--pts">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in rest %}
+            <tr class="lb-table__row{% if entry.is_current_user %} lb-table__row--you{% endif %}">
+              <td class="lb-table__td lb-table__td--rank">
+                <span class="lb-rank-badge lb-rank-badge--{% if entry.rank <= 10 %}top10{% else %}default{% endif %}">
+                  #{{ entry.rank }}
+                </span>
+              </td>
+              <td class="lb-table__td lb-table__td--player">
+                <div class="lb-player">
+                  <div class="lb-player__avatar">{{ entry.name[:2] | upper }}</div>
+                  <span class="lb-player__name">{{ entry.name }}</span>
+                  {% if entry.is_current_user %}<span class="lb-you-tag">You</span>{% endif %}
+                </div>
+              </td>
+              <td class="lb-table__td lb-table__td--title">{{ entry.rank_title }}</td>
+              <td class="lb-table__td lb-table__td--pts">{{ entry.points }} pts</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {% if not leaderboard %}
+      <div class="lb-empty">
+        <span class="lb-empty__icon">🏆</span>
+        <p>No rankings yet. Complete simulations and quizzes to earn points and appear on the leaderboard.</p>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- ══ RIGHT: Badge shelf ══ -->
+    <aside class="lb-sidebar">
+
+      <!-- Your standing card -->
+      <div class="lb-standing-card">
+        <div class="lb-standing-card__label">YOUR STANDING</div>
+        <div class="lb-standing-card__rank">
+          {% if user_rank %}#{{ user_rank }}{% else %}—{% endif %}
+        </div>
+        <div class="lb-standing-card__title">{{ user_rank_title }}</div>
+        <div class="lb-standing-card__pts">{{ profile.points }} pts</div>
+        <div class="lb-standing-card__level">{{ level_progress.level_name }} — Level {{ level_progress.level_number }}</div>
+        <div class="lb-standing-card__bar-wrap">
+          <div class="lb-standing-card__bar">
+            <div class="lb-standing-card__bar-fill" style="width: {{ level_progress.percent_in_level }}%"></div>
+          </div>
+          <div class="lb-standing-card__bar-meta">
+            <span>{{ level_progress.current_points }}</span>
+            <span>{{ level_progress.next_threshold }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module badges -->
+      <div class="lb-badges-card">
+        <div class="lb-badges-card__head">
+          <span class="lb-badges-card__title">Module Badges</span>
+          <span class="lb-badges-card__count">
+            {{ all_badges | selectattr('earned') | list | length }} / {{ all_badges | length }}
+          </span>
+        </div>
+        <div class="lb-badge-grid">
+          {% for badge in all_badges %}
+          <div class="lb-badge{% if badge.earned %} lb-badge--earned{% endif %}" title="{{ badge.name }}">
+            <span class="lb-badge__icon">{% if badge.earned %}🏅{% else %}🔒{% endif %}</span>
+            <span class="lb-badge__name">{{ badge.name }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Milestone badges -->
+      <div class="lb-badges-card">
+        <div class="lb-badges-card__head">
+          <span class="lb-badges-card__title">Milestone Badges</span>
+          <span class="lb-badges-card__count">
+            {{ milestone_badges | selectattr('earned') | list | length }} / {{ milestone_badges | length }}
+          </span>
+        </div>
+        <div class="lb-milestone-list">
+          {% for badge in milestone_badges %}
+          <div class="lb-milestone{% if badge.earned %} lb-milestone--earned{% endif %}">
+            <span class="lb-milestone__icon">{{ badge.icon }}</span>
+            <div class="lb-milestone__info">
+              <span class="lb-milestone__name">{{ badge.name }}</span>
+              <span class="lb-milestone__cond">{{ badge.condition }}</span>
+            </div>
+            {% if badge.earned %}<span class="lb-milestone__check">✓</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+{% endblock %}

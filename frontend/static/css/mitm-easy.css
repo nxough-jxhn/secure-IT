@@ -1,0 +1,976 @@
+/* ══════════════════════════════════════════
+   MITM Easy Simulation
+   Dark sidebar + dark right panel + LIGHT browser center
+   Matches phishing-easy / social-easy design language
+══════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.mitm-sim {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+.mitm-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  height: 100vh;
+  gap: 0;
+}
+
+/* ── LEFT SIDEBAR ─────────────────────────── */
+.mitm-sidebar {
+  background: #0f0f0f;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 32px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.mitm-sidebar__header { display: flex; flex-direction: column; gap: 8px; }
+
+.mitm-sidebar__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.mitm-sidebar__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.mitm-sidebar__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: fit-content;
+  background: rgba(0,255,159,0.12);
+  border: 1px solid rgba(0,255,159,0.25);
+  color: #00ff9f;
+}
+
+.mitm-sidebar__section { display: flex; flex-direction: column; gap: 10px; }
+
+.mitm-sidebar__section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5f6368;
+}
+
+.mitm-sidebar__text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #bbb;
+}
+
+.mitm-sidebar__timer {
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #00ff9f;
+}
+
+.mitm-sidebar__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mitm-sidebar__list li {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #bbb;
+  padding-left: 20px;
+  position: relative;
+}
+
+.mitm-sidebar__list li::before {
+  content: '•';
+  position: absolute;
+  left: 6px;
+  color: #00ff9f;
+}
+
+.mitm-sidebar__exit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.1);
+  text-decoration: none;
+  color: #f87171;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-top: auto;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.mitm-sidebar__exit:hover {
+  border-color: rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.16);
+  transform: translateY(-1px);
+}
+
+/* ── CENTER COLUMN ────────────────────────── */
+.mitm-browser-col {
+  background: #141414;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mitm-browser-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #0f0f0f;
+  flex-shrink: 0;
+}
+
+.mitm-browser-header__icon { font-size: 1.25rem; }
+.mitm-browser-header__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ── OS TASKBAR (dark — sits above the light browser) ── */
+.mitm-taskbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: #1e1e1e;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.mitm-taskbar__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mitm-taskbar__app {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.mitm-taskbar__app--active {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.mitm-taskbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mitm-taskbar__clock {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* WiFi widget — hotspot */
+.mitm-taskbar__wifi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.mitm-taskbar__wifi:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(239,68,68,0.3);
+}
+
+.mitm-taskbar__wifi-name { font-weight: 600; color: #d1d5db; }
+.mitm-taskbar__wifi-lock--open { color: #fbbf24; font-size: 0.875rem; }
+
+/* ── BROWSER WINDOW (light theme) ────────── */
+.mitm-browser {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+  /* subtle shadow to lift the browser from the dark col bg */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+/* Browser chrome — tabs + address bar */
+.mitm-browser__chrome {
+  background: #dee1e6;
+  border-bottom: 1px solid #b0b5bc;
+  flex-shrink: 0;
+}
+
+/* Tab bar */
+.mitm-browser__tabs {
+  display: flex;
+  align-items: flex-end;
+  padding: 6px 8px 0;
+  gap: 2px;
+}
+
+.mitm-browser__tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px 8px 0 0;
+  font-size: 0.8125rem;
+  color: #3c4043;
+  background: #dee1e6;
+  border: 1px solid transparent;
+  border-bottom: none;
+  cursor: default;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mitm-browser__tab--active {
+  background: #ffffff;
+  border-color: #b0b5bc;
+  color: #202124;
+  font-weight: 500;
+}
+
+.mitm-browser__tab-favicon { font-size: 0.875rem; }
+.mitm-browser__tab-close {
+  margin-left: auto;
+  color: #5f6368;
+  font-size: 0.875rem;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.mitm-browser__tab-new {
+  background: none;
+  border: none;
+  color: #5f6368;
+  font-size: 1.125rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+/* Toolbar */
+.mitm-browser__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f1f3f4;
+}
+
+.mitm-browser__nav {
+  display: flex;
+  gap: 4px;
+}
+
+.mitm-browser__nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #5f6368;
+  font-size: 1rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s;
+}
+
+.mitm-browser__nav-btn:hover:not(:disabled) { background: rgba(0,0,0,0.07); }
+.mitm-browser__nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* Address bar — hotspot */
+.mitm-browser__address {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background: #ffffff;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.8125rem;
+  color: #202124;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.mitm-browser__address:hover {
+  border-color: #dadce0;
+  box-shadow: 0 1px 6px rgba(32,33,36,0.12);
+}
+
+.mitm-browser__security-icon--warn {
+  color: #e8710a;
+  font-size: 0.875rem;
+}
+
+.mitm-browser__not-secure {
+  color: #e8710a;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+}
+
+.mitm-browser__url {
+  color: #202124;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mitm-browser__toolbar-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.mitm-browser__toolbar-icon {
+  padding: 6px 8px;
+  color: #5f6368;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.mitm-browser__toolbar-icon:hover { background: rgba(0,0,0,0.07); }
+
+/* Certificate warning banner — hotspot */
+.mitm-browser__cert-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: #fef9e7;
+  border-bottom: 1px solid #f9d949;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.mitm-browser__cert-banner:hover { background: #fef3c2; }
+
+.mitm-browser__cert-icon { font-size: 1rem; }
+
+.mitm-browser__cert-text {
+  font-size: 0.8125rem;
+  color: #78350f;
+  flex: 1;
+}
+
+.mitm-browser__cert-cta {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #92400e;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+/* ── FLAG BADGES ──────────────────────────── */
+.mitm-flag-num {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.2);
+  border: 1px solid rgba(239,68,68,0.5);
+  color: #c0392b;
+  font-size: 10px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.mitm-hotspot.is-reviewed .mitm-flag-num {
+  background: rgba(0,180,90,0.18);
+  border-color: rgba(0,180,90,0.5);
+  color: #166534;
+}
+
+/* Unreviewd hotspots get a red outline */
+.mitm-hotspot:not(.is-reviewed) {
+  outline: 1px solid rgba(239,68,68,0.4);
+  border-radius: 6px;
+}
+
+.mitm-hotspot.is-reviewed {
+  outline: 1px solid rgba(0,200,100,0.35);
+  border-radius: 6px;
+}
+
+/* ── PAGE CONTENT (white bank page) ──────── */
+.mitm-browser__page {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bank top bar */
+.mitm-page__topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: #1a3c5e;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.mitm-page__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mitm-page__brand-icon { font-size: 1.25rem; }
+
+.mitm-page__brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mitm-page__nav {
+  display: flex;
+  gap: 20px;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.7);
+  margin-left: auto;
+}
+
+.mitm-page__nav-active {
+  color: #ffffff;
+  font-weight: 600;
+  border-bottom: 2px solid #4fc3f7;
+  padding-bottom: 2px;
+}
+
+.mitm-page__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.mitm-page__user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #4fc3f7;
+  color: #1a3c5e;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+/* Main content area */
+.mitm-page__body {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 20px;
+}
+
+.mitm-page__card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  padding: 28px 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mitm-page__card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #202124;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.mitm-page__form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mitm-page__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5f6368;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mitm-page__input {
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #dadce0;
+  background: #f8f9fa;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: #202124;
+  outline: none;
+}
+
+.mitm-page__divider {
+  height: 1px;
+  background: #e8eaed;
+  margin: 4px 0;
+}
+
+/* Transaction summary */
+.mitm-page__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e8eaed;
+}
+
+.mitm-page__summary-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5f6368;
+  margin-bottom: 4px;
+}
+
+.mitm-page__summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.mitm-page__summary-key { color: #5f6368; }
+.mitm-page__summary-val { font-weight: 600; color: #202124; }
+
+/* Altered amount row — draws attention */
+.mitm-page__summary-row--highlight {
+  background: rgba(239,68,68,0.05);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin: 0 -8px;
+}
+
+/* Amount hotspot button */
+.mitm-page__amount-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.mitm-page__amount-btn:hover { background: rgba(239,68,68,0.06); }
+
+.mitm-page__amount-val {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #c0392b;
+}
+
+.mitm-page__confirm-btn {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #1a3c5e;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: not-allowed;
+  opacity: 0.4;
+  margin-top: 4px;
+}
+
+.mitm-page__disclaimer {
+  font-size: 0.75rem;
+  color: #9aa0a6;
+  text-align: center;
+}
+
+/* ── HINT BAR ─────────────────────────────── */
+.mitm-hint-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #e6f4ea;
+  border-top: 1px solid #c3e6cb;
+  flex-shrink: 0;
+}
+
+.mitm-hint-bar__icon { font-size: 1.25rem; }
+.mitm-hint-bar__label { font-weight: 700; color: #0d8a4f; font-size: 0.875rem; }
+.mitm-hint-bar__text  { font-size: 0.8125rem; color: #3c4043; flex: 1; }
+
+.mitm-hint-bar__complete {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #00c97c;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.mitm-hint-bar__complete:not(:disabled):hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.mitm-hint-bar__complete:disabled {
+  background: #c8d6cd;
+  color: #8a948e;
+  cursor: not-allowed;
+}
+
+/* ── RIGHT INDICATORS PANEL ───────────────── */
+.mitm-indicators {
+  background: #0f0f0f;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mitm-indicators__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.mitm-indicators__icon  { font-size: 1.5rem; }
+.mitm-indicators__title { font-size: 1rem; font-weight: 700; color: #fff; }
+.mitm-indicators__count { font-size: 0.75rem; color: #00ff9f; font-weight: 600; }
+
+.mitm-indicators__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Indicator cards */
+.mitm-indicator-item {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.mitm-indicator-item.is-reviewed {
+  border-color: rgba(0,255,159,0.25);
+  background: rgba(0,255,159,0.04);
+}
+
+.mitm-indicator-item__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.mitm-indicator-item__num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5f6368;
+}
+
+.mitm-indicator-item.is-reviewed .mitm-indicator-item__num {
+  background: #00ff9f;
+  color: #0a0a0a;
+}
+
+.mitm-indicator-item__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.mitm-indicator-item__status {
+  font-size: 0.75rem;
+  color: #5f6368;
+  padding-left: 34px;
+}
+
+.mitm-indicator-item.is-reviewed .mitm-indicator-item__status { color: #00ff9f; }
+
+/* Verdict */
+.mitm-verdict {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mitm-verdict__title    { font-size: 0.9375rem; font-weight: 700; color: #fff; }
+.mitm-verdict__subtitle { font-size: 0.8125rem; color: #5f6368; line-height: 1.5; }
+
+.mitm-verdict__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.mitm-verdict__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.mitm-verdict__btn--safe {
+  background: rgba(0,255,159,0.08);
+  border-color: rgba(0,255,159,0.25);
+  color: #00ff9f;
+}
+
+.mitm-verdict__btn--safe:hover {
+  background: rgba(0,255,159,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,255,159,0.2);
+}
+
+.mitm-verdict__btn--danger {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.25);
+  color: #f87171;
+}
+
+.mitm-verdict__btn--danger:hover {
+  background: rgba(239,68,68,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+}
+
+/* ── MODAL ────────────────────────────────── */
+.mitm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.mitm-modal[hidden] { display: none !important; }
+.mitm-modal:not([hidden]) { pointer-events: auto; }
+
+.mitm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+}
+
+.mitm-modal__dialog {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: 90vh;
+  background: #1a1a1a;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 36px 40px;
+  overflow-y: auto;
+  animation: mitmModalIn 0.25s ease;
+  z-index: 1;
+}
+
+@keyframes mitmModalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+.mitm-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #5f6368;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mitm-modal__close:hover {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border-color: rgba(239,68,68,0.3);
+}
+
+.mitm-modal__content { display: flex; flex-direction: column; gap: 20px; }
+
+.mitm-modal__badge {
+  display: inline-flex;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #f87171;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.mitm-modal__title { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.3; margin: 0; }
+.mitm-modal__desc  { font-size: 0.9375rem; line-height: 1.7; color: #bbb; margin: 0; }
+
+.mitm-modal__compare { display: flex; gap: 16px; }
+
+.mitm-modal__box {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.mitm-modal__box--wrong  { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); }
+.mitm-modal__box--correct { background: rgba(0,255,159,0.08); border: 1px solid rgba(0,255,159,0.28); }
+
+.mitm-modal__box-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.mitm-modal__box--wrong   .mitm-modal__box-label { color: #fca5a5; }
+.mitm-modal__box--correct .mitm-modal__box-label { color: #5eead4; }
+
+.mitm-modal__box-text { font-size: 0.9375rem; font-weight: 500; line-height: 1.65; color: #f5f5f5; margin: 0; }
+
+.mitm-modal__tip {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(66,133,244,0.08);
+  border: 1px solid rgba(66,133,244,0.2);
+}
+
+.mitm-modal__tip-icon { font-size: 1.25rem; }
+.mitm-modal__tip-text { font-size: 0.875rem; line-height: 1.6; color: #ccc; }
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 1200px) {
+  .mitm-layout { grid-template-columns: 1fr; }
+  .mitm-sidebar { display: none; }
+  .mitm-indicators {
+    order: -1;
+    border-left: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    max-height: 200px;
+  }
+}
