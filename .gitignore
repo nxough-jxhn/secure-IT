@@ -9,3 +9,9 @@ firebase-service-account.json
 
 # Co-member working files — excluded from repo
 co-member files/
+
+# Executables / installers accidentally dropped in project
+*.exe
+*.msi
+*.dmg
+*.pkg
