@@ -6,3 +6,6 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 firebase-service-account.json
+
+# Co-member working files — excluded from repo
+co-member files/

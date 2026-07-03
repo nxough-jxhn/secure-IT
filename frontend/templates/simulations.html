@@ -53,6 +53,88 @@
 
   </div>
 
+  <!-- ══ Module Progress — single scrollable row with category tabs ══ -->
+  {% set cat_colors = {
+    'social_based':    '#60a5fa',
+    'malware_based':   '#f87171',
+    'network_based':   '#2dd4bf',
+    'injection_based': '#00ff9f'
+  } %}
+  {% set cat_icons = {
+    'social_based':    '💬',
+    'malware_based':   '🦠',
+    'network_based':   '📡',
+    'injection_based': '💻'
+  } %}
+
+  <!-- Blurry separator -->
+  <div class="cr-divider" aria-hidden="true"></div>
+
+  <div class="cr-module-strip">
+
+    <div class="cr-strip-panel">
+      <!-- Category tabs + view-all -->
+      <div class="cr-strip-head">
+        <div class="cr-strip-tabs" role="tablist">
+          {% for cat in categories %}
+          <button type="button"
+                  class="cr-strip-tab{% if loop.first %} is-active{% endif %}"
+                  role="tab"
+                  data-cat-id="{{ cat.id }}"
+                  data-cat-index="{{ loop.index0 }}"
+                  style="--tab-accent: {{ cat_colors.get(cat.id, '#00ff9f') }};"
+                  aria-selected="{{ 'true' if loop.first else 'false' }}">
+            <span class="cr-strip-tab__icon">{{ cat_icons.get(cat.id, '🎯') }}</span>
+            {{ cat.label }}
+          </button>
+          {% endfor %}
+        </div>
+        <button type="button"
+                class="cr-strip-viewall"
+                data-cat-index="0"
+                id="cr-strip-viewall">
+          View All →
+        </button>
+      </div>
+
+      <!-- Single horizontal scroll track — all attacks together -->
+      <div class="cr-strip-scroll" id="cr-strip-scroll">
+        {% for cat in categories %}
+        {% set accent = cat_colors.get(cat.id, '#00ff9f') %}
+        {% set icon   = cat_icons.get(cat.id, '🎯') %}
+        {% for m in cat.missions %}
+        <article class="cr-strip-card{% if m.state == 'completed' %} cr-strip-card--done{% endif %}"
+                 data-cat-id="{{ cat.id }}"
+                 style="--strip-accent: {{ accent }};">
+          <div class="cr-strip-card__thumb">
+            {% if m.image %}
+            <img src="{{ url_for('static', filename=m.image) }}" alt="{{ m.name }}" class="cr-strip-card__img">
+            {% else %}
+            <div class="cr-strip-card__placeholder">{{ icon }}</div>
+            {% endif %}
+            <span class="cr-strip-card__diff cr-sdiff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
+            {% if m.state == 'completed' %}
+            <span class="cr-strip-card__done">✓</span>
+            {% endif %}
+          </div>
+          <div class="cr-strip-card__body">
+            <h3 class="cr-strip-card__name">{{ m.name }}</h3>
+            <p class="cr-strip-card__meta">{{ m.difficulty }} · ⏱ {{ m.estimated_minutes }} min</p>
+            <ul class="cr-strip-card__skills">
+              {% for skill in m.skills_learned[:2] %}<li>{{ skill }}</li>{% endfor %}
+            </ul>
+          </div>
+          <div class="cr-strip-card__footer">
+            <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}" class="cr-strip-card__cta">VIEW</a>
+          </div>
+        </article>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div><!-- /cr-strip-panel -->
+
+  </div>
+
 </div>
 
 <!-- ══ MODAL ══ -->

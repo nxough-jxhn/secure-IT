@@ -1,15 +1,147 @@
-{% extends 'base.html' %}
-{% block content %}
-<section class="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-950/70 p-8 text-center shadow-glow">
-  <div class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-300/80">Modules</div>
-  <h2 class="text-2xl font-extrabold text-white">
-    {% if page_kind == 'category' %}
-    {{ category_id.replace('_', ' ')|title }} — coming soon
-    {% else %}
-    All categories — coming soon
-    {% endif %}
-  </h2>
-  <p class="mt-4 text-sm leading-7 text-slate-300">This route is wired up. The full module list UI will be built in the next phase.</p>
-  <a href="{{ url_for('landing_page') }}" class="mt-6 inline-flex rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Back to home</a>
-</section>
+{% extends 'app_base.html' %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cyber-range.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules-browse.css') }}">
+{% endblock %}
+
+{% block dash_header %}{% endblock %}
+
+{% block dash_content %}
+<div class="mb-page">
+
+  <!-- ── Page header ── -->
+  <header class="mb-header">
+    <div class="mb-header__top">
+      <span class="mb-header__badge">Training Modules</span>
+    </div>
+    <h1 class="mb-header__title">Cyberattack Modules</h1>
+    <p class="mb-header__sub">Browse every attack category and launch simulations, quizzes, or in-depth info pages directly from here.</p>
+  </header>
+
+  <!-- ── Category rows ── -->
+  {% set cat_colors = {
+    'social_based':    '#60a5fa',
+    'malware_based':   '#f87171',
+    'network_based':   '#2dd4bf',
+    'injection_based': '#00ff9f'
+  } %}
+  {% set cat_icons = {
+    'social_based':    '💬',
+    'malware_based':   '🦠',
+    'network_based':   '📡',
+    'injection_based': '💻'
+  } %}
+
+  {% for cat in categories %}
+  {% set accent = cat_colors.get(cat.id, '#00ff9f') %}
+  {% set icon   = cat_icons.get(cat.id, '🎯') %}
+  <section class="mb-cat" style="--mb-accent: {{ accent }};">
+
+    <!-- Row header -->
+    <div class="mb-cat__head">
+      <span class="mb-cat__icon">{{ icon }}</span>
+      <h2 class="mb-cat__title">{{ cat.label }}</h2>
+      <span class="mb-cat__count">{{ cat.missions | length }} modules</span>
+      <button type="button"
+              class="mb-cat__view-all"
+              data-cat-index="{{ loop.index0 }}"
+              aria-label="View all {{ cat.label }}">
+        View all →
+      </button>
+    </div>
+
+    <!-- Horizontal scroll row -->
+    <div class="mb-hscroll" role="list">
+      {% for m in cat.missions %}
+      <article class="mb-card{% if m.state == 'completed' %} mb-card--done{% endif %}"
+               role="listitem"
+      >
+        <!-- Thumb -->
+        <div class="mb-card__thumb">
+          {% if m.image %}
+          <img src="{{ url_for('static', filename=m.image) }}" alt="{{ m.name }}" class="mb-card__img">
+          {% else %}
+          <div class="mb-card__img-placeholder">{{ icon }}</div>
+          {% endif %}
+          <span class="mb-card__diff mb-diff--{{ m.difficulty | lower }}">{{ m.difficulty }}</span>
+          {% if m.state == 'completed' %}
+          <span class="mb-card__done-badge">✓ Done</span>
+          {% endif %}
+        </div>
+
+        <!-- Body -->
+        <div class="mb-card__body">
+          <h3 class="mb-card__name">{{ m.name }}</h3>
+          <p class="mb-card__meta">
+            <span>{{ m.difficulty }}</span>
+            <span class="mb-card__dot">·</span>
+            <span>⏱ {{ m.estimated_minutes }} min</span>
+          </p>
+          <ul class="mb-card__skills">
+            {% for skill in m.skills_learned[:2] %}
+            <li>{{ skill }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="mb-card__footer">
+          <a href="{{ url_for('simulation_overview_page', attack_id=m.id) }}"
+             class="mb-card__cta">View</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+  </section>
+  {% endfor %}
+
+</div>
+
+<!-- ══ Reused modal overlay from simulations ══ -->
+<div class="cr-overlay" id="cr-overlay" aria-modal="true" role="dialog">
+  <button class="cr-cat-nav cr-cat-nav--prev" id="cr-cat-prev" aria-label="Previous category">‹</button>
+  <div class="cr-modal" id="cr-modal">
+    <div class="cr-modal__inner">
+      <div class="cr-modal__topbar">
+        <span class="cr-modal__cat-badge" id="cr-modal-badge">Category 01</span>
+        <h2 class="cr-modal__cat-title" id="cr-modal-title"></h2>
+        <span class="cr-modal__attack-count" id="cr-modal-count"></span>
+        <button type="button" class="cr-modal__close" id="cr-close" aria-label="Close">✕</button>
+      </div>
+      <div class="cr-modal__body">
+        <div class="cr-modal__sidebar">
+          <span class="cr-sidebar__num" id="cr-mini-num">01</span>
+          <div class="cr-sidebar__pillar" id="cr-sidebar-pillar"></div>
+          <p class="cr-sidebar__label" id="cr-mini-name"></p>
+        </div>
+        <div class="cr-modal__content" id="cr-modal-content">
+          <p class="cr-modal__desc" id="cr-modal-desc"></p>
+          <div class="cr-modal__carousel">
+            <div class="cr-modal__carousel-track" id="cr-mission-track"></div>
+            <div class="cr-modal__carousel-footer">
+              <div class="cr-modal__carousel-dots" id="cr-mission-dots"></div>
+              <span class="cr-modal__carousel-counter" id="cr-mission-counter"></span>
+              <div class="cr-modal__carousel-nav">
+                <button class="cr-modal__carousel-btn" id="cr-mission-prev" aria-label="Previous">‹</button>
+                <button class="cr-modal__carousel-btn" id="cr-mission-next" aria-label="Next">›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="cr-cat-nav cr-cat-nav--next" id="cr-cat-next" aria-label="Next category">›</button>
+</div>
+
+<!-- Category data for the modal JS -->
+<script id="cr-data" type="application/json">
+{{ categories | tojson }}
+</script>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/modules-browse.js') }}" defer></script>
 {% endblock %}

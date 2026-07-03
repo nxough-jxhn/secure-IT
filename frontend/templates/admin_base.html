@@ -39,8 +39,14 @@
 
           <a href="{{ url_for('admin_page') }}"
              class="av2-nav__link {% if active_page == 'admin' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor" opacity=".8"/><rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor" opacity=".8"/><rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor" opacity=".8"/><rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor" opacity=".8"/></svg>
-            Overview
+            <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 18h1M17 18h1M19 14v1M19 17v1M14 14h1M14 17h1M17 14h1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+            Analytics
+          </a>
+
+          <a href="{{ url_for('admin_simulations_page') }}"
+             class="av2-nav__link {% if active_page == 'admin_simulations' %}is-active{% endif %}">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            Simulations
           </a>
 
           <a href="{{ url_for('admin_users_page') }}"
@@ -49,15 +55,10 @@
             Users
           </a>
 
-          <span class="av2-nav__link av2-nav__link--muted">
-            <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 18h1M17 18h1M19 14v1M19 17v1M14 14h1M14 17h1M17 14h1M21 14h0M21 21h0M14 21h0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-            Analytics
-            <span class="av2-nav__soon">soon</span>
-          </span>
-
-          <a href="{{ url_for('simulations_page') }}" class="av2-nav__link">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-            Simulations
+          <a href="{{ url_for('admin_quiz_manager_page') }}"
+             class="av2-nav__link {% if active_page == 'admin_quiz' %}is-active{% endif %}">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Quiz Manager
           </a>
 
           <a href="{{ url_for('dashboard_page') }}" class="av2-nav__link">
@@ -110,6 +111,12 @@
             <p class="av2-topbar__sub">{{ subtitle }}</p>
           </div>
           <div class="av2-topbar__right">
+            {% if active_page == 'admin' %}
+            <button type="button" class="av2-report-btn" id="av2-report-btn">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M9 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6L9 1z" stroke="currentColor" stroke-width="1.2"/><path d="M9 1v5h5M5 9h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Download Report
+            </button>
+            {% endif %}
             <span class="av2-live-pill">
               <span class="av2-live-pill__dot"></span>
               LIVE
@@ -126,5 +133,263 @@
     </div>
 
     {% block extra_scripts %}{% endblock %}
+
+    <!-- ══ Report Modal ══ -->
+    <div class="rpt-backdrop" id="rpt-backdrop" hidden></div>
+    <div class="rpt-modal" id="rpt-modal" hidden role="dialog" aria-modal="true" aria-labelledby="rpt-modal-title">
+      <div class="rpt-modal__header">
+        <div>
+          <h2 class="rpt-modal__title" id="rpt-modal-title">Download Report</h2>
+          <p class="rpt-modal__sub">Select scope and sections to include in the PDF.</p>
+        </div>
+        <button type="button" class="rpt-modal__close" id="rpt-close">✕</button>
+      </div>
+
+      <div class="rpt-modal__body">
+        <div class="rpt-section">
+          <div class="rpt-section__label">Date Range</div>
+          <div class="rpt-date-chips" id="rpt-date-chips">
+            <button type="button" class="rpt-chip is-active" data-days="3">3 days</button>
+            <button type="button" class="rpt-chip" data-days="7">7 days</button>
+            <button type="button" class="rpt-chip" data-days="10">10 days</button>
+            <button type="button" class="rpt-chip" data-days="30">1 month</button>
+            <button type="button" class="rpt-chip" data-days="custom">Custom</button>
+          </div>
+          <div class="rpt-date-custom" id="rpt-date-custom" hidden>
+            <input type="date" class="rpt-date-input" id="rpt-date-from">
+            <span class="rpt-date-sep">to</span>
+            <input type="date" class="rpt-date-input" id="rpt-date-to">
+          </div>
+        </div>
+
+        <div class="rpt-section">
+          <div class="rpt-section__label">Include in Report</div>
+          <div class="rpt-checks">
+            <label class="rpt-check"><input type="checkbox" value="users" checked>
+              <div class="rpt-check__text"><span>User Roster</span><small>Name, email, level, points</small></div></label>
+            <label class="rpt-check"><input type="checkbox" value="progress" checked>
+              <div class="rpt-check__text"><span>User Progress</span><small>Modules completed, avg score</small></div></label>
+            <label class="rpt-check"><input type="checkbox" value="leaderboard" checked>
+              <div class="rpt-check__text"><span>Leaderboard</span><small>Top users ranked by points</small></div></label>
+            <label class="rpt-check"><input type="checkbox" value="activities">
+              <div class="rpt-check__text"><span>Attack Activities</span><small>Hard sim & quiz records</small></div></label>
+            <label class="rpt-check"><input type="checkbox" value="namecards">
+              <div class="rpt-check__text"><span>Namecard Data</span><small>Earned namecards per user</small></div></label>
+            <label class="rpt-check"><input type="checkbox" value="community">
+              <div class="rpt-check__text"><span>Community Posts</span><small>Recent activity (coming soon)</small></div></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-modal__footer">
+        <button type="button" class="rpt-cancel" id="rpt-cancel">Cancel</button>
+        <button type="button" class="rpt-confirm" id="rpt-confirm">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Generate PDF
+        </button>
+      </div>
+    </div>
+
+    {% if active_page == 'admin' and analytics is defined %}
+    <script id="rpt-analytics-data" type="application/json">{{ analytics | tojson }}</script>
+    {% endif %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+    (function () {
+      const btn       = document.getElementById('av2-report-btn');
+      const modal     = document.getElementById('rpt-modal');
+      const backdrop  = document.getElementById('rpt-backdrop');
+      const closeBtn  = document.getElementById('rpt-close');
+      const cancelBtn = document.getElementById('rpt-cancel');
+      const confirmBtn= document.getElementById('rpt-confirm');
+      if (!btn) return;
+
+      function openModal()  { modal.hidden = false; backdrop.hidden = false; document.body.style.overflow = 'hidden'; }
+      function closeModal() { modal.hidden = true;  backdrop.hidden = true;  document.body.style.overflow = ''; }
+
+      btn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', closeModal);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+      document.querySelectorAll('.rpt-chip').forEach(chip => {
+        chip.addEventListener('click', function () {
+          document.querySelectorAll('.rpt-chip').forEach(c => c.classList.remove('is-active'));
+          chip.classList.add('is-active');
+          const custom = document.getElementById('rpt-date-custom');
+          if (custom) custom.hidden = chip.dataset.days !== 'custom';
+        });
+      });
+
+      confirmBtn.addEventListener('click', function () {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Generating…';
+
+        const rawEl    = document.getElementById('rpt-analytics-data');
+        const analytics = rawEl ? JSON.parse(rawEl.textContent) : {};
+        const activeChip = document.querySelector('.rpt-chip.is-active');
+        const days     = activeChip ? activeChip.dataset.days : '7';
+        const sections = Array.from(document.querySelectorAll('.rpt-checks input[type=checkbox]:checked')).map(cb => cb.value);
+
+        const today   = new Date();
+        const dateStr = today.toISOString().slice(0, 10);
+        const dateLabel = today.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+        const rangeLabel = days === 'custom' ? 'Custom range' : 'Last ' + days + ' days';
+
+        const C = {
+          accent:    [20,  83,  45],
+          hdrBg:     [22,  101, 52],
+          altRow:    [240, 253, 244],
+          text:      [17,  24,  39],
+          muted:     [107, 114, 128],
+          white:     [255, 255, 255],
+          line:      [209, 250, 229],
+          descBg:    [240, 253, 244],
+        };
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+        let pageNum = 1;
+        const totalPages = sections.length || 1;
+
+        function pageHeader(title) {
+          doc.setFillColor(...C.accent);
+          doc.rect(0, 0, 210, 9, 'F');
+          doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...C.white);
+          doc.text('SECURE-IT', 10, 6);
+          doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+          doc.text('Admin Analytics Report', 200, 6, { align:'right' });
+
+          doc.setFontSize(15); doc.setFont('helvetica','bold'); doc.setTextColor(...C.text);
+          doc.text(title, 10, 21);
+          doc.setDrawColor(...C.accent); doc.setLineWidth(0.5);
+          doc.line(10, 24, 200, 24);
+
+          doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...C.muted);
+          doc.text('Generated: ' + dateLabel, 10, 29);
+          doc.text(rangeLabel, 105, 29, { align:'center' });
+          doc.text('Page ' + pageNum + ' / ' + totalPages, 200, 29, { align:'right' });
+        }
+
+        function pageFooter() {
+          doc.setDrawColor(...C.line); doc.setLineWidth(0.35);
+          doc.line(10, 284, 200, 284);
+          doc.setFontSize(7); doc.setTextColor(...C.muted);
+          doc.text('Secure-IT — Confidential. For internal use only.', 10, 289);
+          doc.text(dateStr, 200, 289, { align:'right' });
+        }
+
+        function drawTable(head, rows, desc) {
+          doc.autoTable({
+            head: [head], body: rows,
+            startY: 34,
+            margin: { left:10, right:10 },
+            styles: { font:'helvetica', fontSize:8, cellPadding:{top:3,bottom:3,left:4,right:4}, textColor:C.text, lineColor:C.line, lineWidth:0.2 },
+            headStyles: { fillColor:C.hdrBg, textColor:C.white, fontStyle:'bold', fontSize:8, cellPadding:{top:4,bottom:4,left:4,right:4} },
+            alternateRowStyles: { fillColor:C.altRow },
+            bodyStyles: { fillColor:C.white },
+            didDrawPage: () => pageFooter(),
+          });
+          const fy = doc.lastAutoTable.finalY + 5;
+          if (fy < 272 && desc) {
+            doc.setFillColor(...C.descBg); doc.setDrawColor(...C.line); doc.setLineWidth(0.25);
+            const descLines = doc.splitTextToSize(desc, 176);
+            const boxH = 8 + descLines.length * 4.2;
+            doc.roundedRect(10, fy, 190, boxH, 1.5, 1.5, 'FD');
+            doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(...C.accent);
+            doc.text('About this section', 14, fy + 6);
+            doc.setFont('helvetica','normal'); doc.setTextColor(...C.text);
+            doc.text(descLines, 14, fy + 11);
+          }
+        }
+
+        let isFirst = true;
+        function nextSection(title) {
+          if (!isFirst) doc.addPage();
+          isFirst = false;
+          pageHeader(title);
+          pageNum++;
+        }
+
+        const ranking = analytics.user_ranking || [];
+        const activity = analytics.recent_activity || [];
+
+        if (sections.includes('users')) {
+          nextSection('User Roster');
+          drawTable(
+            ['#','Name','Email','Level','Points'],
+            ranking.length ? ranking.map((u,i) => [i+1, u.name||'—', u.email||'—', u.level||'—', u.points??0])
+                           : [['—','No data','—','—','—']],
+            'Complete list of all registered users with their current level title and total accumulated points on the Secure-IT platform.'
+          );
+        }
+
+        if (sections.includes('progress')) {
+          nextSection('User Progress');
+          drawTable(
+            ['#','Name','Points','Modules Done','Avg Score'],
+            ranking.length ? ranking.map((u,i) => [i+1, u.name||'—', u.points??0, u.completed??0, u.average_score!=null ? u.average_score+'%' : '—'])
+                           : [['—','No data','—','—','—']],
+            'Training progress per user showing total modules completed and their average simulation score across all recorded attempts.'
+          );
+        }
+
+        if (sections.includes('leaderboard')) {
+          nextSection('Leaderboard');
+          const top = ranking.slice(0, 20);
+          drawTable(
+            ['Rank','Name','Points','Level','Avg Score'],
+            top.length ? top.map((u,i) => ['#'+(i+1), u.name||'—', u.points??0, u.level||'—', u.average_score!=null ? u.average_score+'%' : '—'])
+                       : [['—','No data','—','—','—']],
+            'Top 20 users ranked by total points earned. Reflects cumulative performance across all simulation and quiz attempts on the platform.'
+          );
+        }
+
+        if (sections.includes('activities')) {
+          nextSection('Attack Activities');
+          const acts = activity.slice(0, 50);
+          drawTable(
+            ['#','User','Attack','Sim Score','Quiz Score','Duration'],
+            acts.length ? acts.map((a,i) => [
+              i+1, a.user||'—',
+              (a.attack_id||'').replace(/_/g,' '),
+              a.simulation_score!=null ? a.simulation_score+'%' : '—',
+              a.quiz_score!=null ? a.quiz_score+'%' : '—',
+              a.time_spent_seconds ? Math.floor(a.time_spent_seconds/60)+'m '+( a.time_spent_seconds%60)+'s' : '—'
+            ]) : [['—','No data','—','—','—','—']],
+            'Records of hard simulation and quiz completions sorted by most recent. Includes per-attempt scores and time spent per session.'
+          );
+        }
+
+        if (sections.includes('namecards')) {
+          nextSection('Namecard Data');
+          drawTable(
+            ['#','Name','Points','Level','Status'],
+            ranking.length ? ranking.map((u,i) => [i+1, u.name||'—', u.points??0, u.level||'—', u.completed>=1 ? 'Active' : 'No modules'])
+                           : [['—','No data','—','—','—']],
+            'Namecard ownership data per user. Namecards are earned by completing attack category sets or reaching specific leaderboard positions.'
+          );
+        }
+
+        if (sections.includes('community')) {
+          nextSection('Community Posts');
+          drawTable(
+            ['#','User','Post','Likes','Date'],
+            [['—','—','Community feature launching soon — no data yet.','—','—']],
+            'Community posts and peer discussions will populate this section once the Community feature is live.'
+          );
+        }
+
+        doc.save('Secure-IT_Reports_' + dateStr + '.pdf');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Generate PDF';
+        closeModal();
+      });
+    })();
+    </script>
   </body>
 </html>

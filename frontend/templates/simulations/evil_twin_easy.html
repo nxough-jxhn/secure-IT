@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/evil-twin-easy.css') }}">
+  </head>
+  <body class="evil-twin-sim">
+    <div class="evil-twin-layout">
+      <aside class="evil-twin-sidebar">
+        <div class="evil-twin-sidebar__header">
+          <span class="evil-twin-sidebar__label">SIMULATION</span>
+          <h1 class="evil-twin-sidebar__title">{{ attack.name }}</h1>
+          <span class="evil-twin-sidebar__badge">BEGINNER</span>
+        </div>
+        <div class="evil-twin-sidebar__section">
+          <h3 class="evil-twin-sidebar__section-title">OBJECTIVE</h3>
+          <p class="evil-twin-sidebar__text">Identify the suspicious Wi-Fi network before connecting to it.</p>
+        </div>
+        <div class="evil-twin-sidebar__section">
+          <h3 class="evil-twin-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="evil-twin-sidebar__timer" id="evil-twin-timer">00:00</div>
+        </div>
+        <div class="evil-twin-sidebar__section">
+          <h3 class="evil-twin-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="evil-twin-sidebar__list">
+            <li>Inspect the available networks</li>
+            <li>Click suspicious hotspots</li>
+            <li>Choose the safe network</li>
+          </ul>
+        </div>
+        <a href="{{ back_url }}" class="evil-twin-sidebar__exit">← Exit Simulation</a>
+      </aside>
+
+      <main class="evil-twin-main">
+        <div class="evil-twin-main__header">
+          <span class="evil-twin-main__icon">📶</span>
+          <span class="evil-twin-main__label">Wi-Fi Network Selection</span>
+        </div>
+
+        <div class="evil-twin-screen">
+          <div class="evil-twin-screen__topbar">
+            <div class="evil-twin-screen__status">Available networks</div>
+            <div class="evil-twin-screen__signal">Signal strength shown</div>
+          </div>
+          <div class="evil-twin-network-list">
+            {% for network in wifi_data.networks %}
+            <button type="button" class="evil-twin-network evil-twin-hotspot {% if not network.official %}evil-twin-network--suspicious{% endif %}" data-indicator="{% if not network.official %}rogue_name{% else %}official{% endif %}">
+              <div class="evil-twin-network__top">
+                <strong>{{ network.name }}</strong>
+                <span class="evil-twin-network__signal">{{ network.signal }}</span>
+              </div>
+              <div class="evil-twin-network__meta">Security: {{ network.security }} · {{ network.status }}</div>
+            </button>
+            {% endfor %}
+          </div>
+
+          <div class="evil-twin-portal">
+            <div class="evil-twin-portal__title">{{ wifi_data.captive_portal.title }}</div>
+            <p class="evil-twin-portal__body">{{ wifi_data.captive_portal.body }}</p>
+            <button type="button" class="evil-twin-hotspot evil-twin-portal__button" data-indicator="captive_portal">Continue</button>
+          </div>
+
+          <div class="evil-twin-hint">
+            <span class="evil-twin-hint__icon">💡</span>
+            <span class="evil-twin-hint__text">Click suspicious networks or portal prompts to review the red flags.</span>
+            <button type="button" class="evil-twin-hint__btn" id="complete-easy" disabled>Complete simulation</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="evil-twin-indicators">
+        <div class="evil-twin-indicators__header">
+          <span class="evil-twin-indicators__icon">🚨</span>
+          <span class="evil-twin-indicators__title">Indicators</span>
+          <span class="evil-twin-indicators__count" id="indicator-count">0 / 4 reviewed</span>
+        </div>
+        <div class="evil-twin-indicators__list" id="indicator-list"></div>
+        <div class="evil-twin-verdict">
+          <h3 class="evil-twin-verdict__title">Which network should you trust?</h3>
+          <div class="evil-twin-verdict__buttons">
+            <button type="button" class="evil-twin-verdict__btn evil-twin-verdict__btn--safe" id="verdict-safe">Safe</button>
+            <button type="button" class="evil-twin-verdict__btn evil-twin-verdict__btn--danger" id="verdict-danger">Rogue</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="evil-twin-modal" id="evil-twin-modal" hidden>
+      <div class="evil-twin-modal__backdrop" id="evil-twin-modal-backdrop"></div>
+      <div class="evil-twin-modal__dialog" id="evil-twin-modal-dialog">
+        <button type="button" class="evil-twin-modal__close" id="evil-twin-modal-close">×</button>
+        <div class="evil-twin-modal__content">
+          <span class="evil-twin-modal__badge">Red flag spotted</span>
+          <h2 class="evil-twin-modal__title" id="evil-twin-modal-title"></h2>
+          <p class="evil-twin-modal__desc" id="evil-twin-modal-desc"></p>
+          <div class="evil-twin-modal__compare">
+            <div class="evil-twin-modal__box evil-twin-modal__box--wrong">
+              <span class="evil-twin-modal__label">What you see</span>
+              <p class="evil-twin-modal__text" id="evil-twin-modal-wrong"></p>
+            </div>
+            <div class="evil-twin-modal__box evil-twin-modal__box--correct">
+              <span class="evil-twin-modal__label">What you should expect</span>
+              <p class="evil-twin-modal__text" id="evil-twin-modal-correct"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.EVIL_TWIN_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/evil-twin-easy.js') }}"></script>
+  </body>
+</html>

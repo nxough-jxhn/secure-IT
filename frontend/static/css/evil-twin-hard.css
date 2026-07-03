@@ -1,0 +1,24 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f1115; color: #f4f4f4; font-family: 'Roboto', sans-serif; }
+.evil-twin-hard-app { padding: 20px; }
+.evil-twin-hard-layout { display: grid; grid-template-columns: 280px 1fr 300px; gap: 16px; min-height: calc(100vh - 40px); }
+.evil-twin-hard-sidebar, .evil-twin-hard-events { background: #16181d; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.evil-twin-hard-sidebar__label, .evil-twin-hard-events__title, .evil-twin-hard-sidebar__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: #7f8796; }
+.evil-twin-hard-sidebar__title { font-size: 1.08rem; margin-top: 8px; }
+.evil-twin-hard-sidebar__badge { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(73,176,255,0.15); color: #59b5ff; font-size: 0.74rem; }
+.evil-twin-hard-sidebar__text, .evil-twin-hard-sidebar__list li, .evil-twin-hard-event { color: #c6ccd6; line-height: 1.6; }
+.evil-twin-hard-sidebar__list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.evil-twin-hard-sidebar__exit { margin-top: auto; color: #59b5ff; text-decoration: none; font-weight: 600; }
+.evil-twin-hard-main { background: #16181d; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.evil-twin-hard-main__header { display: flex; align-items: center; gap: 10px; }
+.evil-twin-hard-main__button, .evil-twin-hard-screen__submit { padding: 10px 14px; border-radius: 8px; border: none; background: #59b5ff; color: #fff; font-weight: 700; cursor: pointer; }
+.evil-twin-hard-screen { display: grid; gap: 16px; }
+.evil-twin-hard-screen__networks { display: grid; gap: 12px; }
+.evil-twin-hard-network { background: #fff; color: #111; border-radius: 10px; padding: 14px 16px; border: 1px solid #e5e7eb; }
+.evil-twin-hard-network--suspicious { border-color: #ffb84d; box-shadow: 0 0 0 1px rgba(255,184,77,0.3); }
+.evil-twin-hard-network.is-flagged { outline: 2px solid #ffb84d; }
+.evil-twin-hard-network__name { font-weight: 700; margin-bottom: 4px; }
+.evil-twin-hard-network__meta { color: #4b5563; font-size: 0.95rem; }
+.evil-twin-hard-screen__panel { background: #fff; color: #111; border-radius: 10px; padding: 16px; }
+.evil-twin-hard-screen__panel-title { font-weight: 700; margin-bottom: 8px; }
+.evil-twin-hard-events__list { list-style: none; display: flex; flex-direction: column; gap: 10px; }

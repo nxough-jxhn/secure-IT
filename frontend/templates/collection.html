@@ -27,7 +27,7 @@
 
     <!-- Banner -->
     <div class="gc-banner"
-         style="{% if active_nc and active_nc.earned %}background: {{ active_nc.gradient }}; --nc-accent: {{ active_nc.accent }};{% endif %}">
+         style="{% if active_nc and active_nc.earned %}background-image: url('{{ url_for('static', filename=active_nc.png) }}'); --nc-accent: {{ active_nc.accent }};{% endif %}">
       {% if active_nc and active_nc.earned and active_nc.get('animated') %}
       <div class="gc-banner__glow"></div>
       {% endif %}
@@ -132,6 +132,8 @@
     <div class="gc-tabs" role="tablist">
       <button type="button" class="gc-tab gc-tab--active" data-tab="namecards" role="tab">Namecards</button>
       <button type="button" class="gc-tab" data-tab="certificates" role="tab">Certificates</button>
+      <button type="button" class="gc-tab" data-tab="leaderboard" role="tab">Leaderboard</button>
+      <button type="button" class="gc-tab" data-tab="badges" role="tab">Badges</button>
     </div>
 
     <!-- Namecards panel — 2 columns -->
@@ -145,12 +147,14 @@
           aria-label="{{ nc.name }}"
         >
           {% if nc.earned %}
-          <div class="gc-nc-thumb__bg" style="background: {{ nc.gradient }};"></div>
-          {% if nc.get('animated') %}<div class="gc-nc-thumb__glow" style="--nc-accent: {{ nc.accent }};"></div>{% endif %}
-          <span class="gc-nc-thumb__icon">{{ nc.icon }}</span>
+          <img src="{{ url_for('static', filename=nc.png) }}"
+               alt="{{ nc.name }}"
+               class="gc-nc-thumb__bg gc-nc-thumb__bg--img">
           {% if nc.active %}<span class="gc-nc-thumb__active-dot"></span>{% endif %}
           {% else %}
-          <!-- lock SVG -->
+          <img src="{{ url_for('static', filename=nc.png) }}"
+               alt="{{ nc.name }}"
+               class="gc-nc-thumb__bg gc-nc-thumb__bg--img gc-nc-thumb__bg--dimmed">
           <svg class="gc-nc-thumb__lock-svg" viewBox="0 0 20 20" fill="none">
             <rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
             <path d="M7 9V7a3 3 0 116 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -213,8 +217,170 @@
       </div>
     </div>
 
-  </div>
-</div>
+    <!-- ══ Leaderboard panel ══ -->
+    <div class="gc-panel gc-panel--hidden" id="gc-panel-leaderboard" role="tabpanel">
+
+      {% if lb_top3 %}
+      <!-- Podium — top 3 (order: 2nd left, 1st centre, 3rd right) -->
+      <div class="gc-podium">
+        {% for idx in [1, 0, 2] %}
+        {% if idx < lb_top3 | length %}
+        {% set e = lb_top3[idx] %}
+        {% set r = e.rank %}
+        <div class="gc-podium__slot gc-podium__slot--{{ r }}{% if e.is_current_user %} gc-podium__slot--you{% endif %}">
+
+          <div class="gc-podium__avatar-wrap">
+            {% if r == 1 %}
+            <span class="gc-podium__crown" aria-hidden="true">
+              <svg viewBox="0 0 28 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 16 L6 4 L14 10 L22 4 L26 16 Z" fill="#f59e0b" stroke="#b45309" stroke-width="1" stroke-linejoin="round"/>
+                <circle cx="2" cy="4" r="2" fill="#fbbf24"/>
+                <circle cx="14" cy="2" r="2" fill="#fbbf24"/>
+                <circle cx="26" cy="4" r="2" fill="#fbbf24"/>
+              </svg>
+            </span>
+            {% endif %}
+            <div class="gc-podium__avatar">{{ e.name[:2] | upper }}</div>
+          </div>
+
+          <p class="gc-podium__name">{{ e.name }}</p>
+          <p class="gc-podium__pts">{{ e.points }} pts</p>
+
+          <!-- SVG stage block -->
+          {% set bh = 80 if r == 1 else 56 if r == 2 else 40 %}
+          <div class="gc-podium__block">
+            <svg class="gc-podium__block-svg" viewBox="0 0 120 {{ bh + 8 }}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="podFront{{ r }}" x1="0" y1="0" x2="0" y2="1">
+                  {% if r == 1 %}
+                  <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#78350f" stop-opacity="0.6"/>
+                  {% elif r == 2 %}
+                  <stop offset="0%" stop-color="#9ca3af" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#374151" stop-opacity="0.6"/>
+                  {% else %}
+                  <stop offset="0%" stop-color="#d97706" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#431407" stop-opacity="0.6"/>
+                  {% endif %}
+                </linearGradient>
+                <linearGradient id="podTop{{ r }}" x1="0" y1="0" x2="1" y2="0">
+                  {% if r == 1 %}
+                  <stop offset="0%" stop-color="#fde68a" stop-opacity="0.6"/>
+                  <stop offset="100%" stop-color="#b45309" stop-opacity="0.4"/>
+                  {% elif r == 2 %}
+                  <stop offset="0%" stop-color="#e5e7eb" stop-opacity="0.5"/>
+                  <stop offset="100%" stop-color="#6b7280" stop-opacity="0.35"/>
+                  {% else %}
+                  <stop offset="0%" stop-color="#fcd34d" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#92400e" stop-opacity="0.3"/>
+                  {% endif %}
+                </linearGradient>
+              </defs>
+              <!-- Front face -->
+              <rect x="0" y="8" width="108" height="{{ bh }}" fill="url(#podFront{{ r }})" rx="1"/>
+              <!-- Top face -->
+              <polygon points="0,8 108,8 120,0 12,0" fill="url(#podTop{{ r }})"/>
+              <!-- Right side -->
+              <polygon points="108,8 120,0 120,{{ bh }} 108,{{ bh + 8 }}" fill="rgba(0,0,0,0.3)"/>
+              <!-- Rank number -->
+              <text x="54" y="{{ (bh // 2) + 16 }}"
+                    text-anchor="middle"
+                    font-family="Instrument Serif,Georgia,serif"
+                    font-size="32" font-weight="400"
+                    fill="{% if r == 1 %}#fbbf24{% elif r == 2 %}#d1d5db{% else %}#d97706{% endif %}"
+                    opacity="0.85">#{{ r }}</text>
+            </svg>
+          </div>
+
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Ranks 4–10 table -->
+      {% if lb_rest %}
+      <div class="gc-lb-table">
+        <div class="gc-lb-table__head">
+          <span>Rank</span>
+          <span>Player</span>
+          <span>Points</span>
+          <span>Title</span>
+        </div>
+        {% for e in lb_rest %}
+        <div class="gc-lb-row{% if e.is_current_user %} gc-lb-row--you{% endif %}">
+          <span class="gc-lb-row__rank">#{{ e.rank }}</span>
+          <span class="gc-lb-row__name">{{ e.name }}</span>
+          <span class="gc-lb-row__pts">{{ e.points }}</span>
+          <span class="gc-lb-row__title">{{ e.rank_title }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if not lb_top3 and not lb_rest %}
+      <p class="gc-lb-empty">No leaderboard data yet. Complete modules to earn points and appear here.</p>
+      {% endif %}
+
+    </div>
+
+    <!-- ══ Badges panel ══ -->
+    <div class="gc-panel gc-panel--hidden" id="gc-panel-badges" role="tabpanel">
+
+      <div class="gc-badge-section">
+        <h3 class="gc-badge-section__title">Module Badges</h3>
+        <div class="gc-badge-grid">
+          {% for badge in all_badges %}
+          <div class="gc-badge-item{% if badge.earned %} gc-badge-item--earned{% endif %}" title="{{ badge.name }}">
+            <div class="gc-badge-item__icon">
+              {% if badge.earned %}
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" fill="rgba(0,255,159,0.1)" stroke="rgba(0,255,159,0.45)" stroke-width="1.5"/>
+                <path d="M20 5 L23.5 13.5 L33 14.3 L26.2 21 L28.5 30.5 L20 25.8 L11.5 30.5 L13.8 21 L7 14.3 L16.5 13.5 Z"
+                      fill="#00ff9f" opacity="0.9"/>
+              </svg>
+              {% else %}
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                <rect x="13" y="20" width="14" height="11" rx="2" stroke="#374151" stroke-width="1.5"/>
+                <path d="M15 20V16a5 5 0 0110 0v4" stroke="#374151" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              {% endif %}
+            </div>
+            <span class="gc-badge-item__name">{{ badge.name }}</span>
+            {% if badge.earned %}<span class="gc-badge-item__check">✓</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="gc-badge-section">
+        <h3 class="gc-badge-section__title">Milestone Badges</h3>
+        <div class="gc-badge-grid">
+          {% for badge in milestone_badges %}
+          <div class="gc-badge-item{% if badge.earned %} gc-badge-item--earned{% endif %}" title="{{ badge.condition }}">
+            <div class="gc-badge-item__icon">
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {% if badge.earned %}
+                <circle cx="20" cy="20" r="18" fill="rgba(70,214,255,0.1)" stroke="rgba(70,214,255,0.4)" stroke-width="1.5"/>
+                {% else %}
+                <circle cx="20" cy="20" r="18" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                {% endif %}
+                <text x="20" y="26" text-anchor="middle" font-size="18">{{ badge.icon }}</text>
+              </svg>
+            </div>
+            <span class="gc-badge-item__name">{{ badge.name }}</span>
+            <span class="gc-badge-item__cond">{{ badge.condition }}</span>
+            {% if badge.earned %}<span class="gc-badge-item__check">✓</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /gc-browser -->
+</div><!-- /gc-book -->
 
 <!-- Namecard modal -->
 <div class="gc-modal" id="gc-nc-modal" hidden>
@@ -273,6 +439,7 @@
     if (!nc.earned) {
       el.innerHTML = `
         <div class="gc-nc-preview gc-nc-preview--locked">
+          <img src="/static/${nc.png}" alt="${nc.name}" class="gc-nc-preview__img gc-nc-preview__img--locked">
           <svg viewBox="0 0 24 24" fill="none" class="gc-nc-preview__lock-svg">
             <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
             <path d="M8 11V7a4 4 0 118 0v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -285,11 +452,8 @@
         </div>`;
     } else {
       el.innerHTML = `
-        <div class="gc-nc-preview" style="background:${nc.gradient}; --nc-accent:${nc.accent};">
-          ${nc.animated ? '<div class="gc-nc-preview__glow"></div>' : ''}
-          <div class="gc-nc-preview__icon">${nc.icon}</div>
-          <div class="gc-nc-preview__name">${nc.name}</div>
-          <div class="gc-nc-preview__desc">${nc.desc}</div>
+        <div class="gc-nc-preview" style="--nc-accent:${nc.accent};">
+          <img src="/static/${nc.png}" alt="${nc.name}" class="gc-nc-preview__img">
         </div>
         <div class="gc-modal__meta">
           <span class="gc-modal__status gc-modal__status--obtained">✓ Obtained</span>

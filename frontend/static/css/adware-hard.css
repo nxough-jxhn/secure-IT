@@ -1,0 +1,29 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f1115; color: #f4f4f4; font-family: 'Roboto', sans-serif; }
+.adware-hard-app { padding: 20px; }
+.adware-hard-layout { display: grid; grid-template-columns: 280px 1fr 300px; gap: 16px; min-height: calc(100vh - 40px); }
+.adware-hard-sidebar, .adware-hard-events { background: #16181d; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.adware-hard-sidebar__label, .adware-hard-events__title, .adware-hard-sidebar__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: #7f8796; }
+.adware-hard-sidebar__title { font-size: 1.08rem; margin-top: 8px; }
+.adware-hard-sidebar__badge { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(255, 166, 0, 0.15); color: #ffb84d; font-size: 0.74rem; }
+.adware-hard-sidebar__text, .adware-hard-sidebar__list li, .adware-hard-event { color: #c6ccd6; line-height: 1.6; }
+.adware-hard-sidebar__list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.adware-hard-sidebar__exit { margin-top: auto; color: #ffb84d; text-decoration: none; font-weight: 600; }
+.adware-hard-main { background: #16181d; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.adware-hard-main__header { display: flex; align-items: center; gap: 10px; }
+.adware-hard-main__button, .adware-hard-footer__submit { padding: 10px 14px; border-radius: 8px; border: none; background: #ffb84d; color: #111; font-weight: 700; cursor: pointer; }
+.adware-browser { background: #fff; color: #111; border-radius: 12px; overflow: hidden; }
+.adware-browser__chrome { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #eef2f7; }
+.adware-browser__dots { display: flex; gap: 6px; }
+.adware-browser__dots span { width: 10px; height: 10px; border-radius: 50%; background: #c7c7c7; }
+.adware-browser__address { flex: 1; text-align: center; color: #5b6470; font-size: 0.9rem; }
+.adware-browser__body { padding: 24px; min-height: 320px; display: flex; align-items: center; justify-content: center; }
+.adware-browser__popup { max-width: 440px; background: #f7f7f7; border-radius: 12px; padding: 24px; box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+.adware-browser__popup-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+.adware-browser__popup-text { margin-bottom: 10px; color: #444; }
+.adware-browser__popup-meta { margin-bottom: 12px; color: #666; font-size: 0.9rem; }
+.adware-browser__popup-cta { padding: 10px 14px; background: #ffb84d; border: none; border-radius: 8px; color: #111; font-weight: 700; cursor: pointer; }
+.adware-browser__popup-url { margin-top: 12px; color: #4a73ff; font-size: 0.9rem; word-break: break-all; }
+.adware-hard-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 6px; }
+.adware-hard-footer__item { display: flex; align-items: center; gap: 8px; color: #c6ccd6; }
+.adware-hard-events__list { list-style: none; display: flex; flex-direction: column; gap: 10px; }

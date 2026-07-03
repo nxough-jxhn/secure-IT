@@ -1,0 +1,340 @@
+{% extends 'admin_base.html' %}
+
+{% block extra_head %}
+<style>
+  .av2-content { overflow: visible; }
+  .aqm-modal[hidden],
+  .aqm-backdrop[hidden] { display: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="au-view-bar">
+  <div class="au-view-bar__left">
+    <span class="au-view-bar__count">Quiz Manager — <strong>{{ attacks | length }}</strong> attacks</span>
+  </div>
+  <div class="au-view-bar__right">
+    <span style="font-size:11px;color:#4b5563;">Select an attack to manage its questions</span>
+  </div>
+</div>
+
+<div class="as-layout">
+
+  <!-- ══ LEFT: Attack list ══ -->
+  <div class="as-list" id="aqm-attack-list">
+    {% for atk in attacks %}
+    <div class="as-card{% if loop.first %} is-selected{% endif %}"
+         data-attack-id="{{ atk.id }}"
+         data-attack-name="{{ atk.name }}"
+         data-index="{{ loop.index0 }}">
+      <div class="as-card__thumb">
+        <div class="as-card__icon">{{ atk.icon }}</div>
+      </div>
+      <div class="as-card__body">
+        <div class="as-card__name">{{ atk.name }}</div>
+        <div class="as-card__cat">{{ atk.category }}</div>
+      </div>
+      <div class="as-card__score aqm-q-count" id="aqm-count-{{ atk.id }}">{{ atk.q_count }}q</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ══ RIGHT: Questions panel ══ -->
+  <div class="as-detail" id="aqm-detail">
+    <div class="aqm-detail-head">
+      <div>
+        <h2 class="aqm-detail-title" id="aqm-detail-title">Select an attack</h2>
+        <p class="aqm-detail-sub" id="aqm-detail-sub">Questions are randomized — 5 are selected per quiz session from the active pool.</p>
+      </div>
+      <button type="button" class="aqm-add-btn" id="aqm-add-btn" hidden>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add Question
+      </button>
+    </div>
+
+    <div class="aqm-warning" id="aqm-warning" hidden>
+      ⚠️ Fewer than 5 active questions — add more so all users can be served a full quiz.
+    </div>
+
+    <div class="aqm-q-list" id="aqm-q-list">
+      <div class="aqm-empty" id="aqm-empty">Select an attack on the left to manage its questions.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ Add / Edit Modal ══ -->
+<div class="aqm-backdrop" id="aqm-backdrop" hidden></div>
+<div class="aqm-modal" id="aqm-modal" hidden role="dialog" aria-modal="true">
+  <div class="aqm-modal__header">
+    <h3 class="aqm-modal__title" id="aqm-modal-title">Add Question</h3>
+    <button type="button" class="rpt-modal__close" id="aqm-modal-close">✕</button>
+  </div>
+  <div class="aqm-modal__body">
+    <input type="hidden" id="aqm-edit-id">
+    <input type="hidden" id="aqm-edit-attack-id">
+
+    <div class="aqm-field">
+      <label class="aqm-label">Question</label>
+      <textarea class="aqm-textarea" id="aqm-q-text" rows="3" placeholder="Enter the question text…"></textarea>
+    </div>
+
+    <div class="aqm-field">
+      <label class="aqm-label">Choices <span style="color:#4b5563;font-weight:400;">(mark the correct one)</span></label>
+      <div class="aqm-choices" id="aqm-choices">
+        {% for i in range(4) %}
+        <div class="aqm-choice-row">
+          <input type="radio" name="aqm-correct" value="{{ i }}" class="aqm-radio" {% if i == 0 %}checked{% endif %}>
+          <input type="text" class="aqm-choice-input" id="aqm-choice-{{ i }}" placeholder="Choice {{ i + 1 }}">
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="aqm-add-choice-btn" id="aqm-add-choice-btn">+ Add choice</button>
+    </div>
+
+    <div class="aqm-field">
+      <label class="aqm-label">Explanation <span style="color:#4b5563;font-weight:400;">(shown after answering)</span></label>
+      <textarea class="aqm-textarea" id="aqm-explanation" rows="2" placeholder="Why is this the correct answer?"></textarea>
+    </div>
+  </div>
+  <div class="rpt-modal__footer">
+    <button type="button" class="rpt-cancel" id="aqm-modal-cancel">Cancel</button>
+    <button type="button" class="rpt-confirm" id="aqm-modal-save">Save Question</button>
+  </div>
+</div>
+
+<!-- Attacks data -->
+<script id="aqm-attacks-data" type="application/json">{{ attacks | tojson }}</script>
+
+<script>
+(function () {
+  const attacks     = JSON.parse(document.getElementById('aqm-attacks-data').textContent);
+  const attackCards = document.querySelectorAll('#aqm-attack-list .as-card');
+  const detailTitle = document.getElementById('aqm-detail-title');
+  const detailSub   = document.getElementById('aqm-detail-sub');
+  const addBtn      = document.getElementById('aqm-add-btn');
+  const qList       = document.getElementById('aqm-q-list');
+  const emptyEl     = document.getElementById('aqm-empty');
+  const warningEl   = document.getElementById('aqm-warning');
+
+  let currentAttackId   = '';
+  let currentAttackName = '';
+  let editingId         = null;
+  let extraChoiceCount  = 0;
+
+  /* ── Modal helpers ── */
+  const backdrop  = document.getElementById('aqm-backdrop');
+  const modal     = document.getElementById('aqm-modal');
+  const modalTitle= document.getElementById('aqm-modal-title');
+  const closeBtn  = document.getElementById('aqm-modal-close');
+  const cancelBtn = document.getElementById('aqm-modal-cancel');
+  const saveBtn   = document.getElementById('aqm-modal-save');
+  const editIdEl  = document.getElementById('aqm-edit-id');
+  const editAtkEl = document.getElementById('aqm-edit-attack-id');
+  const qText     = document.getElementById('aqm-q-text');
+  const explText  = document.getElementById('aqm-explanation');
+  const choicesEl = document.getElementById('aqm-choices');
+  const addChoiceBtn = document.getElementById('aqm-add-choice-btn');
+
+  function openModal(mode, q) {
+    editingId = mode === 'edit' ? q._id : null;
+    modalTitle.textContent = mode === 'edit' ? 'Edit Question' : 'Add Question';
+    editIdEl.value  = editingId || '';
+    editAtkEl.value = currentAttackId;
+
+    // Reset to 4 base choices
+    extraChoiceCount = 0;
+    choicesEl.innerHTML = '';
+    for (let i = 0; i < 4; i++) addChoiceRow(i, '', i === 0);
+
+    if (mode === 'edit' && q) {
+      qText.value    = q.question;
+      explText.value = q.explanation;
+      // Rebuild choices
+      choicesEl.innerHTML = '';
+      extraChoiceCount = 0;
+      q.choices.forEach((c, i) => addChoiceRow(i, c, i === q.correct_index));
+    } else {
+      qText.value    = '';
+      explText.value = '';
+    }
+
+    modal.hidden    = false;
+    backdrop.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function addChoiceRow(index, value, checked) {
+    const row = document.createElement('div');
+    row.className = 'aqm-choice-row';
+    row.innerHTML =
+      '<input type="radio" name="aqm-correct" value="' + index + '" class="aqm-radio"' + (checked ? ' checked' : '') + '>' +
+      '<input type="text" class="aqm-choice-input" data-idx="' + index + '" placeholder="Choice ' + (index+1) + '" value="' + (value||'') + '">';
+    choicesEl.appendChild(row);
+  }
+
+  addChoiceBtn.addEventListener('click', function () {
+    const count = choicesEl.querySelectorAll('.aqm-choice-row').length;
+    addChoiceRow(count, '', false);
+    extraChoiceCount++;
+  });
+
+  function closeModal() {
+    modal.hidden    = true;
+    backdrop.hidden = true;
+    document.body.style.overflow = '';
+    editingId = null;
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ── Save question ── */
+  saveBtn.addEventListener('click', async function () {
+    const question    = qText.value.trim();
+    const explanation = explText.value.trim();
+    const rows        = Array.from(choicesEl.querySelectorAll('.aqm-choice-row'));
+    const choices     = rows.map(r => r.querySelector('.aqm-choice-input').value.trim());
+    const checkedRadio= choicesEl.querySelector('input[name="aqm-correct"]:checked');
+    const correct_index = checkedRadio ? parseInt(checkedRadio.value) : 0;
+
+    if (!question || choices.some(c => !c)) {
+      alert('Please fill in the question and all choices.');
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    try {
+      let res;
+      if (editingId) {
+        res = await fetch('/admin/quiz/' + editingId, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question, choices, correct_index, explanation }),
+        });
+      } else {
+        res = await fetch('/admin/quiz/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attack_id: currentAttackId, question, choices, correct_index, explanation }),
+        });
+      }
+      if (res.ok) {
+        closeModal();
+        loadQuestions(currentAttackId);
+      } else {
+        alert('Could not save question.');
+      }
+    } catch { alert('Network error.'); }
+    finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Question';
+    }
+  });
+
+  /* ── Load questions for an attack ── */
+  async function loadQuestions(attackId) {
+    qList.innerHTML = '<div class="aqm-loading">Loading…</div>';
+    try {
+      const res  = await fetch('/admin/quiz/questions/' + attackId);
+      const data = await res.json();
+      renderQuestions(data);
+    } catch {
+      qList.innerHTML = '<div class="aqm-empty">Failed to load questions.</div>';
+    }
+  }
+
+  function renderQuestions(questions) {
+    if (!questions.length) {
+      qList.innerHTML = '<div class="aqm-empty">No questions yet. Click "Add Question" to create the first one.</div>';
+      warningEl.hidden = false;
+      return;
+    }
+    const activeCount = questions.filter(q => q.active).length;
+    warningEl.hidden = activeCount >= 5;
+
+    qList.innerHTML = '';
+    questions.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'aqm-q-card' + (q.active ? '' : ' aqm-q-card--inactive');
+      card.innerHTML =
+        '<div class="aqm-q-card__head">' +
+          '<span class="aqm-q-card__num">' + (i+1) + '</span>' +
+          '<p class="aqm-q-card__question">' + q.question + '</p>' +
+          '<div class="aqm-q-card__actions">' +
+            '<button class="aqm-btn aqm-btn--toggle" data-id="' + q._id + '" data-active="' + q.active + '">' +
+              (q.active ? 'Disable' : 'Enable') +
+            '</button>' +
+            '<button class="aqm-btn aqm-btn--edit" data-idx="' + i + '">Edit</button>' +
+            '<button class="aqm-btn aqm-btn--delete" data-id="' + q._id + '">Delete</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="aqm-q-card__choices">' +
+          q.choices.map((c, ci) =>
+            '<span class="aqm-choice-chip' + (ci === q.correct_index ? ' aqm-choice-chip--correct' : '') + '">' + c + '</span>'
+          ).join('') +
+        '</div>' +
+        '<p class="aqm-q-card__expl">' + (q.explanation || '') + '</p>';
+
+      // Edit
+      card.querySelector('.aqm-btn--edit').addEventListener('click', () => openModal('edit', q));
+
+      // Toggle active
+      card.querySelector('.aqm-btn--toggle').addEventListener('click', async function () {
+        const newActive = this.dataset.active === 'true' ? false : true;
+        const res = await fetch('/admin/quiz/' + this.dataset.id + '/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: newActive }),
+        });
+        if (res.ok) loadQuestions(currentAttackId);
+      });
+
+      // Delete
+      card.querySelector('.aqm-btn--delete').addEventListener('click', async function () {
+        if (!confirm('Delete this question? This cannot be undone.')) return;
+        const res = await fetch('/admin/quiz/' + this.dataset.id, { method: 'DELETE' });
+        if (res.ok) loadQuestions(currentAttackId);
+      });
+
+      qList.appendChild(card);
+    });
+
+    // Update sidebar count badge
+    const countEl = document.getElementById('aqm-count-' + currentAttackId);
+    if (countEl) countEl.textContent = questions.filter(q => q.active).length + 'q';
+  }
+
+  /* ── Attack card click ── */
+  attackCards.forEach(card => {
+    card.addEventListener('click', function () {
+      attackCards.forEach(c => c.classList.remove('is-selected'));
+      card.classList.add('is-selected');
+      currentAttackId   = card.dataset.attackId;
+      currentAttackName = card.dataset.attackName;
+      detailTitle.textContent = currentAttackName + ' — Questions';
+      addBtn.hidden = false;
+      loadQuestions(currentAttackId);
+    });
+  });
+
+  /* ── Add button ── */
+  addBtn.addEventListener('click', () => openModal('add', null));
+
+  /* ── Auto-load first attack ── */
+  if (attacks.length > 0) {
+    currentAttackId   = attacks[0].id;
+    currentAttackName = attacks[0].name;
+    detailTitle.textContent = currentAttackName + ' — Questions';
+    addBtn.hidden = false;
+    loadQuestions(currentAttackId);
+  }
+})();
+</script>
+
+{% endblock %}

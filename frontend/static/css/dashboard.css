@@ -170,46 +170,50 @@ body.guest-page:has(.app-page) .guest-main {
 .dash-namecard__frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 21 / 10;
+  /* 1050 × 450 ≈ 7:3 */
+  aspect-ratio: 7 / 3;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(0, 255, 159, 0.22);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 14px;
+  /* Fallback gradient when no PNG is active */
+  background:
+    linear-gradient(135deg, #001a0e 0%, #021409 60%, #000d06 100%);
+  background-size: cover;
+  background-position: center;
 }
 
-.dash-namecard__art {
+/* Gradient overlay so text/avatar are legible over any namecard art */
+.dash-namecard__overlay {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0, 255, 159, 0.12) 0%, rgba(0, 0, 0, 0.2) 45%, rgba(0, 0, 0, 0.75) 100%),
-    radial-gradient(circle at 50% 18%, rgba(0, 255, 159, 0.2), transparent 55%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    linear-gradient(90deg,
+      rgba(0,0,0,0.72) 0%,
+      rgba(0,0,0,0.45) 55%,
+      rgba(0,0,0,0.15) 100%);
   pointer-events: none;
 }
 
-.dash-namecard__art::after {
-  content: '';
+/* Genshin layout: avatar on the LEFT, text to the right */
+.dash-namecard__inner {
   position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  pointer-events: none;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
 }
 
 .dash-namecard__avatar {
   position: relative;
   z-index: 1;
-  width: 52px;
-  height: 52px;
-  margin-top: 18px;
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(0, 255, 159, 0.55);
-  box-shadow: 0 0 20px rgba(0, 255, 159, 0.25);
+  border: 2px solid rgba(0, 255, 159, 0.65);
+  box-shadow: 0 0 18px rgba(0, 255, 159, 0.3), 0 2px 12px rgba(0,0,0,0.7);
 }
 
 .dash-namecard__avatar--initials {
@@ -221,16 +225,37 @@ body.guest-page:has(.app-page) .guest-main {
   font-weight: 800;
 }
 
-.dash-namecard__name {
+.dash-namecard__text {
   position: relative;
   z-index: 1;
-  margin: 10px 12px 0;
-  font-size: 0.9375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.dash-namecard__name {
+  margin: 0;
+  font-size: 0.9rem;
   font-weight: 800;
   letter-spacing: -0.01em;
-  text-align: center;
   color: var(--color-text);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-namecard__level {
+  margin: 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(0, 255, 159, 0.85);
+  text-shadow: 0 0 10px rgba(0, 255, 159, 0.4);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dash-sidebar__meta {
@@ -239,14 +264,11 @@ body.guest-page:has(.app-page) .guest-main {
 }
 
 .dash-sidebar__level {
-  margin: 0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-primary);
+  /* Progress bar section container — no additional styling needed */
 }
 
 .dash-sidebar__detail {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 0.6875rem;
   color: var(--color-text-muted);
 }

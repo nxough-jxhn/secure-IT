@@ -4,7 +4,9 @@ from database import (
     get_app_shell_context,
     get_user_dashboard_data,
     get_user_progress,
+    get_leaderboard,
     MODULE_BADGES,
+    LEADERBOARD_RANK_TITLES,
 )
 from secure_it import login_required, make_layout
 
@@ -22,6 +24,7 @@ NAMECARD_DEFS = [
         "accent": "#60a5fa",
         "icon": "💬",
         "desc": "Dark blue — chat and message motifs",
+        "png": "img/namecards/namecard_social_sentinel.png",
     },
     {
         "id": "malware_hunter",
@@ -34,6 +37,7 @@ NAMECARD_DEFS = [
         "accent": "#f87171",
         "icon": "🦠",
         "desc": "Deep red — virus and bug motifs",
+        "png": "img/namecards/namecard_malware_hunter.png",
     },
     {
         "id": "network_warden",
@@ -46,6 +50,7 @@ NAMECARD_DEFS = [
         "accent": "#2dd4bf",
         "icon": "📡",
         "desc": "Teal — network and signal motifs",
+        "png": "img/namecards/namecard_network_warden.png",
     },
     {
         "id": "code_guardian",
@@ -58,6 +63,7 @@ NAMECARD_DEFS = [
         "accent": "#00ff9f",
         "icon": "💻",
         "desc": "Green — code and terminal motifs",
+        "png": "img/namecards/namecard_code_guardian.png",
     },
     {
         "id": "cyber_throne",
@@ -71,6 +77,7 @@ NAMECARD_DEFS = [
         "icon": "👑",
         "desc": "Gold — animated border, crown motif",
         "animated": True,
+        "png": "img/namecards/namecard_cyber_throne.png",
     },
     {
         "id": "iron_vanguard",
@@ -83,6 +90,7 @@ NAMECARD_DEFS = [
         "accent": "#9ca3af",
         "icon": "🛡️",
         "desc": "Silver — shield motif",
+        "png": "img/namecards/namecard_iron_vanguard.png",
     },
     {
         "id": "bronze_bastion",
@@ -95,6 +103,7 @@ NAMECARD_DEFS = [
         "accent": "#d97706",
         "icon": "🔰",
         "desc": "Bronze — fortress motif",
+        "png": "img/namecards/namecard_bronze_bastion.png",
     },
     {
         "id": "secureit_elite",
@@ -109,6 +118,7 @@ NAMECARD_DEFS = [
         "desc": "Gold animated — crown and shield, exclusive design",
         "animated": True,
         "rare": True,
+        "png": "img/namecards/namecard_secureit_elite.png",
     },
 ]
 
@@ -224,6 +234,47 @@ def collection_page():
         c_copy["earned"] = cert_earned.get(cert["id"], False)
         certificates.append(c_copy)
 
+    # Leaderboard data (top 10)
+    leaderboard_entries = get_leaderboard(limit=10)
+    display_name = session.get("display_name", "")
+    for entry in leaderboard_entries:
+        r = entry.get("rank", 0)
+        entry["is_current_user"] = entry.get("name", "").lower() == display_name.lower()
+        entry["medal"] = "🥇" if r == 1 else "🥈" if r == 2 else "🥉" if r == 3 else ""
+        rank_val = entry.get("rank", 0)
+        if rank_val == 1:
+            entry["rank_title"] = LEADERBOARD_RANK_TITLES[1]
+        elif rank_val == 2:
+            entry["rank_title"] = LEADERBOARD_RANK_TITLES[2]
+        elif rank_val == 3:
+            entry["rank_title"] = LEADERBOARD_RANK_TITLES[3]
+        elif rank_val <= 10:
+            entry["rank_title"] = LEADERBOARD_RANK_TITLES["top_10"]
+        else:
+            entry["rank_title"] = LEADERBOARD_RANK_TITLES["default"]
+
+    lb_top3 = leaderboard_entries[:3]
+    lb_rest = leaderboard_entries[3:]
+
+    # Badge data
+    all_badges = [
+        {
+            "id": v["badge_id"],
+            "name": v["badge_name"],
+            "module": k,
+            "earned": v["badge_name"] in earned_badge_names,
+        }
+        for k, v in MODULE_BADGES.items()
+    ]
+    milestone_badges = [
+        {"id": "first_step",     "name": "First Step",     "icon": "👣", "condition": "Complete your first module",         "earned": len(completed_set) >= 1},
+        {"id": "full_shield",    "name": "Full Shield",    "icon": "🛡️", "condition": "Complete all 10 modules",             "earned": len(completed_set) >= 10},
+        {"id": "perfect_strike", "name": "Perfect Strike", "icon": "🎯", "condition": "Get 100% on any quiz",               "earned": False},
+        {"id": "flawless",       "name": "Flawless",       "icon": "✨", "condition": "Get 100% on all 10 quizzes",          "earned": False},
+        {"id": "persistent",     "name": "Persistent",     "icon": "💪", "condition": "Use both retakes and finish",         "earned": False},
+        {"id": "unstoppable",    "name": "Unstoppable",    "icon": "⚡", "condition": "Complete all 10 Hard Sims first try", "earned": False},
+    ]
+
     return make_layout(
         "collection",
         "Collection",
@@ -235,6 +286,10 @@ def collection_page():
         active_namecard_id=active_namecard_id,
         user_points=points,
         user_rank=rank,
+        lb_top3=lb_top3,
+        lb_rest=lb_rest,
+        all_badges=all_badges,
+        milestone_badges=milestone_badges,
     )
 
 

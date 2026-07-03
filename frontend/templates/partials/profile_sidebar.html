@@ -1,24 +1,29 @@
 <aside class="dash-sidebar" id="profile-sidebar" aria-label="Profile and navigation">
   <section class="dash-sidebar__identity">
     <div class="dash-namecard">
-      <div class="dash-namecard__frame">
-        <div class="dash-namecard__art" aria-hidden="true"></div>
-        {% if namecard.profile_picture %}
-        <img
-          class="dash-namecard__avatar"
-          src="{{ namecard.profile_picture if namecard.profile_picture.startswith('http') else url_for('static', filename=namecard.profile_picture) }}"
-          alt=""
-        >
-        {% else %}
-        <div class="dash-namecard__avatar dash-namecard__avatar--initials">{{ namecard.initials or display_name[:2]|upper }}</div>
-        {% endif %}
-        <p class="dash-namecard__name">{{ namecard.title or display_name }}</p>
+      <div class="dash-namecard__frame"
+           {% if namecard.namecard_png %}style="background-image: url('{{ url_for('static', filename=namecard.namecard_png) }}');"{% endif %}>
+        <div class="dash-namecard__overlay" aria-hidden="true"></div>
+        <div class="dash-namecard__inner">
+          {% if namecard.profile_picture %}
+          <img
+            class="dash-namecard__avatar"
+            src="{{ namecard.profile_picture if namecard.profile_picture.startswith('http') else url_for('static', filename=namecard.profile_picture) }}"
+            alt=""
+          >
+          {% else %}
+          <div class="dash-namecard__avatar dash-namecard__avatar--initials">{{ namecard.initials or display_name[:2]|upper }}</div>
+          {% endif %}
+          <div class="dash-namecard__text">
+            <p class="dash-namecard__name">{{ namecard.title or display_name }}</p>
+            <p class="dash-namecard__level">{{ namecard.level_label }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="dash-sidebar__meta">
-    <p class="dash-sidebar__level">{{ namecard.level_label or ('Level — ' ~ profile.level) }}</p>
     <p class="dash-sidebar__detail">{{ namecard.subtitle or year_level or 'Active learner' }}</p>
   </section>
 

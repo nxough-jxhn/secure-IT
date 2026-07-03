@@ -100,10 +100,28 @@ def phishing_fake_email_page():
     return simulation_overview_page("phishing_fake_email")
 
 
+@login_required
+def adware_pop_up_page():
+    return simulation_overview_page("adware_pop_up")
+
+
+@login_required
+def evil_twin_page():
+    return simulation_overview_page("evil_twin")
+
+
 EASY_SIMULATION_PAGES: dict[str, dict[str, str]] = {
     "phishing_fake_email": {
         "template": "simulations/phishing_easy.html",
         "interface_key": "email_data",
+    },
+    "adware_pop_up": {
+        "template": "simulations/adware_easy.html",
+        "interface_key": "popup_data",
+    },
+    "evil_twin": {
+        "template": "simulations/evil_twin_easy.html",
+        "interface_key": "wifi_data",
     },
     "sql_injection": {
         "template": "simulations/sql_injection_easy.html",
@@ -402,18 +420,99 @@ def simulation_results_page(attack_id: str):
 
 @login_required
 def simulation_quiz_page(attack_id: str):
+    import random
+    from database import (
+        get_quiz_questions_for_attack,
+        get_user_progress,
+        update_module_progress,
+    )
+
     mission = _require_mission(attack_id)
     if not session.get(f"sim_result_{attack_id}"):
         return redirect(url_for("simulation_overview_page", attack_id=attack_id))
 
+    email = session.get("user_email", "")
+    QUIZ_COUNT = 5
+
+    # ── 1. Try fetching questions from DB ──────────────────────
+    db_questions = get_quiz_questions_for_attack(attack_id)
+
+    if db_questions:
+        # Retrieve which question IDs the user saw last time
+        progress = get_user_progress(email)
+        last_ids = set(
+            progress.get("module_progress", {})
+            .get(attack_id, {})
+            .get("last_quiz_ids", [])
+        )
+
+        all_ids = [q["_id"] for q in db_questions]
+        unseen  = [q for q in db_questions if q["_id"] not in last_ids]
+
+        # If unseen pool is too small, reset and use full pool
+        pool = unseen if len(unseen) >= QUIZ_COUNT else db_questions
+        selected = random.sample(pool, min(QUIZ_COUNT, len(pool)))
+
+        # Store selected IDs in session so submit can validate correctly
+        # Shuffle choices for each question and track new correct index
+        questions_for_session = []
+        for q in selected:
+            choices    = list(q["choices"])
+            correct_ch = choices[q["correct_index"]]
+            random.shuffle(choices)
+            new_correct = choices.index(correct_ch)
+            questions_for_session.append({
+                "_id":         q["_id"],
+                "question":    q["question"],
+                "options":     choices,
+                "correct":     new_correct,      # shuffled correct index
+                "explanation": q["explanation"],
+            })
+
+        # Persist selected IDs so next retake avoids these
+        update_module_progress(email, attack_id, {
+            "last_quiz_ids": [q["_id"] for q in selected]
+        })
+
+        session[f"quiz_questions_{attack_id}"] = questions_for_session
+
+    else:
+        # ── 2. Fallback: hardcoded questions from mission ──────
+        raw = mission.get("quiz", [])
+        selected_raw = random.sample(raw, min(QUIZ_COUNT, len(raw))) if len(raw) > QUIZ_COUNT else list(raw)
+        questions_for_session = []
+        for q in selected_raw:
+            choices    = list(q["options"])
+            correct_ch = choices[q["correct"]]
+            random.shuffle(choices)
+            new_correct = choices.index(correct_ch)
+            questions_for_session.append({
+                "_id":         None,
+                "question":    q["question"],
+                "options":     choices,
+                "correct":     new_correct,
+                "explanation": q["explanation"],
+            })
+        session[f"quiz_questions_{attack_id}"] = questions_for_session
+
+    # Strip correct answer before sending to frontend (security)
+    frontend_questions = [
+        {
+            "question":    q["question"],
+            "options":     q["options"],
+            "explanation": q["explanation"],
+        }
+        for q in questions_for_session
+    ]
+
     quiz_data = {
         "attack_id": mission["attack_id"],
-        "name": mission["name"],
-        "questions": mission.get("quiz", []),
-        "submit_url": url_for("simulation_quiz_submit_page", attack_id=attack_id),
+        "name":      mission["name"],
+        "questions": frontend_questions,
+        "submit_url":     url_for("simulation_quiz_submit_page", attack_id=attack_id),
         "simulations_url": url_for("simulations_page"),
     }
-    shell = get_app_shell_context(session.get("user_email", ""))
+    shell = get_app_shell_context(email)
     return make_layout(
         "simulations",
         f"{mission['name']} Quiz",
@@ -433,7 +532,22 @@ def simulation_quiz_submit_page(attack_id: str):
 
     payload = request.get_json(silent=True) or {}
     answers = payload.get("answers", [])
-    questions = mission.get("quiz", [])
+
+    # Use server-side session questions (with correct answers) for scoring
+    questions = session.get(f"quiz_questions_{attack_id}", [])
+
+    # Fallback to mission hardcoded if session expired
+    if not questions:
+        questions = [
+            {
+                "question":    q["question"],
+                "options":     q["options"],
+                "correct":     q["correct"],
+                "explanation": q["explanation"],
+            }
+            for q in mission.get("quiz", [])
+        ]
+
     correct_count = 0
     feedback = []
 
@@ -445,29 +559,30 @@ def simulation_quiz_submit_page(attack_id: str):
         is_correct = selected == question["correct"]
         if is_correct:
             correct_count += 1
-        feedback.append(
-            {
-                "question": question["question"],
-                "correct": is_correct,
-                "explanation": question["explanation"],
-                "selected": selected,
-                "correct_index": question["correct"],
-                "options": question["options"],
-            }
-        )
+        feedback.append({
+            "question":      question["question"],
+            "correct":       is_correct,
+            "explanation":   question["explanation"],
+            "selected":      selected,
+            "correct_index": question["correct"],
+            "options":       question["options"],
+        })
 
     total = len(questions) or 1
-    quiz_score = round((correct_count / total) * 100)
-    quiz_points = max(5, quiz_score // 3)
+    quiz_score  = round((correct_count / total) * 100)
+    # 1 correct = 10 pts, max 50 pts for 5 questions
+    quiz_points = correct_count * 10
 
     sim_result = session.get(f"sim_result_{attack_id}", {})
     session[f"quiz_result_{attack_id}"] = {
-        "score": quiz_score,
+        "score":         quiz_score,
         "correct_count": correct_count,
-        "total": total,
-        "feedback": feedback,
+        "total":         total,
+        "feedback":      feedback,
         "points_earned": quiz_points,
     }
+    # Clean up question session after submission
+    session.pop(f"quiz_questions_{attack_id}", None)
 
     email = session.get("user_email")
     if email:
@@ -483,12 +598,11 @@ def simulation_quiz_submit_page(attack_id: str):
             skills_developed=sim_result.get("skills_developed", []),
         )
 
-    return jsonify(
-        {
-            "success": True,
-            "score": quiz_score,
-            "correct_count": correct_count,
-            "total": total,
+    return jsonify({
+        "success":       True,
+        "score":         quiz_score,
+        "correct_count": correct_count,
+        "total":         total,
             "points_earned": quiz_points,
             "feedback": feedback,
             "redirect": url_for("simulations_page"),

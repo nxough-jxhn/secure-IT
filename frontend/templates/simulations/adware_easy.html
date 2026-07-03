@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adware-easy.css') }}">
+  </head>
+  <body class="adware-sim">
+    <div class="adware-sim__layout">
+      <aside class="adware-sidebar">
+        <div class="adware-sidebar__header">
+          <span class="adware-sidebar__label">SIMULATION</span>
+          <h1 class="adware-sidebar__title">{{ attack.name }}</h1>
+          <span class="adware-sidebar__badge adware-sidebar__badge--beginner">BEGINNER</span>
+        </div>
+
+        <div class="adware-sidebar__section">
+          <h3 class="adware-sidebar__section-title">OBJECTIVE</h3>
+          <p class="adware-sidebar__text">Identify the warning signs in this pop-up before installing anything.</p>
+        </div>
+
+        <div class="adware-sidebar__section">
+          <h3 class="adware-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="adware-sidebar__timer" id="timer">00:00</div>
+        </div>
+
+        <div class="adware-sidebar__section">
+          <h3 class="adware-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="adware-sidebar__list">
+            <li>Click suspicious parts of the pop-up</li>
+            <li>Review all indicators</li>
+            <li>Decide if it is safe to proceed</li>
+          </ul>
+        </div>
+
+        <a href="{{ back_url }}" class="adware-sidebar__report">← Exit Simulation</a>
+      </aside>
+
+      <main class="adware-screen">
+        <div class="adware-screen__header">
+          <span class="adware-screen__icon">🖥️</span>
+          <span class="adware-screen__label">Browser Pop-up Simulation</span>
+        </div>
+
+        <div class="adware-window">
+          <div class="adware-window__chrome">
+            <div class="adware-window__dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="adware-window__address">https://safe-update.example</div>
+          </div>
+
+          <div class="adware-popup">
+            <div class="adware-popup__header">Security alert</div>
+            <div class="adware-popup__body">
+              <h2 class="adware-popup__title">
+                <button type="button" class="adware-hotspot adware-popup__title-btn" data-indicator="scare_message">
+                  <span class="adware-flag-num" aria-hidden="true">1</span>
+                  {{ popup_data.title }}
+                </button>
+              </h2>
+              <p class="adware-popup__text">
+                <button type="button" class="adware-hotspot adware-popup__text-btn" data-indicator="urgency">
+                  <span class="adware-flag-num" aria-hidden="true">2</span>
+                  {{ popup_data.body }}
+                </button>
+              </p>
+              <div class="adware-popup__meta">
+                <button type="button" class="adware-hotspot adware-popup__meta-btn" data-indicator="publisher">
+                  <span class="adware-flag-num" aria-hidden="true">3</span>
+                  Publisher: {{ popup_data.publisher }}
+                </button>
+              </div>
+              <div class="adware-popup__cta-row">
+                <button type="button" class="adware-hotspot adware-popup__cta" data-indicator="download_link">
+                  <span class="adware-flag-num" aria-hidden="true">4</span>
+                  {{ popup_data.cta }}
+                </button>
+              </div>
+              <div class="adware-popup__footer">
+                <span>Source:</span>
+                <button type="button" class="adware-hotspot adware-popup__link" data-indicator="url">
+                  <span class="adware-flag-num" aria-hidden="true">5</span>
+                  {{ popup_data.url }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="adware-hint">
+            <span class="adware-hint__icon">💡</span>
+            <span class="adware-hint__text">Hint</span>
+            <span class="adware-hint__desc">Click the suspicious parts of the popup to review the red flags.</span>
+            <button type="button" class="adware-hint__btn" id="complete-easy" disabled>Complete simulation</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="adware-indicators">
+        <div class="adware-indicators__header">
+          <span class="adware-indicators__icon">🚨</span>
+          <span class="adware-indicators__title">Indicators</span>
+          <span class="adware-indicators__count" id="indicator-count">0 / 5 reviewed</span>
+        </div>
+        <div class="adware-indicators__list" id="indicator-list"></div>
+        <div class="adware-verdict">
+          <h3 class="adware-verdict__title">What do you think?</h3>
+          <p class="adware-verdict__subtitle">Is this pop-up trustworthy or unwanted software?</p>
+          <div class="adware-verdict__buttons">
+            <button type="button" class="adware-verdict__btn adware-verdict__btn--safe" id="verdict-safe">Safe</button>
+            <button type="button" class="adware-verdict__btn adware-verdict__btn--danger" id="verdict-danger">Adware</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="adware-modal" id="adware-modal" hidden>
+      <div class="adware-modal__backdrop" id="adware-modal-backdrop"></div>
+      <div class="adware-modal__dialog" id="adware-modal-dialog">
+        <button type="button" class="adware-modal__close" id="adware-modal-close">×</button>
+        <div class="adware-modal__content">
+          <span class="adware-modal__badge">Red flag spotted</span>
+          <h2 class="adware-modal__title" id="adware-modal-title"></h2>
+          <p class="adware-modal__desc" id="adware-modal-desc"></p>
+          <div class="adware-modal__compare">
+            <div class="adware-modal__box adware-modal__box--wrong">
+              <span class="adware-modal__label">What you see</span>
+              <p class="adware-modal__text" id="adware-modal-wrong"></p>
+            </div>
+            <div class="adware-modal__box adware-modal__box--correct">
+              <span class="adware-modal__label">What you should expect</span>
+              <p class="adware-modal__text" id="adware-modal-correct"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.ADWARE_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/adware-easy.js') }}"></script>
+  </body>
+</html>

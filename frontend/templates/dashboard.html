@@ -159,7 +159,8 @@
   <aside class="dv2-sidebar">
 
     <!-- Profile KPIs -->
-    <div class="dv2-namecard">
+    <div class="dv2-namecard"
+         {% if namecard.namecard_png %}style="background-image: url('{{ url_for('static', filename=namecard.namecard_png) }}');"{% endif %}>
   <div class="dv2-namecard__avatar-wrap">
     {% if profile.profile_picture %}
     <img class="dv2-namecard__avatar" src="{{ profile.profile_picture if profile.profile_picture.startswith('http') else url_for('static', filename=profile.profile_picture) }}" alt="">
@@ -169,7 +170,7 @@
   </div>
   <div class="dv2-namecard__info">
     <div class="dv2-namecard__name">{{ display_name }}</div>
-    <div class="dv2-namecard__level">{{ profile.level }} · {{ year_level or 'Active Learner' }}</div>
+    <div class="dv2-namecard__level">{{ namecard.level_label or (profile.level ~ ' · ' ~ (year_level or 'Active Learner')) }}</div>
     <div class="dv2-namecard__pts">{{ profile.points }} pts</div>
   </div>
   <span class="dv2-namecard__chevron">▾</span>

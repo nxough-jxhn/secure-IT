@@ -782,6 +782,110 @@ def _placeholder_module(
     }
 
 
+ADWARE_POP_UP_STEPS = [
+    {
+        "title": "Suspicious browser installer popup",
+        "narrative": "A pop-up offers a free system cleaner and urges you to install it immediately.",
+        "interface_type": "popup",
+        "interface": {
+            "title": "Your browser is infected!",
+            "body": "Your browser is running slowly. Install the recommended cleaner now to speed it up.",
+            "publisher": "UltraBoost Software",
+            "cta": "Install now",
+            "url": "https://cleaner-boost.example/install",
+        },
+        "choices": [
+            _choice(
+                "install",
+                "Install the recommended cleaner",
+                "You installed an unwanted program that keeps showing ads and slows down the browser.",
+                "The installer uses scare tactics and a suspicious publisher to push software you do not need.",
+                0,
+            ),
+            _choice(
+                "close",
+                "Close the pop-up and scan the system",
+                "You avoided the adware and verified the system through a trusted scanner.",
+                "Closing the popup and checking the system with a trusted tool is the safer response.",
+                100,
+                is_best=True,
+            ),
+        ],
+    }
+]
+
+ADWARE_POP_UP_QUIZ = [
+    {
+        "question": "What is the safest response to an unexpected installer pop-up that claims your browser is infected?",
+        "options": [
+            "Click the install button immediately to fix the issue",
+            "Close the pop-up and verify through a trusted security tool or browser settings",
+            "Share the link with friends to see if they also get the message",
+            "Disable your browser updates so the pop-up stops appearing",
+        ],
+        "correct": 1,
+        "explanation": "Unexpected security pop-ups often try to trick you into installing unwanted software. Closing them and verifying through trusted tools is safer.",
+    },
+    {
+        "question": "Which sign strongly suggests the popup is adware rather than a legitimate security warning?",
+        "options": [
+            "It appears in a normal browser tab",
+            "It uses urgent scare language and an unknown publisher",
+            "It only shows once after a browser restart",
+            "It offers a free software update",
+        ],
+        "correct": 1,
+        "explanation": "Adware often uses fear, urgency, and vague publishers to trick users into installing unwanted software.",
+    },
+]
+
+ADWARE_POP_UP_EASY, ADWARE_POP_UP_HARD = _simulation_block(
+    ADWARE_POP_UP_STEPS,
+    indicators=[
+        {
+            "element": "scare_message",
+            "title": "Scare-based warning",
+            "description": "The message uses fear and urgency to push you into acting quickly.",
+            "wrong": "Your browser is infected!",
+            "correct": "Legitimate security messages usually explain the issue clearly and do not pressure you to install a program immediately.",
+        },
+        {
+            "element": "urgency",
+            "title": "Urgent install prompt",
+            "description": "The popup tells you to install something right away, which is a common adware tactic.",
+            "wrong": "Install now",
+            "correct": "A trusted tool should let you review the details before you agree to install anything.",
+        },
+        {
+            "element": "publisher",
+            "title": "Unknown publisher",
+            "description": "The software name is from an unknown or suspicious publisher.",
+            "wrong": "UltraBoost Software",
+            "correct": "You should prefer recognized developers and official app stores for software installation.",
+        },
+        {
+            "element": "download_link",
+            "title": "Suspicious download link",
+            "description": "The popup offers a software install from an unfamiliar domain.",
+            "wrong": "https://cleaner-boost.example/install",
+            "correct": "Trusted installers should come from an official website or source you already know and trust.",
+        },
+        {
+            "element": "url",
+            "title": "Unfamiliar source",
+            "description": "The popup source URL is not a familiar security vendor or official download page.",
+            "wrong": "cleaner-boost.example",
+            "correct": "Check the domain carefully and avoid installing software from suspicious or look-alike websites.",
+        },
+    ],
+    signs=[
+        {"id": "scare_language", "label": "Scare language"},
+        {"id": "unknown_publisher", "label": "Unknown publisher"},
+        {"id": "urgent_install", "label": "Urgent install prompt"},
+    ],
+)
+
+
 ATTACKS: dict[str, dict[str, Any]] = {
     "phishing_fake_email": {
         "id": "phishing_fake_email",
@@ -1036,6 +1140,55 @@ ATTACKS: dict[str, dict[str, Any]] = {
         "Malware-Based Attacks",
         image="img/modules/keylogger/module_keylogger.jpg",
     ),
+    "adware_pop_up": {
+        "id": "adware_pop_up",
+        "name": "Adware: Pop-up Installer",
+        "icon": "🧲",
+        "image": "img/modules/adware/module_adware.jpg",
+        "difficulty": "Beginner",
+        "short_description": "Learn to recognize adware-style installer pop-ups that try to trick you into installing unwanted software.",
+        "category": "malware_based",
+        "category_label": "Malware-Based Attacks",
+        "overview": {
+            "explanation": "Adware is unwanted software that usually arrives through misleading pop-ups, fake update prompts, or bundled installs and is designed to flood you with ads or slow your system down.",
+            "why_used": "Attackers and software vendors use adware because it can generate revenue through aggressive advertising or by steering users to bundled products.",
+            "how_encountered": "You may see adware through browser pop-ups, fake software updates, or free app installers.",
+            "how_it_happens": [
+                "The user sees a convincing pop-up claiming the browser or system needs urgent maintenance.",
+                "The pop-up pushes a download or installer that is not actually needed.",
+                "The unwanted app installs and starts showing ads or modifying browser settings.",
+            ],
+            "warning_signs": [
+                "Urgent scare language",
+                "Unknown publisher or unfamiliar download source",
+                "Offers to install software immediately",
+                "Fake browser or system cleanup alerts",
+            ],
+            "prevention_tips": [
+                "Close suspicious pop-ups instead of clicking the install button",
+                "Install software only from official sources",
+                "Keep browser and security tools updated",
+                "Use your browser or OS built-in app management to review installed software",
+            ],
+        },
+        "easy_simulation": ADWARE_POP_UP_EASY,
+        "hard_simulation": ADWARE_POP_UP_HARD,
+        "quiz": ADWARE_POP_UP_QUIZ,
+        "info_page": {
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": "Adware is unwanted software that usually arrives through misleading pop-ups, fake update prompts, or bundled installs and is designed to flood you with ads or slow your system down.",
+                },
+                {
+                    "key": "origin",
+                    "heading": "Origin",
+                    "text": "Adware is commonly bundled with free software, browser extensions, or deceptive download prompts that encourage users to install more than they intended.",
+                },
+            ],
+        },
+    },
     "ransomware": {
         "id": "ransomware",
         "name": "Ransomware",
@@ -1129,16 +1282,6 @@ ATTACKS: dict[str, dict[str, Any]] = {
             },
         ],
     },
-    "adware_malvertising": _placeholder_module(
-        "adware_malvertising",
-        "Adware / Malvertising",
-        "📢",
-        "Beginner",
-        "Recognize malicious ads, fake prize popups, and automatic downloads on risky websites.",
-        "malware_based",
-        "Malware-Based Attacks",
-        image="img/modules/adware/module_adware.jpg",
-    ),
     "mitm": {
         "id": "mitm",
         "name": "Man-in-the-Middle (MITM)",
@@ -1308,10 +1451,11 @@ ATTACKS: dict[str, dict[str, Any]] = {
                 "folder": "mitm",
                 "spotlight": [
                     "module_mitm.jpg",
-                    "module_mitm.jpg",
-                    "module_mitm.jpg",
+                    "image1_mitm.jpg",
+                    "image2_mitm.png",
                 ],
                 "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/SYAux_gSCck",
             },
             "spotlight": [
                 {
@@ -1354,16 +1498,166 @@ ATTACKS: dict[str, dict[str, Any]] = {
             ],
         },
     },
-    "evil_twin": _placeholder_module(
-        "evil_twin",
-        "Evil Twin / Rogue WiFi",
-        "📶",
-        "Intermediate",
-        "Identify rogue WiFi networks that mimic legitimate public hotspots.",
-        "network_based",
-        "Network-Based Attacks",
-        image="img/modules/evil-twin/module_eviltwin.png",
-    ),
+    "evil_twin": {
+        "id": "evil_twin",
+        "name": "Evil Twin / Rogue WiFi",
+        "icon": "📶",
+        "image": "img/modules/evil-twin/module_eviltwin.png",
+        "difficulty": "Intermediate",
+        "short_description": "Learn how attackers clone legitimate Wi-Fi hotspots to steal credentials and intercept traffic.",
+        "category": "network_based",
+        "category_label": "Network-Based Attacks",
+        "overview": {
+            "explanation": "An evil twin is a rogue Wi-Fi access point that impersonates a legitimate hotspot, tricking users into connecting and exposing their traffic.",
+            "why_used": "Attackers use evil twins because public users often trust familiar network names and connect without verifying the access point identity.",
+            "how_encountered": "You may encounter rogue Wi-Fi networks in airports, cafés, universities, or events where multiple hotspots appear to be legitimate.",
+            "how_it_happens": [
+                "The attacker creates a hotspot with a name that looks familiar or official.",
+                "Victims connect because the name seems trustworthy or the signal is stronger.",
+                "The attacker captures traffic, credentials, or redirects victims to fake login pages.",
+            ],
+            "warning_signs": [
+                "A network name that is slightly different from the official one",
+                "Unexpectedly strong signal from a hotspot with no visible sponsor",
+                "A captive portal that asks for credentials immediately",
+                "No official branding or validation from the venue",
+            ],
+            "prevention_tips": [
+                "Confirm the official SSID with staff or signage before connecting",
+                "Use a VPN on public Wi-Fi",
+                "Avoid entering credentials on captive portals you did not expect",
+                "Prefer your mobile hotspot or a trusted network when handling sensitive tasks",
+            ],
+        },
+        "easy_simulation": {
+            "steps": [
+                {
+                    "title": "Public Wi-Fi Selection",
+                    "narrative": "You are at the university canteen. Several Wi-Fi networks appear. One of them is designed to look official. Identify the warning signs before connecting.",
+                    "interface_type": "wifi",
+                    "interface": {
+                        "networks": [
+                            {
+                                "name": "UP-Student",
+                                "security": "WPA2",
+                                "signal": "Strong",
+                                "status": "Official",
+                                "official": True,
+                            },
+                            {
+                                "name": "UP-Student_Free",
+                                "security": "Open",
+                                "signal": "Very Strong",
+                                "status": "Available",
+                                "official": False,
+                            },
+                            {
+                                "name": "GuestNet",
+                                "security": "Open",
+                                "signal": "Medium",
+                                "status": "Available",
+                                "official": False,
+                            },
+                        ],
+                        "captive_portal": {
+                            "title": "Campus Wi-Fi Login",
+                            "body": "Sign in to continue browsing.",
+                        },
+                    },
+                }
+            ],
+            "indicators": [
+                {
+                    "element": "rogue_name",
+                    "title": "Network name looks almost official",
+                    "description": "The suspicious network uses a name that is very close to the legitimate one, which is a common evil twin trick.",
+                    "wrong": "UP-Student_Free",
+                    "correct": "Always verify the exact SSID with staff or the venue's official signage before connecting.",
+                    "tip": "Attackers often use a tiny variation in the name to trick users into connecting automatically.",
+                },
+                {
+                    "element": "open_security",
+                    "title": "Open or weak security",
+                    "description": "The suspicious hotspot is open and does not require a password, which makes it easy to impersonate and intercept traffic.",
+                    "wrong": "Open network — no password required",
+                    "correct": "A legitimate campus hotspot should be clearly identified and should not rely on an unverified open network to collect credentials.",
+                },
+                {
+                    "element": "captive_portal",
+                    "title": "Unexpected login portal",
+                    "description": "The captive portal appears immediately and asks for credentials before you even confirm the network is legitimate.",
+                    "wrong": "Sign in to continue browsing",
+                    "correct": "A legitimate portal should be expected and tied to the official venue or campus service, not a sudden prompt from a suspicious network.",
+                },
+                {
+                    "element": "signal",
+                    "title": "Unusually strong signal",
+                    "description": "The rogue network broadcasts a very strong signal that can overpower the genuine hotspot.",
+                    "wrong": "Very Strong signal",
+                    "correct": "Signal strength alone is not proof of legitimacy. Always verify the network name and who is operating it.",
+                },
+            ],
+        },
+        "hard_simulation": {
+            "steps": [
+                {
+                    "title": "Rogue Wi-Fi Investigation",
+                    "narrative": "You have entered a public area with several similar-looking hotspots. Determine which one is trustworthy before using it.",
+                    "interface_type": "wifi",
+                    "interface": {
+                        "networks": [
+                            {"name": "UP-Student", "security": "WPA2", "signal": "Strong", "official": True},
+                            {"name": "UP-Student_Free", "security": "Open", "signal": "Very Strong", "official": False},
+                            {"name": "CampusGuest", "security": "Open", "signal": "Medium", "official": False},
+                        ]
+                    },
+                }
+            ],
+            "signs": [
+                {"id": "rogue_name", "label": "Suspicious SSID variation"},
+                {"id": "open_security", "label": "Open network without password"},
+                {"id": "unexpected_login", "label": "Unexpected captive portal"},
+            ],
+        },
+        "quiz": [
+            {
+                "question": "What is an evil twin Wi-Fi network?",
+                "options": [
+                    "A secure Wi-Fi network with a stronger signal",
+                    "A rogue access point that mimics a legitimate hotspot",
+                    "A network that only appears in the evening",
+                    "A hotspot that requires MFA",
+                ],
+                "correct": 1,
+                "explanation": "An evil twin is a rogue access point that impersonates a legitimate network to trick users into connecting.",
+            },
+            {
+                "question": "What is the safest action when you see a suspicious hotspot that looks like the official one?",
+                "options": [
+                    "Connect immediately because the signal is strongest",
+                    "Ask staff or verify the official network name before connecting",
+                    "Enter your password anyway to test if it is real",
+                    "Use the open network because it is faster",
+                ],
+                "correct": 1,
+                "explanation": "Always verify the official SSID through trusted sources before connecting to a public hotspot.",
+            },
+        ],
+        "info_page": {
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": "Evil twin attacks copy legitimate Wi-Fi names and lure users into connecting to a fake hotspot that captures credentials or traffic.",
+                },
+                {
+                    "key": "origin",
+                    "heading": "How It Works",
+                    "text": "Attackers use a rogue access point with a familiar SSID and strong signal so users connect without checking whether the hotspot is legitimate.",
+                },
+            ],
+        },
+    },
     "sql_injection": {
         "id": "sql_injection",
         "name": "SQL Injection",

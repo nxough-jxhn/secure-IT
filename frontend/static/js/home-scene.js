@@ -4,11 +4,11 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 const PRIMARY = 0x00ff9f;
 
 const DEFAULT_ROUTES = {
-  modules: '/modules',
-  social_based: '/modules/category/social_based',
-  malware_based: '/modules/category/malware_based',
-  network_based: '/modules/category/network_based',
-  injection_based: '/modules/category/injection_based',
+  modules: '/simulations',
+  social_based: '/simulations',
+  malware_based: '/simulations',
+  network_based: '/simulations',
+  injection_based: '/simulations',
 };
 
 const PILLARS = [

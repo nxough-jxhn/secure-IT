@@ -13,71 +13,32 @@
   <aside class="pf-sidebar">
 
     <!-- Genshin-style namecard hero -->
-    <div class="pf-namecard-hero" id="pf-namecard-hero">
-      <!-- Namecard background layer -->
-      <div class="pf-namecard-hero__bg" aria-hidden="true">
-        <!-- SVG geometric namecard art — cyber / matrix theme -->
-        <svg class="pf-namecard-hero__art" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <linearGradient id="ncBg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#001a0e"/>
-              <stop offset="60%" stop-color="#021409"/>
-              <stop offset="100%" stop-color="#000d06"/>
-            </linearGradient>
-            <linearGradient id="ncGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#00ff9f" stop-opacity="0.18"/>
-              <stop offset="100%" stop-color="#46d6ff" stop-opacity="0.06"/>
-            </linearGradient>
-          </defs>
-          <rect width="300" height="120" fill="url(#ncBg)"/>
-          <rect width="300" height="120" fill="url(#ncGlow)"/>
-          <!-- Circuit lines -->
-          <line x1="0" y1="30" x2="80" y2="30" stroke="#00ff9f" stroke-width="0.5" opacity="0.3"/>
-          <line x1="80" y1="30" x2="80" y2="55" stroke="#00ff9f" stroke-width="0.5" opacity="0.3"/>
-          <line x1="80" y1="55" x2="130" y2="55" stroke="#00ff9f" stroke-width="0.5" opacity="0.2"/>
-          <line x1="220" y1="0" x2="220" y2="40" stroke="#00ff9f" stroke-width="0.5" opacity="0.25"/>
-          <line x1="220" y1="40" x2="300" y2="40" stroke="#00ff9f" stroke-width="0.5" opacity="0.25"/>
-          <line x1="260" y1="80" x2="300" y2="80" stroke="#46d6ff" stroke-width="0.5" opacity="0.2"/>
-          <line x1="0" y1="90" x2="50" y2="90" stroke="#46d6ff" stroke-width="0.5" opacity="0.15"/>
-          <!-- Corner dots -->
-          <circle cx="80" cy="30" r="2" fill="#00ff9f" opacity="0.5"/>
-          <circle cx="80" cy="55" r="1.5" fill="#00ff9f" opacity="0.35"/>
-          <circle cx="220" cy="40" r="2" fill="#00ff9f" opacity="0.45"/>
-          <circle cx="260" cy="80" r="1.5" fill="#46d6ff" opacity="0.3"/>
-          <!-- Decorative hexagons -->
-          <polygon points="250,10 258,14 258,22 250,26 242,22 242,14" fill="none" stroke="#00ff9f" stroke-width="0.6" opacity="0.25"/>
-          <polygon points="270,60 276,63 276,69 270,72 264,69 264,63" fill="none" stroke="#46d6ff" stroke-width="0.6" opacity="0.2"/>
-          <polygon points="30,100 35,103 35,108 30,111 25,108 25,103" fill="none" stroke="#00ff9f" stroke-width="0.6" opacity="0.2"/>
-          <!-- Scan line -->
-          <rect x="0" y="0" width="300" height="1" fill="#00ff9f" opacity="0.08"/>
-          <rect x="0" y="119" width="300" height="1" fill="#00ff9f" opacity="0.08"/>
-          <!-- Green border accent bottom -->
-          <line x1="0" y1="118" x2="300" y2="118" stroke="#00ff9f" stroke-width="1.5" opacity="0.35"/>
-        </svg>
+    <div class="pf-namecard-hero" id="pf-namecard-hero"
+         {% if namecard.namecard_png %}style="background-image: url('{{ url_for('static', filename=namecard.namecard_png) }}');"{% endif %}>
+      <!-- Gradient overlay for legibility -->
+      <div class="pf-namecard-hero__overlay" aria-hidden="true"></div>
+
+      <!-- Genshin layout: avatar LEFT, info to the right -->
+      <div class="pf-namecard-hero__inner">
+        <div class="pf-avatar-wrap" id="pf-avatar-wrap">
+          {% if user.profile_picture %}
+          <img class="pf-avatar" id="pf-avatar-preview"
+               src="{{ user.profile_picture if user.profile_picture.startswith('http') else url_for('static', filename=user.profile_picture) }}"
+               alt="{{ user.name }}">
+          {% else %}
+          <div class="pf-avatar pf-avatar--initials" id="pf-avatar-preview">{{ user.name[:2]|upper }}</div>
+          {% endif %}
+          <button type="button" class="pf-avatar-edit" id="pf-avatar-btn" aria-label="Change photo">
+            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+          </button>
+        </div>
+
+        <div class="pf-namecard-hero__info">
+          <h2 class="pf-namecard-hero__name">{{ user.name }}</h2>
+          <p class="pf-namecard-hero__level">{{ namecard.level_label }}</p>
+          <span class="pf-namecard-hero__badge">{{ profile.level }}</span>
+        </div>
       </div>
-
-      <!-- Email top -->
-      <p class="pf-namecard-hero__email">{{ user.email }}</p>
-
-      <!-- Avatar center -->
-      <div class="pf-avatar-wrap" id="pf-avatar-wrap">
-        {% if user.profile_picture %}
-        <img class="pf-avatar" id="pf-avatar-preview"
-             src="{{ user.profile_picture if user.profile_picture.startswith('http') else url_for('static', filename=user.profile_picture) }}"
-             alt="{{ user.name }}">
-        {% else %}
-        <div class="pf-avatar pf-avatar--initials" id="pf-avatar-preview">{{ user.name[:2]|upper }}</div>
-        {% endif %}
-        <button type="button" class="pf-avatar-edit" id="pf-avatar-btn" aria-label="Change photo">
-          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
-        </button>
-      </div>
-
-      <!-- Name below avatar -->
-      <h2 class="pf-namecard-hero__name">{{ user.name }}</h2>
-
-      <!-- Level badge at bottom -->
-      <span class="pf-namecard-hero__badge">{{ profile.level }}</span>
     </div>
 
     <!-- Edit form -->

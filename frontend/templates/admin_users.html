@@ -8,13 +8,36 @@
 
 {% block content %}
 
+<!-- ══ View toggle ══ -->
+<div class="au-view-bar">
+  <div class="au-view-bar__left">
+    <span class="au-view-bar__count">All users <strong>{{ users | length }}</strong></span>
+  </div>
+  <div class="au-view-bar__right">
+    <div class="au-view-toggle" role="group" aria-label="View mode">
+      <button type="button" class="au-view-btn is-active" id="au-btn-visual" aria-pressed="true">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        Visual View
+      </button>
+      <button type="button" class="au-view-btn" id="au-btn-table" aria-pressed="false">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M1 4h14M1 8h14M1 12h14M5 2v12M11 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Table View
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VISUAL VIEW
+══════════════════════════════════════ -->
+<div id="au-visual-view">
 <div class="av2-users-layout">
 
   <!-- ── LEFT: User card list ── -->
   <div>
     <!-- Filter tabs -->
     <div class="av2-filter-tabs">
-      <button type="button" class="av2-filter-tab is-active" data-filter="all">All Users</button>
+      <button type="button" class="av2-filter-tab is-active" data-filter="all">All</button>
       <button type="button" class="av2-filter-tab" data-filter="active">Active</button>
       <button type="button" class="av2-filter-tab" data-filter="completed">Completed</button>
       <button type="button" class="av2-filter-tab" data-filter="inactive">No Activity</button>
@@ -24,15 +47,19 @@
     <div class="av2-user-grid" id="av2-user-grid">
       {% for user in users %}
       {% set initials = (user.username[:2] | upper) if user.username else 'NA' %}
-      {% set score_color = 'av2-attempt__score' if (user.latest_score != '—' and user.latest_score is not none and user.latest_score | int >= 70) else 'av2-attempt__score av2-attempt__score--low' %}
       <div class="av2-user-card"
            data-user-index="{{ loop.index0 }}"
            data-completed="{{ user.completed_simulations }}"
            data-points="{{ user.points }}">
 
-        <!-- Namecard thumbnail -->
-        <div class="av2-user-card__namecard">
+        <!-- Avatar: profile picture or initials -->
+        <div class="av2-user-card__namecard{% if user.profile_picture %} av2-user-card__namecard--img{% endif %}">
+          {% if user.profile_picture %}
+          <img src="{{ user.profile_picture if user.profile_picture.startswith('http') else url_for('static', filename=user.profile_picture) }}"
+               alt="{{ user.username }}" class="av2-user-card__img">
+          {% else %}
           <span class="av2-user-card__initials">{{ initials }}</span>
+          {% endif %}
         </div>
 
         <div class="av2-user-card__body">
@@ -45,12 +72,8 @@
         </div>
 
         <div class="av2-user-card__stat">
-          <span class="{{ score_color }}">
-            {% if user.latest_score != '—' and user.latest_score is not none %}
-              {{ user.latest_score }}%
-            {% else %}
-              —
-            {% endif %}
+          <span class="av2-attempt__score{% if user.latest_score != '—' and user.latest_score is not none and user.latest_score | int < 70 %} av2-attempt__score--low{% endif %}">
+            {% if user.latest_score != '—' and user.latest_score is not none %}{{ user.latest_score }}%{% else %}—{% endif %}
           </span>
           <span class="av2-user-card__score-label">Last score</span>
         </div>
@@ -64,37 +87,17 @@
   <!-- ── RIGHT: User detail panel ── -->
   <div class="av2-user-detail" id="av2-user-detail">
 
-    <!-- Empty state -->
-    <div class="av2-detail__empty" id="av2-detail-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round"/></svg>
-      <p>Select a user to view<br>their detailed profile</p>
-    </div>
+    <div id="av2-detail-populated">
 
-    <!-- Populated state (hidden until a card is clicked) -->
-    <div id="av2-detail-populated" hidden>
-
-      <!-- Namecard hero -->
-      <div class="av2-detail__hero">
-        <div class="av2-detail__hero-bg" aria-hidden="true">
-          <svg viewBox="0 0 360 180" preserveAspectRatio="xMidYMid slice">
-            <defs>
-              <linearGradient id="dhGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00ff9f" stop-opacity=".12"/>
-                <stop offset="100%" stop-color="#46d6ff" stop-opacity=".04"/>
-              </linearGradient>
-            </defs>
-            <rect width="360" height="180" fill="url(#dhGrad)"/>
-            <line x1="0" y1="40" x2="100" y2="40" stroke="#00ff9f" stroke-width=".5" opacity=".3"/>
-            <line x1="100" y1="40" x2="100" y2="70" stroke="#00ff9f" stroke-width=".5" opacity=".3"/>
-            <line x1="260" y1="0" x2="260" y2="50" stroke="#00ff9f" stroke-width=".5" opacity=".2"/>
-            <line x1="260" y1="50" x2="360" y2="50" stroke="#00ff9f" stroke-width=".5" opacity=".2"/>
-            <polygon points="310,12 316,16 316,22 310,26 304,22 304,16" fill="none" stroke="#00ff9f" stroke-width=".6" opacity=".2"/>
-            <polygon points="40,140 44,143 44,148 40,151 36,148 36,143" fill="none" stroke="#46d6ff" stroke-width=".6" opacity=".2"/>
-            <line x1="0" y1="178" x2="360" y2="178" stroke="#00ff9f" stroke-width="1.5" opacity=".3"/>
-          </svg>
-        </div>
+      <!-- Namecard hero — PNG bg + profile picture avatar -->
+      <div class="av2-detail__hero" id="av2-detail-hero">
+        <!-- Namecard PNG background (injected by JS) -->
+        <div class="av2-detail__nc-bg" id="av2-detail-nc-bg" aria-hidden="true"></div>
+        <!-- Overlay for legibility -->
+        <div class="av2-detail__hero-overlay" aria-hidden="true"></div>
 
         <div class="av2-detail__avatar-row">
+          <!-- Profile picture or initials -->
           <div class="av2-detail__avatar" id="av2-detail-avatar">AB</div>
           <div>
             <div class="av2-detail__name" id="av2-detail-name">—</div>
@@ -145,22 +148,252 @@
         <div id="av2-detail-attempts"></div>
       </div>
 
-    </div><!-- /#av2-detail-populated -->
-  </div><!-- /.av2-user-detail -->
+    </div>
+  </div>
 
-</div><!-- /.av2-users-layout -->
+</div>
+</div><!-- /#au-visual-view -->
+
+<!-- ══════════════════════════════════════
+     TABLE VIEW
+══════════════════════════════════════ -->
+<div id="au-table-view" hidden>
+
+  <!-- Table toolbar -->
+  <div class="au-table-toolbar">
+    <div class="au-table-toolbar__left">
+      <div class="au-search">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <input type="text" id="au-table-search" placeholder="Search users…" class="au-search__input">
+      </div>
+    </div>
+    <div class="au-table-toolbar__right">
+      <button type="button" class="au-table-filter-btn" id="au-table-filter">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="au-table-wrap">
+    <table class="au-table" id="au-table">
+      <thead>
+        <tr>
+          <th class="au-th au-th--check">
+            <input type="checkbox" id="au-check-all" class="au-checkbox">
+          </th>
+          <th class="au-th au-th--user">User name</th>
+          <th class="au-th">Level</th>
+          <th class="au-th">Points</th>
+          <th class="au-th">Modules</th>
+          <th class="au-th au-th--sort" id="au-sort-score">Last Score
+            <svg viewBox="0 0 10 12" fill="none"><path d="M5 1v10M2 8l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </th>
+          <th class="au-th">Last Module</th>
+          <th class="au-th">Status</th>
+          <th class="au-th au-th--actions"></th>
+        </tr>
+      </thead>
+      <tbody id="au-table-body">
+        {% for user in users %}
+        {% set initials = (user.username[:2] | upper) if user.username else 'NA' %}
+        {% set score_ok = user.latest_score != '—' and user.latest_score is not none and user.latest_score | int >= 70 %}
+        {% set score_bad = user.latest_score != '—' and user.latest_score is not none and user.latest_score | int < 70 %}
+        {% set is_disabled = user.disabled if user.disabled is defined else false %}
+        <tr class="au-tr{% if is_disabled %} au-tr--disabled{% endif %}"
+            data-username="{{ user.username | lower }}"
+            data-email="{{ user.email | lower }}"
+            data-user-index="{{ loop.index0 }}">
+          <td class="au-td au-td--check">
+            <input type="checkbox" class="au-checkbox au-row-check">
+          </td>
+          <td class="au-td au-td--user">
+            <div class="au-user-cell">
+              {% if user.profile_picture %}
+              <img src="{{ user.profile_picture if user.profile_picture.startswith('http') else url_for('static', filename=user.profile_picture) }}"
+                   alt="{{ user.username }}" class="au-user-cell__avatar au-user-cell__avatar--img">
+              {% else %}
+              <div class="au-user-cell__avatar">{{ initials }}</div>
+              {% endif %}
+              <div class="au-user-cell__info">
+                <span class="au-user-cell__name">{{ user.username }}</span>
+                <span class="au-user-cell__email">{{ user.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="au-td">
+            <span class="au-badge au-badge--level">{{ user.level }}</span>
+          </td>
+          <td class="au-td au-td--pts">{{ user.points }}</td>
+          <td class="au-td">
+            <div class="au-modules-cell">
+              <span>{{ user.completed_simulations }} / 10</span>
+              <div class="au-mini-bar">
+                <div class="au-mini-bar__fill" style="width:{{ (user.completed_simulations / 10 * 100) | round | int }}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td class="au-td">
+            {% if user.latest_score != '—' and user.latest_score is not none %}
+            <span class="au-badge {% if score_ok %}au-badge--pass{% else %}au-badge--fail{% endif %}">{{ user.latest_score }}%</span>
+            {% else %}
+            <span class="au-badge au-badge--none">—</span>
+            {% endif %}
+          </td>
+          <td class="au-td au-td--module">
+            {% if user.latest_simulation and user.latest_simulation != '—' %}
+            {{ user.latest_simulation | replace('_', ' ') | title }}
+            {% else %}<span style="color:#374151;">—</span>{% endif %}
+          </td>
+          <td class="au-td">
+            {% if is_disabled %}
+            <span class="au-badge au-badge--disabled">Disabled</span>
+            {% else %}
+            <span class="au-badge au-badge--active">Active</span>
+            {% endif %}
+          </td>
+          <td class="au-td au-td--actions">
+            <div class="au-row-actions">
+              <!-- Eye: view detail modal -->
+              <button type="button" class="au-row-btn au-row-btn--view" title="View details">
+                <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/></svg>
+              </button>
+              <!-- Disable/Enable toggle -->
+              <button type="button"
+                      class="au-row-btn {% if is_disabled %}au-row-btn--enable{% else %}au-row-btn--disable{% endif %}"
+                      title="{% if is_disabled %}Re-enable account{% else %}Disable account{% endif %}"
+                      data-email="{{ user.email }}"
+                      data-disabled="{{ 'true' if is_disabled else 'false' }}">
+                {% if is_disabled %}
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM5 8h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                {% else %}
+                <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% endif %}
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="au-td au-td--empty">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="au-pagination" id="au-pagination">
+    <!-- injected by JS -->
+  </div>
+
+</div><!-- /#au-table-view -->
 
 <!-- User data for JS -->
 <script id="av2-users-data" type="application/json">{{ users | tojson }}</script>
 
+<!-- ══ User Detail Modal ══ -->
+<div class="au-modal-backdrop" id="au-modal-backdrop" hidden></div>
+<div class="au-modal" id="au-user-modal" hidden role="dialog" aria-modal="true" aria-labelledby="au-modal-title">
+  <div class="au-modal__inner">
+
+    <!-- Header -->
+    <div class="au-modal__header">
+      <div class="au-modal__nc-bg" id="au-modal-nc-bg" aria-hidden="true"></div>
+      <div class="au-modal__nc-overlay" aria-hidden="true"></div>
+      <div class="au-modal__header-inner">
+        <div class="au-modal__avatar" id="au-modal-avatar">AB</div>
+        <div>
+          <h2 class="au-modal__name" id="au-modal-title">—</h2>
+          <p class="au-modal__email" id="au-modal-email">—</p>
+          <span class="au-modal__level" id="au-modal-level">Rookie</span>
+        </div>
+        <div class="au-modal__status-wrap" id="au-modal-status-wrap"></div>
+      </div>
+      <button type="button" class="au-modal__close" id="au-modal-close" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="au-modal__stats">
+      <div class="au-modal__stat">
+        <span class="au-modal__stat-label">Points</span>
+        <span class="au-modal__stat-val" id="au-modal-points">—</span>
+      </div>
+      <div class="au-modal__stat">
+        <span class="au-modal__stat-label">Completed</span>
+        <span class="au-modal__stat-val" id="au-modal-completed">—</span>
+      </div>
+      <div class="au-modal__stat">
+        <span class="au-modal__stat-label">Last Score</span>
+        <span class="au-modal__stat-val" id="au-modal-lastscore">—</span>
+      </div>
+      <div class="au-modal__stat">
+        <span class="au-modal__stat-label">Time Spent</span>
+        <span class="au-modal__stat-val" id="au-modal-time">—</span>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="au-modal__progress-wrap">
+      <div class="au-modal__progress-head">
+        <span>Module Progress</span>
+        <span id="au-modal-prog-label">0 / 10</span>
+      </div>
+      <div class="au-modal__progress-bar">
+        <div class="au-modal__progress-fill" id="au-modal-prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Attempt history -->
+    <div class="au-modal__history">
+      <div class="au-modal__history-title">Attempt History</div>
+      <div id="au-modal-attempts"></div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="au-modal__footer">
+      <button type="button" class="au-modal__toggle-btn" id="au-modal-toggle-btn">
+        Disable Account
+      </button>
+      <button type="button" class="au-modal__cancel-btn" id="au-modal-cancel">Close</button>
+    </div>
+
+  </div>
+</div>
+
 <script>
 (function () {
   const usersData = JSON.parse(document.getElementById('av2-users-data').textContent);
-  const cards     = document.querySelectorAll('.av2-user-card');
-  const emptyEl   = document.getElementById('av2-detail-empty');
-  const popEl     = document.getElementById('av2-detail-populated');
 
-  // Refs
+  const NAMECARD_PNGS = {
+    social_sentinel: 'img/namecards/namecard_social_sentinel.png',
+    malware_hunter:  'img/namecards/namecard_malware_hunter.png',
+    network_warden:  'img/namecards/namecard_network_warden.png',
+    code_guardian:   'img/namecards/namecard_code_guardian.png',
+    cyber_throne:    'img/namecards/namecard_cyber_throne.png',
+    iron_vanguard:   'img/namecards/namecard_iron_vanguard.png',
+    bronze_bastion:  'img/namecards/namecard_bronze_bastion.png',
+    secureit_elite:  'img/namecards/namecard_secureit_elite.png',
+  };
+
+  /* ══ View toggle ══ */
+  const visualView = document.getElementById('au-visual-view');
+  const tableView  = document.getElementById('au-table-view');
+  const btnVisual  = document.getElementById('au-btn-visual');
+  const btnTable   = document.getElementById('au-btn-table');
+
+  btnVisual.addEventListener('click', () => {
+    visualView.hidden = false; tableView.hidden = true;
+    btnVisual.classList.add('is-active'); btnTable.classList.remove('is-active');
+  });
+  btnTable.addEventListener('click', () => {
+    visualView.hidden = true; tableView.hidden = false;
+    btnTable.classList.add('is-active'); btnVisual.classList.remove('is-active');
+  });
+
+  /* ══ VISUAL VIEW ══ */
+  const cards        = document.querySelectorAll('.av2-user-card');
+  const popEl        = document.getElementById('av2-detail-populated');
+  const detNcBg      = document.getElementById('av2-detail-nc-bg');
   const detAvatar    = document.getElementById('av2-detail-avatar');
   const detName      = document.getElementById('av2-detail-name');
   const detEmail     = document.getElementById('av2-detail-email');
@@ -174,21 +407,57 @@
   const detBar       = document.getElementById('av2-detail-bar');
   const detAttempts  = document.getElementById('av2-detail-attempts');
 
+  function buildAvatar(el, u) {
+    if (u.profile_picture) {
+      const src = u.profile_picture.startsWith('http') ? u.profile_picture : '/static/' + u.profile_picture;
+      el.innerHTML = '<img src="' + src + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">';
+      el.style.background = 'none';
+      el.style.border = '2px solid rgba(0,255,159,0.4)';
+    } else {
+      el.textContent = (u.username || 'NA').slice(0, 2).toUpperCase();
+      el.style.background = '';
+      el.style.border = '';
+    }
+  }
+
+  function buildNcBg(el, ncId) {
+    el.style.backgroundImage = (ncId && NAMECARD_PNGS[ncId])
+      ? 'url(/static/' + NAMECARD_PNGS[ncId] + ')'
+      : '';
+  }
+
+  function buildAttempts(container, attempts) {
+    container.innerHTML = '';
+    if (!attempts || !attempts.length) {
+      container.innerHTML = '<div class="av2-detail__no-history">No attempts yet.</div>';
+      return;
+    }
+    attempts.forEach(function (a, i) {
+      const sv = a.score, ok = sv != null && Number(sv) >= 70;
+      const div = document.createElement('div');
+      div.className = 'av2-attempt';
+      div.innerHTML =
+        '<div class="av2-attempt__icon">' + (i + 1) + '</div>' +
+        '<div class="av2-attempt__body"><div class="av2-attempt__name">' + (a.attack_id || '').replace(/_/g,' ') + '</div>' +
+        (a.mistakes && a.mistakes.length ? '<div class="av2-attempt__mistake">' + a.mistakes[0] + '</div>' : '') +
+        '</div><span class="av2-attempt__score' + (ok ? '' : ' av2-attempt__score--low') + '">' +
+        (sv != null ? sv + '%' : '—') + '</span>';
+      container.appendChild(div);
+    });
+  }
+
   function selectUser(index) {
     cards.forEach(c => c.classList.remove('is-selected'));
     cards[index]?.classList.add('is-selected');
-
     const u = usersData[index];
     if (!u) return;
 
-    emptyEl.hidden  = true;
-    popEl.hidden    = false;
+    buildAvatar(detAvatar, u);
+    buildNcBg(detNcBg, u.active_namecard);
 
-    const initials = (u.username || 'NA').slice(0, 2).toUpperCase();
-    detAvatar.textContent    = initials;
-    detName.textContent      = u.username || '—';
-    detEmail.textContent     = u.email || '—';
-    detLevel.textContent     = u.level || 'Rookie';
+    detName.textContent  = u.username || '—';
+    detEmail.textContent = u.email    || '—';
+    detLevel.textContent = u.level    || 'Rookie';
     detPoints.textContent    = u.points ?? 0;
     detCompleted.textContent = u.completed_simulations ?? 0;
 
@@ -200,63 +469,180 @@
     const ts = u.time_spent || 0;
     detTime.textContent = ts ? Math.floor(ts / 60) + 'm ' + (ts % 60) + 's' : '—';
 
-    const total = 10;
-    const done  = u.completed_simulations || 0;
-    const pct   = Math.round((done / total) * 100);
-    detProgLabel.textContent = done + ' / ' + total;
-    detBar.style.width       = pct + '%';
+    const done = u.completed_simulations || 0;
+    detProgLabel.textContent = done + ' / 10';
+    detBar.style.width = Math.round(done / 10 * 100) + '%';
 
-    // Attempts
-    detAttempts.innerHTML = '';
-    const attempts = u.attempt_history || [];
-    if (!attempts.length) {
-      detAttempts.innerHTML = '<div class="av2-detail__no-history">No attempts yet.</div>';
-      return;
-    }
-    attempts.forEach(function (a, i) {
-      const scoreVal = a.score;
-      const scoreOk  = scoreVal != null && Number(scoreVal) >= 70;
-      const div = document.createElement('div');
-      div.className = 'av2-attempt';
-      div.innerHTML =
-        '<div class="av2-attempt__icon">' + (i + 1) + '</div>' +
-        '<div class="av2-attempt__body">' +
-          '<div class="av2-attempt__name">' + (a.attack_id || '').replace(/_/g, ' ') + '</div>' +
-          (a.mistakes && a.mistakes.length ? '<div class="av2-attempt__mistake">' + a.mistakes[0] + '</div>' : '') +
-        '</div>' +
-        '<span class="av2-attempt__score' + (scoreOk ? '' : ' av2-attempt__score--low') + '">' +
-          (scoreVal != null ? scoreVal + '%' : '—') +
-        '</span>';
-      detAttempts.appendChild(div);
-    });
+    buildAttempts(detAttempts, u.attempt_history);
   }
 
-  cards.forEach(function (card) {
-    card.addEventListener('click', function () {
-      selectUser(Number(card.dataset.userIndex));
-    });
-  });
+  cards.forEach(card => card.addEventListener('click', () => selectUser(Number(card.dataset.userIndex))));
 
-  // Filter tabs
-  const tabs = document.querySelectorAll('.av2-filter-tab');
-  tabs.forEach(function (tab) {
+  document.querySelectorAll('.av2-filter-tab').forEach(tab => {
     tab.addEventListener('click', function () {
-      tabs.forEach(t => t.classList.remove('is-active'));
+      document.querySelectorAll('.av2-filter-tab').forEach(t => t.classList.remove('is-active'));
       tab.classList.add('is-active');
-      const filter = tab.dataset.filter;
-      cards.forEach(function (card) {
-        const completed = Number(card.dataset.completed);
-        let show = true;
-        if (filter === 'active')    show = completed > 0;
-        if (filter === 'completed') show = completed >= 10;
-        if (filter === 'inactive')  show = completed === 0;
-        card.style.display = show ? '' : 'none';
+      const f = tab.dataset.filter;
+      cards.forEach(card => {
+        const c = Number(card.dataset.completed);
+        card.style.display = (f==='active'?c>0:f==='completed'?c>=10:f==='inactive'?c===0:true) ? '' : 'none';
       });
     });
   });
 
-  // Auto-select first user if any
   if (usersData.length > 0) selectUser(0);
+
+  /* ══ USER DETAIL MODAL ══ */
+  const modal        = document.getElementById('au-user-modal');
+  const backdrop     = document.getElementById('au-modal-backdrop');
+  const modalClose   = document.getElementById('au-modal-close');
+  const modalCancel  = document.getElementById('au-modal-cancel');
+  const modalNcBg    = document.getElementById('au-modal-nc-bg');
+  const modalAvatar  = document.getElementById('au-modal-avatar');
+  const modalName    = document.getElementById('au-modal-title');
+  const modalEmail   = document.getElementById('au-modal-email');
+  const modalLevel   = document.getElementById('au-modal-level');
+  const modalPoints  = document.getElementById('au-modal-points');
+  const modalComp    = document.getElementById('au-modal-completed');
+  const modalScore   = document.getElementById('au-modal-lastscore');
+  const modalTime    = document.getElementById('au-modal-time');
+  const modalProg    = document.getElementById('au-modal-prog-label');
+  const modalFill    = document.getElementById('au-modal-prog-fill');
+  const modalAtt     = document.getElementById('au-modal-attempts');
+  const modalToggle  = document.getElementById('au-modal-toggle-btn');
+  const modalStatus  = document.getElementById('au-modal-status-wrap');
+  let modalUserEmail = '';
+
+  function openModal(index) {
+    const u = usersData[index];
+    if (!u) return;
+    modalUserEmail = u.email || '';
+
+    buildAvatar(modalAvatar, u);
+    buildNcBg(modalNcBg, u.active_namecard);
+
+    modalName.textContent  = u.username || '—';
+    modalEmail.textContent = u.email    || '—';
+    modalLevel.textContent = u.level    || 'Rookie';
+    modalPoints.textContent = u.points ?? 0;
+    modalComp.textContent   = u.completed_simulations ?? 0;
+
+    const sc = u.latest_score;
+    modalScore.textContent = (sc !== '—' && sc != null) ? sc + '%' : '—';
+    modalScore.style.color = (sc !== '—' && sc != null && Number(sc) >= 70) ? '#00ff9f' : '#f87171';
+
+    const ts = u.time_spent || 0;
+    modalTime.textContent = ts ? Math.floor(ts/60) + 'm ' + (ts%60) + 's' : '—';
+
+    const done = u.completed_simulations || 0;
+    modalProg.textContent = done + ' / 10';
+    modalFill.style.width = Math.round(done/10*100) + '%';
+
+    buildAttempts(modalAtt, u.attempt_history);
+
+    const disabled = !!u.disabled;
+    modalToggle.textContent = disabled ? 'Re-enable Account' : 'Disable Account';
+    modalToggle.className = 'au-modal__toggle-btn ' + (disabled ? 'au-modal__toggle-btn--enable' : 'au-modal__toggle-btn--disable');
+    modalStatus.innerHTML = disabled
+      ? '<span class="au-badge au-badge--disabled">Disabled</span>'
+      : '<span class="au-badge au-badge--active">Active</span>';
+
+    modal.hidden = false;
+    backdrop.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    backdrop.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  modalClose?.addEventListener('click', closeModal);
+  modalCancel?.addEventListener('click', closeModal);
+  backdrop?.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  modalToggle?.addEventListener('click', async function () {
+    if (!modalUserEmail) return;
+    const isDisable = modalToggle.classList.contains('au-modal__toggle-btn--disable');
+    try {
+      const res = await fetch('/admin/toggle-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: modalUserEmail, disabled: isDisable }),
+      });
+      if (res.ok) location.reload();
+      else alert('Could not update user status.');
+    } catch { alert('Network error.'); }
+  });
+
+  /* ══ TABLE VIEW ══ */
+  const searchInput  = document.getElementById('au-table-search');
+  const tableBody    = document.getElementById('au-table-body');
+  const allRows      = Array.from(tableBody.querySelectorAll('.au-tr'));
+  const paginationEl = document.getElementById('au-pagination');
+  const PAGE_SIZE    = 10;
+  let currentPage    = 1;
+  let filteredRows   = allRows.slice();
+
+  function renderTable() {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    allRows.forEach(r => r.hidden = true);
+    filteredRows.slice(start, start + PAGE_SIZE).forEach(r => r.hidden = false);
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const total = Math.ceil(filteredRows.length / PAGE_SIZE);
+    if (total <= 1) { paginationEl.innerHTML = ''; return; }
+    let html = '';
+    for (let i = 1; i <= total; i++)
+      html += '<button type="button" class="au-page-btn' + (i===currentPage?' is-active':'') + '" data-page="'+i+'">'+i+'</button>';
+    paginationEl.innerHTML = html;
+    paginationEl.querySelectorAll('.au-page-btn').forEach(btn => {
+      btn.addEventListener('click', () => { currentPage = Number(btn.dataset.page); renderTable(); });
+    });
+  }
+
+  searchInput?.addEventListener('input', function () {
+    const q = searchInput.value.toLowerCase().trim();
+    filteredRows = allRows.filter(r => !q || r.dataset.username.includes(q) || r.dataset.email.includes(q));
+    currentPage = 1;
+    renderTable();
+  });
+
+  /* Eye button → open modal */
+  tableBody.querySelectorAll('.au-row-btn--view').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const idx = Number(btn.closest('.au-tr').dataset.userIndex);
+      openModal(idx);
+    });
+  });
+
+  /* Disable/Enable button in table */
+  tableBody.querySelectorAll('.au-row-btn--disable, .au-row-btn--enable').forEach(btn => {
+    btn.addEventListener('click', async function () {
+      const email    = btn.dataset.email;
+      const disabled = btn.dataset.disabled === 'true';
+      if (!confirm((disabled ? 'Re-enable' : 'Disable') + ' ' + email + '?')) return;
+      try {
+        const res = await fetch('/admin/toggle-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, disabled: !disabled }),
+        });
+        if (res.ok) location.reload();
+        else alert('Could not update user status.');
+      } catch { alert('Network error.'); }
+    });
+  });
+
+  document.getElementById('au-check-all')?.addEventListener('change', function () {
+    document.querySelectorAll('.au-row-check').forEach(cb => cb.checked = this.checked);
+  });
+
+  renderTable();
 })();
 </script>
 

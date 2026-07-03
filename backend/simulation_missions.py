@@ -442,6 +442,81 @@ WORKSPACE_MISSIONS: dict[str, dict[str, Any]] = {
         ],
         "decisions": [],
     },
+    "adware_pop_up": {
+        **_base_mission("adware_pop_up"),
+        "mission_title": "Hard Simulation — Suspicious Installer Popup",
+        "story": (
+            "You see an unexpected installer prompt while browsing the web. It claims your browser is infected and asks you to install a cleaner immediately. "
+            "Inspect the message, flag suspicious signs, and decide whether to trust it."
+        ),
+        "objectives": [
+            "Review the installer popup in the browser workspace",
+            "Flag 2–3 suspicious signs you discover",
+            "Submit an incident report without installing the program",
+        ],
+        "skills_learned": [
+            "Adware recognition",
+            "Popup analysis",
+            "Safe software installation practices",
+        ],
+        "tools": ["browser", "flag_tool"],
+        "sim_template": "simulations/adware_hard.html",
+        "popup": {
+            "title": "Your browser is infected!",
+            "body": "Your browser is running slowly. Install the recommended cleaner now to speed it up.",
+            "publisher": "UltraBoost Software",
+            "cta": "Install now",
+            "url": "https://cleaner-boost.example/install",
+        },
+        "signs": [
+            {"id": "scare_language",    "label": "Scare language"},
+            {"id": "unknown_publisher", "label": "Unknown publisher"},
+            {"id": "urgent_install",    "label": "Urgent install prompt"},
+        ],
+        "tasks": [
+            {"id": "inspect_popup", "objective_index": 0, "label": "Inspect the popup text and source", "action": "inspect_popup"},
+            {"id": "flag_signs",    "objective_index": 1, "label": "Flag suspicious signs", "action": "flag_signs", "required": 2},
+            {"id": "submit_report", "objective_index": 2, "label": "Submit incident report", "action": "submit_report"},
+        ],
+    },
+    "evil_twin": {
+        **_base_mission("evil_twin"),
+        "mission_title": "Hard Simulation — The Suspicious Campus Hotspot",
+        "story": (
+            "You are at the university canteen with several Wi-Fi networks available. "
+            "One of them is designed to look like the official campus hotspot. "
+            "Open the network list, inspect the suspicious signs, and choose safely."
+        ),
+        "objectives": [
+            "Inspect the available Wi-Fi networks",
+            "Flag suspicious signs that indicate a rogue hotspot",
+            "Choose the legitimate network and submit the incident report",
+        ],
+        "skills_learned": [
+            "Rogue hotspot identification",
+            "Wi-Fi trust assessment",
+            "Safe network selection",
+        ],
+        "tools": ["wifi_selector", "flag_tool"],
+        "sim_template": "simulations/evil_twin_hard.html",
+        "wifi_options": {
+            "networks": [
+                {"name": "UP-Student",      "security": "WPA2", "signal": "Strong",      "official": True},
+                {"name": "UP-Student_Free", "security": "Open", "signal": "Very Strong", "official": False},
+                {"name": "CampusGuest",     "security": "Open", "signal": "Medium",      "official": False},
+            ]
+        },
+        "signs": [
+            {"id": "rogue_name",         "label": "Suspicious SSID variation"},
+            {"id": "open_security",      "label": "Open network without password"},
+            {"id": "unexpected_login",   "label": "Unexpected captive portal"},
+        ],
+        "tasks": [
+            {"id": "inspect_networks", "objective_index": 0, "label": "Inspect the available networks",  "action": "inspect_networks"},
+            {"id": "flag_signs",       "objective_index": 1, "label": "Flag suspicious signs",           "action": "flag_signs", "required": 2},
+            {"id": "submit_report",    "objective_index": 2, "label": "Submit incident report",          "action": "submit_report"},
+        ],
+    },
 }
 
 

@@ -1037,3 +1037,60 @@ const host = document.getElementById('cr-scene');
 if (host) {
   initPillarScene(host);
 }
+
+// ── Module strip: category tabs + "View all →" ──────────────
+(function () {
+  const scroll    = document.getElementById('cr-strip-scroll');
+  const viewAllBtn = document.getElementById('cr-strip-viewall');
+  const tabs      = document.querySelectorAll('.cr-strip-tab');
+  if (!scroll || !tabs.length) return;
+
+  let activeCatId    = tabs[0]?.dataset.catId || '';
+  let activeCatIndex = 0;
+
+  function activate(tab) {
+    tabs.forEach(t => {
+      t.classList.remove('is-active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    tab.classList.add('is-active');
+    tab.setAttribute('aria-selected', 'true');
+    activeCatId    = tab.dataset.catId;
+    activeCatIndex = parseInt(tab.dataset.catIndex, 10);
+
+    // Update "View all" to open the right category modal
+    if (viewAllBtn) viewAllBtn.dataset.catIndex = activeCatIndex;
+
+    // Scroll the strip to the first card of that category
+    const firstCard = scroll.querySelector(`.cr-strip-card[data-cat-id="${activeCatId}"]`);
+    if (firstCard) {
+      firstCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    }
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => activate(tab));
+  });
+
+  // "View all →" opens the modal for the currently active category
+  viewAllBtn?.addEventListener('click', () => openCategory(activeCatIndex));
+
+  // Update active tab when user scrolls manually
+  const cardEls = scroll.querySelectorAll('.cr-strip-card[data-cat-id]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.dataset.catId;
+        const matchTab = document.querySelector(`.cr-strip-tab[data-cat-id="${id}"]`);
+        if (matchTab && id !== activeCatId) activate(matchTab);
+      }
+    });
+  }, { root: scroll, threshold: 0.6 });
+
+  // Only observe the first card of each category to avoid over-triggering
+  const seen = new Set();
+  cardEls.forEach(card => {
+    const id = card.dataset.catId;
+    if (!seen.has(id)) { observer.observe(card); seen.add(id); }
+  });
+})();

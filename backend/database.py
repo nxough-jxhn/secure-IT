@@ -510,10 +510,19 @@ def build_active_namecard(user: dict | None, progress: dict[str, Any]) -> dict[s
             "subtitle": "Secure-IT Trainee",
             "level_label": "Level 1 — Rookie",
             "theme": "default",
+            "namecard_png": "",
         }
 
     level_progress = get_level_progress(int(user.get("points", 0)))
     initials = "".join(part[0] for part in str(user.get("name", "Learner")).split()[:2]).upper() or "SL"
+
+    active_namecard_id = progress.get("active_namecard") or user.get("active_namecard")
+    # Build the static path for the namecard PNG (follows the naming convention)
+    namecard_png = (
+        f"img/namecards/namecard_{active_namecard_id}.png"
+        if active_namecard_id
+        else ""
+    )
 
     return {
         "title": str(user.get("name", "Learner")),
@@ -521,7 +530,8 @@ def build_active_namecard(user: dict | None, progress: dict[str, Any]) -> dict[s
         "level_label": f"Level {level_progress['level_number']} — {user.get('level', level_progress['level_name'])}",
         "initials": initials,
         "profile_picture": str(user.get("profile_picture", "")),
-        "active_namecard_id": progress.get("active_namecard") or user.get("active_namecard"),
+        "active_namecard_id": active_namecard_id,
+        "namecard_png": namecard_png,
         "theme": "default",
     }
 
@@ -1529,3 +1539,110 @@ def update_module_progress(email: str, attack_id: str, updates: dict):
         return None
 
     return collection.find_one({"email": normalized_email})
+
+# ──────────────────────────────────────────────────────────────
+# Quiz Questions — DB-backed CRUD
+# ──────────────────────────────────────────────────────────────
+
+def _quiz_questions_collection():
+    return _collection("quiz_questions")
+
+
+def get_quiz_questions_for_attack(attack_id: str) -> list[dict[str, Any]]:
+    """Return all active quiz questions for an attack, sorted by creation date."""
+    col = _quiz_questions_collection()
+    if col is None:
+        return []
+    try:
+        docs = list(col.find({"attack_id": attack_id, "active": True}).sort("created_at", 1))
+        for d in docs:
+            d["_id"] = str(d["_id"])
+        return docs
+    except PyMongoError:
+        return []
+
+
+def get_all_quiz_questions_for_attack(attack_id: str) -> list[dict[str, Any]]:
+    """Return ALL questions (active + inactive) for admin management."""
+    col = _quiz_questions_collection()
+    if col is None:
+        return []
+    try:
+        docs = list(col.find({"attack_id": attack_id}).sort("created_at", 1))
+        for d in docs:
+            d["_id"] = str(d["_id"])
+        return docs
+    except PyMongoError:
+        return []
+
+
+def create_quiz_question(
+    attack_id: str,
+    question: str,
+    choices: list[str],
+    correct_index: int,
+    explanation: str,
+    created_by: str = "admin",
+) -> dict[str, Any] | None:
+    col = _quiz_questions_collection()
+    if col is None:
+        return None
+    doc = {
+        "attack_id": attack_id,
+        "question": question,
+        "choices": choices,
+        "correct_index": correct_index,
+        "explanation": explanation,
+        "active": True,
+        "created_by": created_by,
+        "created_at": _utcnow(),
+        "updated_at": _utcnow(),
+    }
+    try:
+        result = col.insert_one(doc)
+        doc["_id"] = str(result.inserted_id)
+        return doc
+    except PyMongoError:
+        return None
+
+
+def update_quiz_question(
+    question_id: str,
+    updates: dict[str, Any],
+) -> bool:
+    from bson import ObjectId
+    col = _quiz_questions_collection()
+    if col is None:
+        return False
+    updates["updated_at"] = _utcnow()
+    try:
+        col.update_one({"_id": ObjectId(question_id)}, {"$set": updates})
+        return True
+    except PyMongoError:
+        return False
+
+
+def delete_quiz_question(question_id: str) -> bool:
+    from bson import ObjectId
+    col = _quiz_questions_collection()
+    if col is None:
+        return False
+    try:
+        col.delete_one({"_id": ObjectId(question_id)})
+        return True
+    except PyMongoError:
+        return False
+
+
+def toggle_quiz_question_active(question_id: str, active: bool) -> bool:
+    return update_quiz_question(question_id, {"active": active})
+
+
+def count_active_quiz_questions(attack_id: str) -> int:
+    col = _quiz_questions_collection()
+    if col is None:
+        return 0
+    try:
+        return col.count_documents({"attack_id": attack_id, "active": True})
+    except PyMongoError:
+        return 0

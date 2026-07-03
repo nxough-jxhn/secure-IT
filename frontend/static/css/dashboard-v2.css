@@ -281,22 +281,35 @@
   border-radius: 4px;
   border: 1px solid rgba(0,255,159,0.22);
   overflow: hidden;
+  /* 7:3 ratio matching the 1050×450 namecard images */
+  aspect-ratio: 7 / 3;
+  /* Fallback gradient when no namecard PNG is active */
   background:
-    linear-gradient(120deg, rgba(0,255,159,0.16) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.85) 100%),
-    radial-gradient(circle at 15% 30%, rgba(0,255,159,0.22), transparent 55%);
-  min-height: 92px;
+    linear-gradient(135deg, #001a0e 0%, #021409 60%, #000d06 100%);
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 0 16px;
 }
-.dv2-namecard::after {
+
+/* Gradient overlay for legibility over namecard art */
+.dv2-namecard::before {
   content: '';
   position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(255,255,255,0.07);
+  inset: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(0,0,0,0.70) 0%,
+      rgba(0,0,0,0.42) 52%,
+      rgba(0,0,0,0.10) 100%);
   pointer-events: none;
+  z-index: 0;
 }
+
+/* Remove the old inner-border ::after now that we have a real bg */
+.dv2-namecard::after { display: none; }
 
 .dv2-namecard__avatar-wrap { position: relative; z-index: 1; flex-shrink: 0; }
 .dv2-namecard__avatar {
@@ -304,8 +317,8 @@
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(0,255,159,0.55);
-  box-shadow: 0 0 16px rgba(0,255,159,0.3);
+  border: 2px solid rgba(0,255,159,0.65);
+  box-shadow: 0 0 18px rgba(0,255,159,0.3), 0 2px 12px rgba(0,0,0,0.7);
 }
 .dv2-namecard__avatar--initials {
   display: grid;
@@ -342,7 +355,7 @@
   position: absolute;
   top: 10px;
   right: 12px;
-  z-index: 1;
+  z-index: 2;
   color: rgba(255,255,255,0.4);
   font-size: 0.875rem;
 }

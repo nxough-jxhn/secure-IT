@@ -1,230 +1,370 @@
 {% extends 'admin_base.html' %}
 {% block content %}
 
-<!-- ── KPI row ── -->
-<div class="av2-kpi-row">
-  <div class="av2-kpi">
-    <div class="av2-kpi__top">
-      <span class="av2-kpi__label">Total Users</span>
-      <div class="av2-kpi__icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round"/></svg>
+<!-- ══════════════════════════════════════════
+     SECTION 1 — KPI Row (4 cards)
+══════════════════════════════════════════ -->
+<div class="adv-kpi-row">
+
+  <!-- Total Users -->
+  <div class="adv-kpi" style="--kpi-accent:#00ff9f;">
+    <div class="adv-kpi__head">
+      <div class="adv-kpi__label">Total Users</div>
+      <div class="adv-kpi__icon">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 17v-1a6 6 0 0 1 6-6h0a6 6 0 0 1 6 6v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M14 7a3 3 0 0 1 0 6M17 17v-1a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       </div>
     </div>
-    <div class="av2-kpi__value">{{ analytics.total_users }}</div>
-    <div>
-      <span class="av2-kpi__delta">↑ All time</span>
+    <div class="adv-kpi__value">{{ analytics.total_users }}</div>
+    <div class="adv-kpi__delta">↑ All time</div>
+    <!-- Static sparkline bars -->
+    <div class="adv-kpi__spark">
+      <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        {% set bars = [8,12,10,16,14,20,18,24,22,28,26,24,28] %}
+        {% for h in bars %}
+        <rect x="{{ loop.index0 * 6 }}" y="{{ 28 - h }}" width="4" height="{{ h }}" rx="1"
+              fill="rgba(0,255,159,{{ '0.55' if loop.last else '0.2' if loop.index0 % 3 == 0 else '0.15' }})"/>
+        {% endfor %}
+      </svg>
     </div>
   </div>
 
-  <div class="av2-kpi">
-    <div class="av2-kpi__top">
-      <span class="av2-kpi__label">Active (7 days)</span>
-      <div class="av2-kpi__icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- Total Community Posts -->
+  <div class="adv-kpi" style="--kpi-accent:#60a5fa;">
+    <div class="adv-kpi__head">
+      <div class="adv-kpi__label">Community Posts</div>
+      <div class="adv-kpi__icon adv-kpi__icon--blue">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M17 6H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v3l3-3h9a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       </div>
     </div>
-    <div class="av2-kpi__value">{{ analytics.active_users }}</div>
-    <div>
-      <span class="av2-kpi__delta">Active learners</span>
+    <div class="adv-kpi__value">—</div>
+    <div class="adv-kpi__delta adv-kpi__delta--muted">Coming soon</div>
+    <!-- Static wave sparkline -->
+    <div class="adv-kpi__spark">
+      <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <polyline points="0,22 8,18 16,20 24,14 32,16 40,10 48,13 56,8 64,10 72,6 80,8"
+                  stroke="rgba(96,165,250,0.5)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="0,22 8,18 16,20 24,14 32,16 40,10 48,13 56,8 64,10 72,6 80,8 80,28 0,28"
+                  fill="rgba(96,165,250,0.08)"/>
+      </svg>
     </div>
   </div>
 
-  <div class="av2-kpi">
-    <div class="av2-kpi__top">
-      <span class="av2-kpi__label">Simulations Done</span>
-      <div class="av2-kpi__icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- Total Points Earned -->
+  <div class="adv-kpi" style="--kpi-accent:#fbbf24;">
+    <div class="adv-kpi__head">
+      <div class="adv-kpi__label">Total Points Earned</div>
+      <div class="adv-kpi__icon adv-kpi__icon--gold">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l2.09 4.26L17 7.27l-3.5 3.41.83 4.82L10 13.27l-4.33 2.23.83-4.82L3 7.27l4.91-.71L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       </div>
     </div>
-    <div class="av2-kpi__value">{{ analytics.completed_simulations }}</div>
-    <div>
-      <span class="av2-kpi__delta">Total completions</span>
+    <div class="adv-kpi__value">{{ analytics.total_points_earned if analytics.total_points_earned is defined else '—' }}</div>
+    <div class="adv-kpi__delta adv-kpi__delta--gold">↑ Platform total</div>
+    <!-- Static stepped sparkline -->
+    <div class="adv-kpi__spark">
+      <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <polyline points="0,24 10,22 20,20 30,18 40,15 50,12 60,9 70,7 80,4"
+                  stroke="rgba(251,191,36,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="0,24 10,22 20,20 30,18 40,15 50,12 60,9 70,7 80,4 80,28 0,28"
+                  fill="rgba(251,191,36,0.08)"/>
+      </svg>
     </div>
   </div>
 
-  <div class="av2-kpi">
-    <div class="av2-kpi__top">
-      <span class="av2-kpi__label">Awareness Score</span>
-      <div class="av2-kpi__icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- Total Attacks / Modules -->
+  <div class="adv-kpi" style="--kpi-accent:#2dd4bf;">
+    <div class="adv-kpi__head">
+      <div class="adv-kpi__label">Total Attacks</div>
+      <div class="adv-kpi__icon adv-kpi__icon--teal">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 2L2 6v5c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6l-8-4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       </div>
     </div>
-    <div class="av2-kpi__value">{{ analytics.awareness_score }}%</div>
-    <div>
-      <span class="av2-kpi__delta">Platform avg</span>
+    <div class="adv-kpi__value">10</div>
+    <div class="adv-kpi__delta adv-kpi__delta--teal">Fixed modules</div>
+    <!-- Static segmented bar sparkline -->
+    <div class="adv-kpi__spark">
+      <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        {% set seg_heights = [14,18,12,20,16,22,10,24,20,18] %}
+        {% for h in seg_heights %}
+        <rect x="{{ loop.index0 * 8 }}" y="{{ 28 - h }}" width="6" height="{{ h }}" rx="1"
+              fill="rgba(45,212,191,{{ '0.5' if loop.last else '0.18' if loop.index0 % 2 == 0 else '0.1' }})"/>
+        {% endfor %}
+      </svg>
     </div>
   </div>
+
 </div>
 
-<!-- ── Charts row ── -->
-<div class="av2-grid-3-1">
+<!-- ══════════════════════════════════════════
+     SECTION 2 + 3 — Main chart + Donut
+══════════════════════════════════════════ -->
+<div class="adv-grid-main">
 
-  <!-- Bar chart: simulation performance -->
-  <div class="av2-card">
-    <div class="av2-card__title-row">
+  <!-- ── Points Gained (last 10 days) — line chart ── -->
+  <div class="adv-card adv-card--chart">
+    <div class="adv-card__head">
       <div>
-        <div class="av2-card__title" style="margin-bottom:2px;">Simulation Performance</div>
-        <div class="av2-card__subtitle">Average scores per attack module</div>
+        <div class="adv-card__title">Points Gained</div>
+        <div class="adv-card__sub">Total points earned by all users — last 10 days</div>
       </div>
-      <div style="text-align:right;">
-        <div style="font-size:1.5rem;font-weight:900;color:#00ff9f;">{{ analytics.average_simulation_score }}%</div>
-        <div style="font-size:10px;color:#4b5563;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Avg sim score</div>
+      <div class="adv-card__kicker">
+        <span class="adv-trend-up">↑ +{{ analytics.points_trend_pct if analytics.points_trend_pct is defined else '0' }}%</span>
+        <span class="adv-card__kicker-label">vs prev period</span>
       </div>
     </div>
 
-    {% if analytics.performance_chart %}
-    <div class="av2-bar-chart">
-      {% for item in analytics.performance_chart[:8] %}
-      {% set bar_pct = item.average %}
-      <div class="av2-bar-col">
-        <div class="av2-bar-wrap">
-          <div class="av2-bar {% if loop.index == 1 %}is-highlight{% endif %}"
-               style="height:{{ [bar_pct, 8]|max }}%"
-               title="{{ item.attack_id }}: {{ bar_pct }}%">
-            <span class="av2-bar__label">{{ bar_pct }}%</span>
-          </div>
+    <!-- SVG line chart — rendered from backend data or static fallback -->
+    <div class="adv-linechart">
+      <div class="adv-linechart__yaxis">
+        <span>300</span><span>200</span><span>100</span><span>0</span>
+      </div>
+      <div class="adv-linechart__area" id="adv-linechart-area">
+        <svg class="adv-linechart__svg" viewBox="0 0 600 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00ff9f" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#00ff9f" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="0" y1="50"  x2="600" y2="50"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <!-- Area fill (static shape — will be replaced by JS if data exists) -->
+          <path id="adv-line-area"
+                d="M0,160 C60,155 120,140 180,120 C240,100 300,80 360,70 C420,60 480,45 540,30 L600,20 L600,200 L0,200 Z"
+                fill="url(#lineGrad)"/>
+          <!-- Line stroke -->
+          <path id="adv-line-path"
+                d="M0,160 C60,155 120,140 180,120 C240,100 300,80 360,70 C420,60 480,45 540,30 L600,20"
+                fill="none" stroke="#00ff9f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Highlight dot at latest point -->
+          <circle id="adv-line-dot" cx="600" cy="20" r="5" fill="#0a0f14" stroke="#00ff9f" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- X-axis date labels -->
+    <div class="adv-linechart__xaxis" id="adv-linechart-xaxis">
+      {% set days_data = analytics.points_by_day if analytics.points_by_day is defined else [] %}
+      {% if days_data %}
+        {% for d in days_data %}
+        <span>{{ d.date }}</span>
+        {% endfor %}
+      {% else %}
+        {% for i in range(10) %}
+        <span>Day {{ i + 1 }}</span>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Progress by Category — donut chart ── -->
+  <div class="adv-card adv-card--donut">
+    <div class="adv-card__head">
+      <div class="adv-card__title">Progress by Category</div>
+      <span class="adv-card__menu">···</span>
+    </div>
+
+    {% set cat_data = analytics.category_progress if analytics.category_progress is defined else [] %}
+    {% set cat_colors = ['#00ff9f','#60a5fa','#fbbf24','#f87171'] %}
+    {% set cat_total = cat_data | sum(attribute='started') if cat_data else 1 %}
+
+    <div class="adv-donut-wrap">
+      <div class="adv-donut" id="adv-donut">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          {% set r = 46 %}
+          {% set circ = 2 * 3.14159 * r %}
+          {% set offset = 0 %}
+          <!-- Background track -->
+          <circle cx="60" cy="60" r="{{ r }}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"/>
+          {% if cat_data %}
+            {% for cat in cat_data %}
+            {% set pct = (cat.started / cat_total * 100) | round(1) %}
+            {% set dash = (pct / 100 * circ) | round(2) %}
+            {% set gap = circ - dash %}
+            {% set color = cat_colors[loop.index0 % 4] %}
+            <circle cx="60" cy="60" r="{{ r }}" fill="none"
+                    stroke="{{ color }}" stroke-width="14"
+                    stroke-dasharray="{{ dash }} {{ gap }}"
+                    stroke-dashoffset="-{{ offset }}"
+                    transform="rotate(-90 60 60)"
+                    stroke-linecap="butt"/>
+            {% set offset = offset + dash %}
+            {% endfor %}
+          {% else %}
+            <!-- Static fallback segments -->
+            <circle cx="60" cy="60" r="{{ r }}" fill="none" stroke="#00ff9f" stroke-width="14"
+                    stroke-dasharray="86 203" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="{{ r }}" fill="none" stroke="#60a5fa" stroke-width="14"
+                    stroke-dasharray="61 228" stroke-dashoffset="-87" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="{{ r }}" fill="none" stroke="#fbbf24" stroke-width="14"
+                    stroke-dasharray="35 254" stroke-dashoffset="-149" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="{{ r }}" fill="none" stroke="#f87171" stroke-width="14"
+                    stroke-dasharray="20 269" stroke-dashoffset="-185" transform="rotate(-90 60 60)"/>
+          {% endif %}
+          <!-- Center hole -->
+          <circle cx="60" cy="60" r="33" fill="#0d1117"/>
+          <!-- Center text -->
+          <text x="60" y="57" text-anchor="middle" font-family="Manrope,sans-serif" font-size="13" font-weight="900" fill="#fff">
+            {{ cat_total }}
+          </text>
+          <text x="60" y="70" text-anchor="middle" font-family="Manrope,sans-serif" font-size="7" font-weight="700" fill="#4b5563" letter-spacing="1">
+            STARTED
+          </text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="adv-donut-legend">
+      {% if cat_data %}
+        {% for cat in cat_data %}
+        {% set color = cat_colors[loop.index0 % 4] %}
+        {% set pct = (cat.started / cat_total * 100) | round(0) | int if cat_total > 0 else 0 %}
+        <div class="adv-donut-legend__row">
+          <span class="adv-donut-legend__dot" style="background:{{ color }};"></span>
+          <span class="adv-donut-legend__label">{{ cat.short_label }}</span>
+          <span class="adv-donut-legend__pct" style="color:{{ color }};">+{{ pct }}%</span>
         </div>
-        <span class="av2-bar-axis">{{ item.attack_id | replace('_', ' ') | truncate(5, true, '') }}</span>
+        {% endfor %}
+      {% else %}
+        {% for item in [('Social', '#00ff9f', '+30%'), ('Malware', '#60a5fa', '+20%'), ('Network', '#fbbf24', '+10%'), ('Injection', '#f87171', '+5%')] %}
+        <div class="adv-donut-legend__row">
+          <span class="adv-donut-legend__dot" style="background:{{ item[1] }};"></span>
+          <span class="adv-donut-legend__label">{{ item[0] }}</span>
+          <span class="adv-donut-legend__pct" style="color:{{ item[1] }};">{{ item[2] }}</span>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 + 5 — Top Users + Recent Posts
+══════════════════════════════════════════ -->
+<div class="adv-grid-bottom">
+
+  <!-- ── Top Users (highest points) ── -->
+  <div class="adv-card">
+    <div class="adv-card__head">
+      <div class="adv-card__title">Top Users</div>
+      <a href="{{ url_for('admin_users_page') }}" class="adv-card__link">View all →</a>
+    </div>
+
+    <div class="adv-top-table">
+      <div class="adv-top-table__head">
+        <span>Rank</span>
+        <span>User</span>
+        <span>Points</span>
+        <span>Level</span>
+        <span>Trend</span>
+      </div>
+      {% set top_users = analytics.top_users if analytics.top_users is defined else (analytics.user_ranking if analytics.user_ranking is defined else []) %}
+      {% set rank_colors = ['#fbbf24','#9ca3af','#d97706'] %}
+      {% for u in top_users[:5] %}
+      <div class="adv-top-row{% if loop.index <= 3 %} adv-top-row--medal{% endif %}">
+        <span class="adv-top-row__rank" style="color:{{ rank_colors[loop.index0] if loop.index <= 3 else '#4b5563' }};">
+          {{ '#' ~ loop.index }}
+        </span>
+        <span class="adv-top-row__user">
+          <span class="adv-top-row__avatar">{{ u.name[:2] | upper }}</span>
+          {{ u.name }}
+        </span>
+        <span class="adv-top-row__pts">{{ u.points }}</span>
+        <span class="adv-top-row__level">{{ u.level }}</span>
+        <!-- Static trend sparkline per user -->
+        <span class="adv-top-row__trend">
+          <svg viewBox="0 0 40 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {% if loop.index <= 2 %}
+            <polyline points="0,14 8,11 16,9 24,6 32,4 40,2"
+                      stroke="#00ff9f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            {% elif loop.index == 3 %}
+            <polyline points="0,8 8,10 16,7 24,9 32,6 40,5"
+                      stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            {% else %}
+            <polyline points="0,6 8,8 16,7 24,10 32,8 40,9"
+                      stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            {% endif %}
+          </svg>
+        </span>
+      </div>
+      {% else %}
+      <!-- Placeholder rows when no data -->
+      {% for i in range(5) %}
+      <div class="adv-top-row adv-top-row--placeholder">
+        <span class="adv-top-row__rank" style="color:#374151;">#{{ i+1 }}</span>
+        <span class="adv-top-row__user">
+          <span class="adv-top-row__avatar adv-top-row__avatar--empty"></span>
+          <span style="color:#374151;">No data yet</span>
+        </span>
+        <span class="adv-top-row__pts" style="color:#374151;">—</span>
+        <span class="adv-top-row__level" style="color:#374151;">—</span>
+        <span class="adv-top-row__trend" style="color:#374151;">—</span>
       </div>
       {% endfor %}
+      {% endfor %}
     </div>
-    {% else %}
-    <div style="height:160px;display:flex;align-items:center;justify-content:center;color:#374151;font-size:.875rem;">No simulation data yet.</div>
-    {% endif %}
   </div>
 
-  <!-- Donut: awareness breakdown -->
-  <div class="av2-card">
-    <div class="av2-card__title-row">
-      <div class="av2-card__title" style="margin-bottom:0;">Awareness Index</div>
-    </div>
-
-    {% set sim_pct = analytics.average_simulation_score %}
-    {% set quiz_pct = analytics.average_quiz_score %}
-    {% set awareness = analytics.awareness_score %}
-    {% set circ = 301.59 %}
-    {% set sim_dash  = (sim_pct  / 100 * circ) | round(1) %}
-    {% set quiz_dash = (quiz_pct / 100 * circ) | round(1) %}
-
-    <div class="av2-donut-wrap" style="flex-direction:column;align-items:center;gap:16px;">
-      <div class="av2-donut">
-        <svg viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
-          <!-- Sim score arc (green) -->
-          <circle cx="60" cy="60" r="48" fill="none" stroke="#00ff9f" stroke-width="12"
-                  stroke-dasharray="{{ sim_dash }} {{ circ }}"
-                  stroke-linecap="round" transform="rotate(-90 60 60)"/>
-          <!-- Quiz arc (blue, smaller inner) -->
-        </svg>
-        <div class="av2-donut__center">
-          <span class="av2-donut__val">{{ awareness }}%</span>
-          <span class="av2-donut__sub">Index</span>
-        </div>
-      </div>
-      <div class="av2-donut-legend" style="width:100%">
-        <div class="av2-donut-legend__item">
-          <span class="av2-donut-legend__dot" style="background:#00ff9f;"></span>
-          <span class="av2-donut-legend__label">Sim Score</span>
-          <span class="av2-donut-legend__val">{{ sim_pct }}%</span>
-        </div>
-        <div class="av2-donut-legend__item">
-          <span class="av2-donut-legend__dot" style="background:#46d6ff;"></span>
-          <span class="av2-donut-legend__label">Quiz Score</span>
-          <span class="av2-donut-legend__val">{{ quiz_pct }}%</span>
-        </div>
-        <div class="av2-donut-legend__item">
-          <span class="av2-donut-legend__dot" style="background:#fbbf24;"></span>
-          <span class="av2-donut-legend__label">Active Users</span>
-          <span class="av2-donut-legend__val">{{ analytics.active_users }}</span>
-        </div>
-        <div class="av2-donut-legend__item">
-          <span class="av2-donut-legend__dot" style="background:#f87171;"></span>
-          <span class="av2-donut-legend__label">Failures (&lt;70%)</span>
-          <span class="av2-donut-legend__val">{{ analytics.most_failed_scenarios | length }}</span>
-        </div>
+  <!-- ── Recent Community Posts ── -->
+  <div class="adv-card">
+    <div class="adv-card__head">
+      <div>
+        <div class="adv-card__title">Recent Posts</div>
+        <div class="adv-card__sub">Latest community activity</div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ── Bottom row: ranking + failed ── -->
-<div class="av2-grid-2">
-  <div class="av2-card">
-    <div class="av2-card__title">Most Attempted Modules</div>
-    <div class="av2-table-wrap">
-      <table class="av2-table">
-        <thead>
-          <tr><th>Module</th><th>Attempts</th><th>Unique users</th></tr>
-        </thead>
-        <tbody>
-          {% for item in analytics.completion_chart %}
-          <tr>
-            <td>{{ item.attack_id | replace('_', ' ') | title }}</td>
-            <td>{{ item.attempts }}</td>
-            <td>{{ item.unique_users }}</td>
-          </tr>
-          {% else %}
-          <tr><td colspan="3" style="color:#374151;font-style:italic;">No data yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="av2-card">
-    <div class="av2-card__title">Most Failed Modules</div>
-    <div class="av2-table-wrap">
-      <table class="av2-table">
-        <thead><tr><th>Module</th><th>Fails</th></tr></thead>
-        <tbody>
-          {% for attack_id, count in analytics.most_failed_scenarios %}
-          <tr>
-            <td>{{ attack_id | replace('_', ' ') | title }}</td>
-            <td><span class="av2-tag av2-tag--danger">{{ count }}</span></td>
-          </tr>
-          {% else %}
-          <tr><td colspan="2" style="color:#374151;font-style:italic;">No failures recorded.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- ── Recent activity ── -->
-<div class="av2-card">
-  <div class="av2-card__title">Recent Activity</div>
-  <div class="av2-table-wrap">
-    <table class="av2-table">
-      <thead>
-        <tr><th>User</th><th>Module</th><th>Sim Score</th><th>Quiz Score</th><th>Time</th><th>Top Mistake</th></tr>
-      </thead>
-      <tbody>
-        {% for row in analytics.recent_activity %}
-        <tr>
-          <td>{{ row.user }}</td>
-          <td>{{ row.attack_id | replace('_', ' ') | title }}</td>
-          <td>
-            {% if row.simulation_score is not none %}
-            <span class="av2-tag {% if row.simulation_score >= 70 %}{% else %}av2-tag--danger{% endif %}">{{ row.simulation_score }}%</span>
-            {% else %}—{% endif %}
-          </td>
-          <td>
-            {% if row.quiz_score is not none %}
-            <span class="av2-tag av2-tag--blue">{{ row.quiz_score }}%</span>
-            {% else %}—{% endif %}
-          </td>
-          <td>{% if row.time_spent_seconds %}{{ (row.time_spent_seconds // 60) }}m {{ row.time_spent_seconds % 60 }}s{% else %}—{% endif %}</td>
-          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-            {% if row.mistakes %}{{ row.mistakes[0] }}{% else %}—{% endif %}
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="6" style="color:#374151;font-style:italic;">Activity will appear here when users complete missions.</td></tr>
+    <div class="adv-posts">
+      {% set recent_posts = analytics.recent_posts if analytics.recent_posts is defined else [] %}
+      {% if recent_posts %}
+        {% for post in recent_posts[:4] %}
+        <div class="adv-post">
+          <div class="adv-post__avatar">{{ post.user[:2] | upper }}</div>
+          <div class="adv-post__body">
+            <div class="adv-post__meta">
+              <span class="adv-post__name">{{ post.user }}</span>
+              <span class="adv-post__time">{{ post.time }}</span>
+            </div>
+            <p class="adv-post__text">{{ post.text }}</p>
+          </div>
+          <div class="adv-post__likes">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M1 14V9l3-3 1 1 3-7 1 1L11 6l2-1 2 2-5 7H1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{ post.likes }}
+          </div>
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
+      {% else %}
+        <!-- Placeholder posts -->
+        {% set placeholders = [
+          ('Anna M.', '2h ago', 'Completed the SQL Injection module on the first try.', 12),
+          ('Jake R.', '5h ago', 'Spotted the spoofed domain in the phishing sim.', 7),
+          ('Clara S.', '1d ago', 'All social-based modules done this week!', 21),
+          ('Marco T.', '2d ago', 'The MITM hard sim is no joke — highly recommend.', 9)
+        ] %}
+        {% for user, time, text, likes in placeholders %}
+        <div class="adv-post adv-post--placeholder">
+          <div class="adv-post__avatar adv-post__avatar--muted">{{ user[:2] | upper }}</div>
+          <div class="adv-post__body">
+            <div class="adv-post__meta">
+              <span class="adv-post__name" style="color:#374151;">{{ user }}</span>
+              <span class="adv-post__time">{{ time }}</span>
+            </div>
+            <p class="adv-post__text" style="color:#374151;">{{ text }}</p>
+          </div>
+          <div class="adv-post__likes" style="color:#374151;">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M1 14V9l3-3 1 1 3-7 1 1L11 6l2-1 2 2-5 7H1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{ likes }}
+          </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
   </div>
+
 </div>
 
 {% endblock %}

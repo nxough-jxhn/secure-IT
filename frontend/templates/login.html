@@ -220,7 +220,7 @@
       if (!response.ok) {
         throw new Error(data.error || 'Google sign-in failed.');
       }
-      window.location.href = data.redirect || '{{ url_for("dashboard_page") }}';
+      window.location.href = data.redirect || '/dashboard';
     } catch (error) {
       const message = error?.code === 'auth/popup-closed-by-user'
         ? 'Google sign-in was cancelled.'

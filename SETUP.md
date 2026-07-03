@@ -151,26 +151,45 @@ Open your browser at: **http://127.0.0.1:4001**
 Secure-IT/
 ├── backend/
 │   ├── app.py                  # Flask entry point
-│   ├── database.py             # MongoDB connection
+│   ├── database.py             # MongoDB connection + all DB helpers
 │   ├── firebase_auth.py        # Google Sign-In token verification
 │   ├── mailer.py               # Gmail SMTP email sender
-│   ├── simulation_data.py      # All simulation/quiz content
-│   ├── simulation_missions.py  # Mission registry
+│   ├── simulation_data.py      # All attack module content (data, quiz, sim steps)
+│   ├── simulation_missions.py  # Hard sim workspace configs (signs, tasks, decisions)
 │   ├── seed_mongo.py           # One-time DB seeder
 │   ├── requirements.txt
 │   └── secure_it/
-│       ├── __init__.py         # create_app() factory
-│       └── routes/             # Flask blueprints (auth, dashboard, simulations, etc.)
+│       ├── __init__.py         # create_app() factory + all route registration
+│       └── routes/
+│           ├── auth.py         # Login / register / logout / email verify
+│           ├── dashboard.py    # Dashboard page
+│           ├── simulations.py  # All simulation routes (info, easy, hard, quiz, results)
+│           ├── leaderboard.py  # Leaderboard page
+│           ├── collection.py   # Namecards + Certificates page
+│           ├── profile.py      # Profile page
+│           ├── quizzes.py      # Quizzes page
+│           ├── modules.py      # Module browsing pages
+│           ├── admin.py        # Admin dashboard
+│           └── landing.py      # Landing page
 ├── frontend/
-│   ├── templates/              # Jinja2 HTML templates
+│   ├── templates/
+│   │   ├── simulations/        # Easy + hard sim templates (one pair per attack)
+│   │   ├── modules/            # attack_info.html (shared informational page)
+│   │   ├── partials/           # Reusable includes (sidebar, header)
+│   │   └── *.html              # Page templates (dashboard, leaderboard, collection, etc.)
 │   └── static/
-│       ├── css/                # Stylesheets
-│       ├── js/                 # Client-side scripts
-│       └── img/                # Static images (see IMAGE_GUIDE.md)
+│       ├── css/                # One CSS file per page/simulation
+│       ├── js/                 # One JS file per simulation
+│       └── img/
+│           ├── modules/        # Per-attack images (card image + 3 spotlight images)
+│           ├── namecards/      # Namecard PNGs + NAMECARD_PROMPTS.md
+│           └── certificates/   # Certificate SVGs (one per cert type)
 ├── .env                        # Your local secrets (NOT committed)
 ├── .env.example                # Template — safe to commit
 ├── firebase-service-account.json  # Firebase key (NOT committed)
-└── SETUP.md                    # This file
+├── SETUP.md                    # This file — environment setup
+├── ATTACK_DEV_GUIDE.md         # How to build a new attack module
+└── FLOWCHART_GUIDE.md          # System flow diagrams
 ```
 
 ---
@@ -184,3 +203,21 @@ Secure-IT/
 | `Email not sending` | Verify `GMAIL_USER` and `GMAIL_APP_PASSWORD` are correct; 2FA must be on |
 | `Firebase login not working` | Check that `firebase-service-account.json` is in the project root and `FIREBASE_CREDENTIALS_PATH` matches |
 | `Port already in use` | Change `PORT=4001` to another number in `.env` |
+| `404 on /leaderboard or /collection` | These are new pages — make sure you have the latest code pulled from Git |
+| `Simulation page shows old design` | Hard-refresh the browser (Ctrl+Shift+R) to clear cached CSS/JS |
+
+---
+
+## Key URLs
+
+Once running, the main pages are:
+
+| URL | Page |
+|---|---|
+| `/` | Landing page |
+| `/dashboard` | User dashboard |
+| `/simulations` | Cyber Range (all modules) |
+| `/leaderboard` | Global leaderboard + badges |
+| `/collection` | Namecards + certificates |
+| `/profile` | Edit profile |
+| `/admin` | Admin dashboard (admin accounts only) |

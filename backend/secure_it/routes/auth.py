@@ -29,6 +29,14 @@ def _start_session(user: dict):
     session["email_verified"] = bool(user.get("email_verified", False))
 
 
+def _post_login_redirect():
+    """Redirect to admin dashboard for admin accounts, user dashboard otherwise."""
+    from secure_it import is_admin_role
+    if is_admin_role(session.get("user_role", "")):
+        return redirect(url_for("admin_page"))
+    return redirect(url_for("dashboard_page"))
+
+
 def _verification_required() -> bool:
     return bool(current_app.config.get("REQUIRE_EMAIL_VERIFICATION", True))
 
@@ -42,7 +50,7 @@ def login_page():
         user = authenticate_user(email, password)
         if user:
             _start_session(user)
-            return redirect(url_for("dashboard_page"))
+            return _post_login_redirect()
 
         existing_user = get_user_by_email(email)
         if existing_user and not existing_user.get("email_verified", False):
@@ -149,7 +157,7 @@ def register_page():
     user = authenticate_user(email, password)
     if user:
         _start_session(user)
-        return redirect(url_for("dashboard_page"))
+        return _post_login_redirect()
 
     return redirect(url_for("login_page", register_error="Could not create account.", register_open=1))
 
@@ -175,7 +183,7 @@ def verify_email_page(token: str):
         },
     )
     _start_session({**user, "email_verified": True})
-    return redirect(url_for("dashboard_page"))
+    return _post_login_redirect()
 
 
 def firebase_login():
@@ -210,7 +218,9 @@ def firebase_login():
         return jsonify({"error": "Could not sign in with Google right now."}), 500
 
     _start_session(user)
-    return jsonify({"success": True, "redirect": url_for("dashboard_page")})
+    from secure_it import is_admin_role
+    redirect_url = url_for("admin_page") if is_admin_role(str(user.get("role", ""))) else url_for("dashboard_page")
+    return jsonify({"success": True, "redirect": redirect_url})
 
 
 def logout_page():
