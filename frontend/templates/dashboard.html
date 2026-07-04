@@ -110,7 +110,7 @@
     <section class="dv2-section">
       <div class="dv2-section__head">
         <h2 class="dv2-section__title">🗣 Recent Activity <span class="dv2-section__badge">{{ history | length }}</span></h2>
-        <span class="dv2-view-all dv2-view-all--muted">Community coming soon</span>
+        <a href="{{ url_for('forum_page') }}" class="dv2-view-all">Community →</a>
       </div>
       <div class="dv2-hscroll">
         {% if history %}

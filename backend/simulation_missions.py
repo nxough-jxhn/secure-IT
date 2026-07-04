@@ -385,6 +385,19 @@ WORKSPACE_MISSIONS: dict[str, dict[str, Any]] = {
         "mission_title": "Ransomware Incident Response",
         "story": "Multiple file extensions changed across shared drives. Lead the initial response as the on-call analyst.",
         "objectives": ["Identify encryption indicators", "Isolate affected systems", "Preserve evidence", "Activate recovery plan"],
+        "sim_template": "simulations/ransomware_hard.html",
+        "ransom": {
+            "headline": "YOUR FILES HAVE BEEN ENCRYPTED",
+            "message": "Pay 0.5 BTC to recover your documents. All shared drives are affected.",
+            "timer": "47:59:12 remaining",
+            "files": ["report.docx.locked", "presentation.pptx.locked", "notes.pdf.locked", "budget.xlsx.locked"],
+        },
+        "signs": [
+            {"id": "encryption_note", "label": "Ransom note on desktop", "hint": "A threatening message demands payment to restore files."},
+            {"id": "file_extension_change", "label": "Mass file extension changes", "hint": "Documents suddenly have .locked or similar extensions."},
+            {"id": "urgent_payment", "label": "Urgent cryptocurrency payment demand", "hint": "Attackers pressure you to pay quickly with a countdown timer."},
+            {"id": "shared_drive_spread", "label": "Encryption spreading to shared drives", "hint": "Ransomware is moving beyond a single endpoint."},
+        ],
         "logs": [
             {"time": "03:18:01", "level": "CRIT", "message": "Mass file rename detected: *.locked"},
             {"time": "03:18:22", "level": "ALERT", "message": "Ransom note dropped on DESKTOP-FIN-04"},
@@ -515,6 +528,167 @@ WORKSPACE_MISSIONS: dict[str, dict[str, Any]] = {
             {"id": "inspect_networks", "objective_index": 0, "label": "Inspect the available networks",  "action": "inspect_networks"},
             {"id": "flag_signs",       "objective_index": 1, "label": "Flag suspicious signs",           "action": "flag_signs", "required": 2},
             {"id": "submit_report",    "objective_index": 2, "label": "Submit incident report",          "action": "submit_report"},
+        ],
+    },
+    "phishing_fake_website": {
+        **_base_mission("phishing_fake_website"),
+        "mission_title": "Hard Simulation — Fake Portal Login",
+        "story": (
+            "A cloned campus portal is asking you to sign in after a supposed account verification alert. No hints are provided — inspect the page, check the domain, and decide whether it is safe."
+        ),
+        "objectives": [
+            "Review the fake portal page in the browser workspace",
+            "Flag 3 suspicious signs hidden in the page",
+            "Analyze the portal URL with the URL analyzer tool",
+            "Avoid entering credentials and submit your incident report",
+        ],
+        "skills_learned": [
+            "Fake website detection",
+            "URL validation",
+            "Sender verification",
+            "Incident reporting",
+        ],
+        "tools": ["browser", "url_analyzer", "flag_tool"],
+        "sim_template": "simulations/phishing_website_hard.html",
+        "website": {
+            "title": "UP Campus Portal",
+            "url": "https://up-portal-verify.net/login",
+            "banner": "Account verification required",
+            "username_label": "University email",
+            "password_label": "Password",
+            "submit_label": "Sign in",
+            "hint": "Proceed only if you have verified the domain through the official university homepage.",
+        },
+        "signs": [
+            {"id": "lookalike_domain", "label": "Look-alike domain", "hint": "The portal domain is not the official university domain."},
+            {"id": "urgent_banner", "label": "Urgent security banner", "hint": "The page uses pressure language instead of a normal campus notice."},
+            {"id": "missing_security", "label": "Missing expected security cues", "hint": "The branding and URL do not match the official portal."},
+            {"id": "credential_request", "label": "Credential request on first visit", "hint": "The site asks for your credentials before any verification step."},
+        ],
+        "url_analysis": {
+            "https://up-portal-verify.net/login": {
+                "verdict": "PHISHING — HIGH RISK",
+                "domain_age": "Registered 2 days ago",
+                "ssl": "Valid certificate, but domain is untrusted",
+                "reputation": "Reported for credential harvesting",
+                "similar_to": "Cloned UP portal login page",
+                "recommendation": "Do not sign in. Verify the portal through the official university website instead.",
+            }
+        },
+        "logs": [
+            {"time": "10:12:10", "level": "WARN", "message": "Look-alike portal domain detected during review"},
+            {"time": "10:12:29", "level": "ALERT", "message": "Portal verification page points to untrusted host"},
+        ],
+        "tasks": [
+            {"id": "inspect_portal", "objective_index": 0, "label": "Inspect the portal page", "action": "inspect_portal"},
+            {"id": "flag_three", "objective_index": 1, "label": "Flag at least 3 suspicious signs", "action": "flag_signs", "required": 3},
+            {"id": "analyze_url", "objective_index": 2, "label": "Analyze the fake portal URL", "action": "analyze_url"},
+            {"id": "submit_report", "objective_index": 3, "label": "Submit incident report without logging in", "action": "submit_report"},
+        ],
+        "decisions": [
+            {
+                "id": "final_action",
+                "prompt": "Based on your investigation, what is the correct response?",
+                "options": [
+                    {"id": "click", "label": "Sign in on the cloned portal", "score": 0, "mistake": "Entered credentials on a fake portal"},
+                    {"id": "reply", "label": "Ignore the portal and wait", "score": 30, "mistake": "Delayed reporting a fake portal"},
+                    {"id": "report_phishing", "label": "Verify through the official site and report the page", "score": 100, "good": "Reported a fake portal phishing attempt"},
+                ],
+            }
+        ],
+    },
+    "keylogger": {
+        **_base_mission("keylogger"),
+        "mission_title": "Keylogger Detection Lab",
+        "story": "A free typing utility is asking for access to all keystrokes. Inspect it before approving anything.",
+        "objectives": [
+            "Inspect the keyboard utility prompt",
+            "Flag the dangerous permission requests",
+            "Refuse the installer and submit a report",
+        ],
+        "skills_learned": ["Permission review", "Keylogger detection", "Safe software installation"],
+        "tools": ["browser", "flag_tool"],
+        "sim_template": "simulations/keylogger_hard.html",
+        "popup": {
+            "title": "Enable Keyboard Assistant",
+            "body": "This tool needs full keyboard access to provide shortcuts and productivity analytics.",
+            "publisher": "QuickKeys Studio",
+            "cta": "Allow keyboard access",
+            "url": "https://quickkeys-helper.example/install",
+        },
+        "signs": [
+            {"id": "unknown_publisher", "label": "Unknown publisher", "hint": "The utility comes from a publisher you cannot verify."},
+            {"id": "full_keyboard_access", "label": "Full keyboard access request", "hint": "The app wants to capture every keystroke you type."},
+            {"id": "lookalike_site", "label": "Look-alike download site", "hint": "The download URL is not the official vendor site."},
+            {"id": "background_monitoring", "label": "Background input monitoring", "hint": "The tool stays active to log typing even when idle."},
+        ],
+        "logs": [
+            {"time": "11:22:10", "level": "WARN", "message": "Utility requested full keyboard monitoring permissions"},
+            {"time": "11:22:19", "level": "ALERT", "message": "Unrecognized publisher detected for new install"},
+        ],
+        "tasks": [
+            {"id": "inspect_popup", "objective_index": 0, "label": "Inspect the keyboard utility prompt", "action": "inspect_popup"},
+            {"id": "flag_signs", "objective_index": 1, "label": "Flag suspicious signs", "action": "flag_signs", "required": 2},
+            {"id": "submit_report", "objective_index": 2, "label": "Submit incident report", "action": "submit_report"},
+        ],
+        "decisions": [
+            {
+                "id": "final_action",
+                "prompt": "What should you do with this utility?",
+                "options": [
+                    {"id": "allow", "label": "Allow full keyboard access", "score": 0, "mistake": "Allowed a possible keylogger"},
+                    {"id": "later", "label": "Install it later after testing", "score": 25, "mistake": "Deferred a risky permission request"},
+                    {"id": "deny", "label": "Deny the request and uninstall it", "score": 100, "good": "Blocked a possible keylogger"},
+                ],
+            }
+        ],
+    },
+    "spyware": {
+        **_base_mission("spyware"),
+        "mission_title": "Spyware Detection Lab",
+        "story": "A browser extension claims to record your screen and requests broad access to your data. Review the warning signs before installing it.",
+        "objectives": [
+            "Inspect the extension permission request",
+            "Flag suspicious spyware signs",
+            "Reject the install and submit a report",
+        ],
+        "skills_learned": ["Spyware recognition", "Permission auditing", "Safe extension review"],
+        "tools": ["browser", "flag_tool"],
+        "sim_template": "simulations/spyware_hard.html",
+        "extension": {
+            "name": "UltraCapture Free",
+            "permissions": [
+                "Read all data on all websites",
+                "Access clipboard",
+                "Manage downloads",
+            ],
+            "reviews": "Mixed — some users report account theft",
+        },
+        "signs": [
+            {"id": "unknown_publisher", "label": "Unknown extension publisher", "hint": "The extension is not from a trusted official source."},
+            {"id": "excessive_permissions", "label": "Excessive permission requests", "hint": "It wants access to all sites, clipboard, and downloads."},
+            {"id": "network_activity", "label": "Background network activity", "hint": "Data is sent even when you are not actively browsing."},
+            {"id": "negative_reviews", "label": "Reports of account theft", "hint": "Other users warn about stolen credentials after install."},
+        ],
+        "logs": [
+            {"time": "08:05:11", "level": "WARN", "message": "Browser extension requested excessive permissions"},
+            {"time": "08:05:28", "level": "ALERT", "message": "Unexpected outbound traffic from extension process"},
+        ],
+        "tasks": [
+            {"id": "inspect_popup", "objective_index": 0, "label": "Inspect the extension prompt", "action": "inspect_popup"},
+            {"id": "flag_signs", "objective_index": 1, "label": "Flag suspicious signs", "action": "flag_signs", "required": 2},
+            {"id": "submit_report", "objective_index": 2, "label": "Submit incident report", "action": "submit_report"},
+        ],
+        "decisions": [
+            {
+                "id": "final_action",
+                "prompt": "What should you do with this extension?",
+                "options": [
+                    {"id": "add", "label": "Install it with full permissions", "score": 0, "mistake": "Installed spyware-like extension"},
+                    {"id": "limited", "label": "Install it but avoid sensitive sites", "score": 35, "mistake": "Accepted unnecessary spyware risk"},
+                    {"id": "decline", "label": "Decline and use a trusted official tool", "score": 100, "good": "Blocked a possible spyware extension"},
+                ],
+            }
         ],
     },
 }

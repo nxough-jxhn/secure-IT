@@ -1646,3 +1646,423 @@ def count_active_quiz_questions(attack_id: str) -> int:
         return col.count_documents({"attack_id": attack_id, "active": True})
     except PyMongoError:
         return 0
+
+
+# ──────────────────────────────────────────────────────────────
+# Community Forum — DB functions
+# ──────────────────────────────────────────────────────────────
+
+def _normalize_object_id(value: str):
+    try:
+        from bson import ObjectId as _ObjId
+        return _ObjId(value)
+    except Exception:
+        return None
+
+
+def _forum_posts_collection():
+    collection = _collection("forum_posts")
+    if collection is None:
+        return None
+    try:
+        collection.create_index([("created_at", -1)])
+        collection.create_index([("email", 1)])
+    except PyMongoError:
+        pass
+    return collection
+
+
+def create_forum_post(
+    email: str,
+    author_name: str,
+    content: str,
+    profile_picture: str = "",
+    title: str = "",
+    category: str = "General",
+    images: list[str] | None = None,
+):
+    collection = _forum_posts_collection()
+    if collection is None:
+        return None
+    try:
+        return collection.insert_one(
+            {
+                "email": _normalize_email(email),
+                "author_name": author_name.strip() or "Secure-IT Learner",
+                "profile_picture": profile_picture.strip(),
+                "title": title.strip(),
+                "category": category.strip() or "General",
+                "content": content.strip(),
+                "images": images or [],
+                "likes": [],
+                "comments": [],
+                "created_at": _utcnow(),
+                "updated_at": None,
+            }
+        )
+    except PyMongoError:
+        return None
+
+
+def _forum_post_to_dict(doc: dict[str, Any], viewer_email: str = "") -> dict[str, Any]:
+    likes = [str(item) for item in doc.get("likes", []) if item]
+    viewer_email = _normalize_email(viewer_email)
+    return {
+        "id":              str(doc.get("_id")),
+        "author_name":     str(doc.get("author_name", "Secure-IT Learner")),
+        "profile_picture": str(doc.get("profile_picture", "")),
+        "title":           str(doc.get("title", "")),
+        "category":        str(doc.get("category", "General")),
+        "content":         str(doc.get("content", "")),
+        "images":          list(doc.get("images", [])),
+        "created_at":      doc.get("created_at"),
+        "updated_at":      doc.get("updated_at"),
+        "likes_count":     len(likes),
+        "likes":           likes,
+        "liked_by_viewer": bool(viewer_email and viewer_email in likes),
+        "is_author":       _normalize_email(doc.get("email", "")) == viewer_email,
+        "comments": [
+            {
+                "author_name":     str(c.get("author_name", "Secure-IT Learner")),
+                "profile_picture": str(c.get("profile_picture", "")),
+                "content":         str(c.get("content", "")),
+                "created_at":      c.get("created_at"),
+                "edited":          bool(c.get("edited", False)),
+                "is_author":       _normalize_email(c.get("email", "")) == viewer_email,
+            }
+            for c in doc.get("comments", [])
+        ],
+    }
+
+
+def get_forum_post(post_id: str) -> dict[str, Any] | None:
+    collection = _forum_posts_collection()
+    if collection is None:
+        return None
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return None
+    try:
+        doc = collection.find_one({"_id": oid})
+        return _forum_post_to_dict(doc) if doc else None
+    except PyMongoError:
+        return None
+
+
+def update_forum_post(post_id: str, email: str, content: str) -> bool:
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    try:
+        result = collection.update_one(
+            {"_id": oid, "email": _normalize_email(email)},
+            {"$set": {"content": content.strip(), "updated_at": _utcnow()}},
+        )
+        return result.matched_count == 1
+    except PyMongoError:
+        return False
+
+
+def delete_forum_post(post_id: str, email: str) -> bool:
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    try:
+        result = collection.delete_one({"_id": oid, "email": _normalize_email(email)})
+        return result.deleted_count == 1
+    except PyMongoError:
+        return False
+
+
+def toggle_forum_post_like(post_id: str, email: str) -> bool:
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    user_email = _normalize_email(email)
+    try:
+        doc = collection.find_one({"_id": oid}, projection=["likes"])
+        if doc is None:
+            return False
+        update = (
+            {"$pull": {"likes": user_email}}
+            if user_email in doc.get("likes", [])
+            else {"$addToSet": {"likes": user_email}}
+        )
+        return collection.update_one({"_id": oid}, update).matched_count == 1
+    except PyMongoError:
+        return False
+
+
+def add_forum_post_comment(
+    post_id: str,
+    email: str,
+    author_name: str,
+    profile_picture: str,
+    content: str,
+) -> bool:
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    try:
+        result = collection.update_one(
+            {"_id": oid},
+            {
+                "$push": {
+                    "comments": {
+                        "email":           _normalize_email(email),
+                        "author_name":     author_name.strip() or "Secure-IT Learner",
+                        "profile_picture": profile_picture.strip(),
+                        "content":         content.strip(),
+                        "created_at":      _utcnow(),
+                    }
+                }
+            },
+        )
+        return result.matched_count == 1
+    except PyMongoError:
+        return False
+
+
+def list_forum_posts(limit: int = 40, viewer_email: str = "") -> list[dict[str, Any]]:
+    collection = _forum_posts_collection()
+    if collection is None:
+        return []
+    try:
+        docs = list(collection.find({}, sort=[("created_at", -1)]).limit(limit))
+        return [_forum_post_to_dict(doc, viewer_email=viewer_email) for doc in docs]
+    except PyMongoError:
+        return []
+
+
+def edit_forum_post_comment(post_id: str, email: str, comment_index: int, new_content: str) -> bool:
+    """Edit a comment by index — only the comment author can edit."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    user_email = _normalize_email(email)
+    try:
+        # Fetch and verify ownership
+        doc = collection.find_one({"_id": oid})
+        if doc is None:
+            return False
+        comments = doc.get("comments", [])
+        if comment_index < 0 or comment_index >= len(comments):
+            return False
+        if _normalize_email(comments[comment_index].get("email", "")) != user_email:
+            return False
+        field = f"comments.{comment_index}.content"
+        result = collection.update_one(
+            {"_id": oid},
+            {"$set": {field: new_content.strip(), f"comments.{comment_index}.edited": True}},
+        )
+        return result.modified_count == 1
+    except PyMongoError:
+        return False
+
+
+def delete_forum_post_comment(post_id: str, email: str, comment_index: int) -> bool:
+    """Delete a comment by index — only the comment author can delete."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    user_email = _normalize_email(email)
+    try:
+        doc = collection.find_one({"_id": oid})
+        if doc is None:
+            return False
+        comments = list(doc.get("comments", []))
+        if comment_index < 0 or comment_index >= len(comments):
+            return False
+        if _normalize_email(comments[comment_index].get("email", "")) != user_email:
+            return False
+        # Use a sentinel then pull it out (MongoDB can't $pull by index directly)
+        sentinel = "__DELETE_SENTINEL__"
+        collection.update_one(
+            {"_id": oid},
+            {"$set": {f"comments.{comment_index}": sentinel}},
+        )
+        collection.update_one(
+            {"_id": oid},
+            {"$pull": {"comments": sentinel}},
+        )
+        return True
+    except PyMongoError:
+        return False
+
+
+# ──────────────────────────────────────────────────────────────
+# Community Forum — Admin functions
+# ──────────────────────────────────────────────────────────────
+
+def admin_disable_forum_post(post_id: str, disabled: bool) -> bool:
+    """Admin: disable or re-enable a post by ID (no ownership check)."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    try:
+        result = collection.update_one(
+            {"_id": oid},
+            {"$set": {"disabled": disabled}},
+        )
+        return result.matched_count == 1
+    except PyMongoError:
+        return False
+
+
+def admin_disable_forum_comment(post_id: str, comment_index: int, disabled: bool) -> bool:
+    """Admin: disable or re-enable a comment by index (no ownership check)."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return False
+    oid = _normalize_object_id(post_id)
+    if oid is None:
+        return False
+    try:
+        result = collection.update_one(
+            {"_id": oid},
+            {"$set": {f"comments.{comment_index}.disabled": disabled}},
+        )
+        return result.matched_count == 1
+    except PyMongoError:
+        return False
+
+
+def list_all_forum_posts(limit: int = 200) -> list[dict[str, Any]]:
+    """Admin: list all posts (including disabled) with full data."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return []
+    try:
+        docs = list(collection.find({}).sort("created_at", -1).limit(limit))
+        result = []
+        for doc in docs:
+            likes = [str(item) for item in doc.get("likes", []) if item]
+            comments_raw = doc.get("comments", [])
+            result.append({
+                "id":              str(doc.get("_id")),
+                "email":           str(doc.get("email", "")),
+                "author_name":     str(doc.get("author_name", "Secure-IT Learner")),
+                "profile_picture": str(doc.get("profile_picture", "")),
+                "title":           str(doc.get("title", "")),
+                "category":        str(doc.get("category", "General")),
+                "content":         str(doc.get("content", "")),
+                "images":          list(doc.get("images", [])),
+                "created_at":      str(doc.get("created_at", ""))[:16],
+                "likes_count":     len(likes),
+                "comments_count":  len(comments_raw),
+                "disabled":        bool(doc.get("disabled", False)),
+                "comments": [
+                    {
+                        "index":           i,
+                        "author_name":     str(c.get("author_name", "Secure-IT Learner")),
+                        "email":           str(c.get("email", "")),
+                        "profile_picture": str(c.get("profile_picture", "")),
+                        "content":         str(c.get("content", "")),
+                        "created_at":      str(c.get("created_at", ""))[:16],
+                        "edited":          bool(c.get("edited", False)),
+                        "disabled":        bool(c.get("disabled", False)),
+                    }
+                    for i, c in enumerate(comments_raw)
+                ],
+            })
+        return result
+    except PyMongoError:
+        return []
+
+
+def get_forum_posts_by_user(email: str) -> list[dict[str, Any]]:
+    """Admin: get all posts authored by a specific user email."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return []
+    try:
+        docs = list(collection.find(
+            {"email": _normalize_email(email)}
+        ).sort("created_at", -1))
+        result = []
+        for doc in docs:
+            likes = [str(item) for item in doc.get("likes", []) if item]
+            comments_raw = doc.get("comments", [])
+            result.append({
+                "id":             str(doc.get("_id")),
+                "email":          str(doc.get("email", "")),
+                "author_name":    str(doc.get("author_name", "Secure-IT Learner")),
+                "title":          str(doc.get("title", "")),
+                "category":       str(doc.get("category", "General")),
+                "content":        str(doc.get("content", "")),
+                "images":         list(doc.get("images", [])),
+                "created_at":     str(doc.get("created_at", ""))[:16],
+                "likes_count":    len(likes),
+                "comments_count": len(comments_raw),
+                "disabled":       bool(doc.get("disabled", False)),
+                "comments": [
+                    {
+                        "index":       i,
+                        "author_name": str(c.get("author_name", "Secure-IT Learner")),
+                        "email":       str(c.get("email", "")),
+                        "content":     str(c.get("content", "")),
+                        "created_at":  str(c.get("created_at", ""))[:16],
+                        "edited":      bool(c.get("edited", False)),
+                        "disabled":    bool(c.get("disabled", False)),
+                    }
+                    for i, c in enumerate(comments_raw)
+                ],
+            })
+        return result
+    except PyMongoError:
+        return []
+
+
+def get_community_analytics() -> dict[str, Any]:
+    """Return KPI data for the admin dashboard community section."""
+    collection = _forum_posts_collection()
+    if collection is None:
+        return {"total_posts": 0, "total_comments": 0, "total_likes": 0, "recent_posts": []}
+    try:
+        docs = list(collection.find({}).sort("created_at", -1).limit(500))
+        total_posts    = len(docs)
+        total_comments = sum(len(d.get("comments", [])) for d in docs)
+        total_likes    = sum(len(d.get("likes", [])) for d in docs)
+
+        recent: list[dict[str, Any]] = []
+        for doc in docs[:5]:
+            recent.append({
+                "user":    str(doc.get("author_name", "Learner")),
+                "email":   str(doc.get("email", "")),
+                "title":   str(doc.get("title", "")),
+                "text":    str(doc.get("content", ""))[:120],
+                "likes":   len(doc.get("likes", [])),
+                "comments":len(doc.get("comments", [])),
+                "time":    str(doc.get("created_at", ""))[:16],
+                "profile_picture": str(doc.get("profile_picture", "")),
+            })
+
+        return {
+            "total_posts":    total_posts,
+            "total_comments": total_comments,
+            "total_likes":    total_likes,
+            "recent_posts":   recent,
+        }
+    except PyMongoError:
+        return {"total_posts": 0, "total_comments": 0, "total_likes": 0, "recent_posts": []}

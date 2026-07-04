@@ -8,6 +8,7 @@ from database import (
     get_user_rank,
     update_user_by_email,
     MODULE_BADGES,
+    list_forum_posts,
 )
 from secure_it import login_required, make_layout
 
@@ -102,6 +103,7 @@ def profile_page():
     ]
 
     leaderboard = get_leaderboard(limit=8)
+    recent_posts = list_forum_posts(limit=4, viewer_email=email)
 
     return make_layout(
         "profile",
@@ -116,4 +118,5 @@ def profile_page():
         milestone_badges=milestone_badges,
         all_namecards=all_namecards,
         leaderboard=leaderboard,
+        recent_posts=recent_posts,
     )

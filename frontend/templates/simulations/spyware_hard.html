@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/malware-hard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spyware-sim.css') }}">
+<style>
+  /* Spyware accent overrides for hard sim */
+  body:has(.mh-sim) { background: #0a0c0f !important; }
+  .mh-sidebar__badge { background: rgba(168,85,247,.12) !important; border-color: rgba(168,85,247,.3) !important; color: #c4b5fd !important; }
+  .mh-sidebar__timer { color: #c4b5fd; }
+  .mh-progress__fill { background: #a855f7; }
+  .mh-submit-btn     { background: #a855f7; }
+  .mh-submit-btn:not(:disabled):hover { filter: brightness(1.1); }
+  .mh-exit-btn       { background: rgba(168,85,247,.08) !important; border-color: rgba(168,85,247,.25) !important; color: #c4b5fd !important; }
+  .mh-exit-btn:hover { background: rgba(168,85,247,.15) !important; }
+  .mh-inspect-btn    { border-color: rgba(168,85,247,.35); background: rgba(168,85,247,.06); color: #c4b5fd; }
+  .mh-inspect-btn:hover:not(:disabled) { background: rgba(168,85,247,.14); }
+  .mh-complete-btn   { background: #a855f7; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mh-sim" id="spyware-hard-app">
+  <div class="mh-layout">
+
+    <!-- ══ LEFT SIDEBAR ══ -->
+    <aside class="mh-sidebar">
+      <div class="mh-sidebar__top">
+        <span class="mh-sidebar__label">HARD SIMULATION</span>
+        <h1 class="mh-sidebar__title">{{ mission.name }}</h1>
+        <span class="mh-sidebar__badge">HARD</span>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">STORY</h3>
+        <p class="mh-sidebar__text">{{ mission.story }}</p>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">TIME ELAPSED</h3>
+        <div class="mh-sidebar__timer" id="mission-timer">00:00</div>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">MISSION PROGRESS</h3>
+        <div class="mh-progress">
+          <div class="mh-progress__row">
+            <span class="mh-progress__pct" id="progress-percent">0%</span>
+            <span class="mh-progress__count" id="progress-count">0 / {{ mission.tasks | length }} tasks</span>
+          </div>
+          <div class="mh-progress__bar">
+            <div class="mh-progress__fill" id="mission-progress-fill" style="width:0%"></div>
+          </div>
+          <span class="mh-progress__flags" id="flags-meta">0 / {{ mission.signs | length }} signs flagged</span>
+        </div>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">OBJECTIVES</h3>
+        <ul class="mh-objectives" id="objective-list">
+          {% for objective in mission.objectives %}
+          <li class="mh-objective" data-objective-index="{{ loop.index0 }}">
+            <span class="mh-objective__check">☐</span>
+            <span>{{ objective }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">TASK LOG</h3>
+        <ul class="mh-task-log" id="task-log">
+          <li class="mh-task-log__empty">Complete tasks to log progress.</li>
+        </ul>
+      </div>
+
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="mh-exit-btn">
+        ← Exit Simulation
+      </a>
+    </aside>
+
+    <!-- ══ CENTER MAIN ══ -->
+    <main class="mh-main">
+      <div class="mh-main__topbar">
+        <span class="mh-main__topbar-icon">🕵️</span>
+        <span class="mh-main__topbar-label">Spyware Analysis — Browser Extension Inspection</span>
+        <button type="button" class="mh-topbar-btn" id="flag-mode-btn">🚩 Flag sign</button>
+      </div>
+
+      <div class="mh-main__scroll">
+
+        <!-- Browser extension popup (flaggable) -->
+        <section class="spyware-extension">
+          <div class="spyware-browser__chrome">
+            <div class="spyware-browser__dots"><span></span><span></span><span></span></div>
+            <div class="spyware-browser__address mh-flaggable"
+                 data-sign-id="suspicious_url"
+                 data-sign-label="Suspicious install source"
+                 data-sign-hint="{{ (mission.signs | selectattr('id','eq','suspicious_url') | first | default({'hint':''})).hint }}">
+              chrome://extensions/install
+            </div>
+          </div>
+          
+          <div class="spyware-extension__popup">
+            <div class="spyware-extension__header">
+              <span class="spyware-extension__icon">👁️</span>
+              <div>
+                <div class="spyware-extension__eyebrow">Extension install request</div>
+                <h2 class="spyware-extension__title mh-flaggable"
+                    data-sign-id="fake_security_extension"
+                    data-sign-label="Fake security extension name"
+                    data-sign-hint="{{ (mission.signs | selectattr('id','eq','fake_security_extension') | first | default({'hint':''})).hint }}">
+                  {{ mission.extension.name }}
+                </h2>
+              </div>
+            </div>
+            
+            <ul class="spyware-extension__permissions">
+              {% for permission in mission.extension.permissions %}
+                <li class="mh-flaggable"
+                    data-sign-id="excessive_permissions"
+                    data-sign-label="Excessive browser permissions"
+                    data-sign-hint="{{ (mission.signs | selectattr('id','eq','excessive_permissions') | first | default({'hint':''})).hint }}">
+                  {{ permission }}
+                </li>
+              {% endfor %}
+            </ul>
+            
+            <p class="spyware-extension__reviews mh-flaggable"
+               data-sign-id="fake_reviews"
+               data-sign-label="Suspiciously perfect reviews"
+               data-sign-hint="{{ (mission.signs | selectattr('id','eq','fake_reviews') | first | default({'hint':''})).hint }}">
+              Reviews: {{ mission.extension.reviews }}
+            </p>
+            
+            <button type="button" class="spyware-extension__cta mh-flaggable"
+                    data-sign-id="urgent_installation"
+                    data-sign-label="Pressured installation tactics"
+                    data-sign-hint="{{ (mission.signs | selectattr('id','eq','urgent_installation') | first | default({'hint':''})).hint }}">
+              Add extension with full permissions
+            </button>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button type="button" id="inspect-btn" class="mh-inspect-btn">🔍 Analyze extension</button>
+          </div>
+        </section>
+
+        <!-- Security log -->
+        <div class="mh-logs">
+          <div class="mh-logs__header">
+            <span class="mh-logs__title">🔒 Browser Security Alerts</span>
+          </div>
+          <ul class="mh-logs__list">
+            {% for log in mission.logs %}
+            <li class="mh-log-entry">
+              <span class="mh-log-entry__time">{{ log.time }}</span>
+              <span class="mh-log-entry__level mh-log-entry__level--{{ log.level }}">{{ log.level }}</span>
+              <span class="mh-log-entry__msg">{{ log.message }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Signs checklist -->
+        <div class="mh-signs">
+          <div class="mh-signs__header">
+            <span class="mh-signs__title">🚩 Spyware Signs — flag by clicking elements above</span>
+          </div>
+          <ul class="mh-signs__list">
+            {% for sign in mission.signs %}
+            <li class="mh-sign-item" id="sign-item-{{ sign.id }}">
+              <span class="mh-sign-item__check">○</span>
+              <span>{{ sign.label }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+      </div><!-- /.mh-main__scroll -->
+
+      <!-- Hint bar -->
+      <div class="mh-hint-bar">
+        <span class="mh-hint-bar__icon">💡</span>
+        <span class="mh-hint-bar__label">Hint</span>
+        <span class="mh-hint-bar__text">Enable flag mode then click suspicious parts of the extension popup above. Analyze the extension, flag signs, then submit your security assessment.</span>
+      </div>
+
+      <!-- Status bar -->
+      <div class="mh-statusbar">
+        <div class="mh-statusbar__section">
+          <span class="mh-statusbar__icon">🚩</span>
+          <div>
+            <div class="mh-statusbar__label">FLAGGED SIGNS</div>
+            <div class="mh-statusbar__value" id="statusbar-flags">0 / {{ mission.signs | length }} signs flagged</div>
+          </div>
+        </div>
+        <div class="mh-statusbar__divider"></div>
+        <div class="mh-statusbar__section">
+          <div>
+            <div class="mh-statusbar__timer-display" id="statusbar-timer">00:00</div>
+            <div class="mh-statusbar__timer-label">ELAPSED TIME</div>
+          </div>
+        </div>
+        <button type="button" class="mh-submit-btn" id="submit-report-btn" disabled>
+          Submit security assessment
+        </button>
+      </div>
+    </main>
+
+    <!-- ══ RIGHT EVENT FEED ══ -->
+    <aside class="mh-events">
+      <div class="mh-events__header">
+        <span class="mh-events__icon">📡</span>
+        <span class="mh-events__title">Event Feed</span>
+      </div>
+      <ul class="mh-events__list" id="event-feed">
+        <li class="mh-event mh-event--warn">Suspicious browser extension detected. Security review required.</li>
+      </ul>
+    </aside>
+
+  </div><!-- /.mh-layout -->
+</div><!-- /.mh-sim -->
+
+<!-- Decision modal -->
+<div class="mh-modal" id="decision-modal" hidden>
+  <div class="mh-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="mh-modal__dialog" role="dialog" aria-modal="true">
+    <div class="mh-modal__content">
+      <span class="mh-modal__badge">Security assessment</span>
+      <h2 class="mh-modal__title" id="decision-prompt"></h2>
+      <div class="mh-modal__options" id="decision-options"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Result modal -->
+<div class="mh-modal" id="result-modal" hidden>
+  <div class="mh-modal__backdrop"></div>
+  <div class="mh-modal__dialog" role="dialog" aria-modal="true">
+    <div class="mh-modal__content">
+      <span class="mh-modal__badge">Simulation complete</span>
+      <div class="mh-result__score" id="result-score">—</div>
+      <p class="mh-result__feedback" id="result-feedback"></p>
+      <button type="button" class="mh-result__continue" id="result-continue-btn">
+        Return to overview →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>
+  document.body.classList.remove('bg-hero-grid');
+  document.body.style.backgroundImage = 'none';
+  /* Sync sign checklist with flag events */
+  document.addEventListener('click', function (e) {
+    const el = e.target.closest('.mh-flaggable');
+    if (!el) return;
+    const id = el.dataset.signId;
+    if (!id) return;
+    const item = document.getElementById('sign-item-' + id);
+    if (item) {
+      item.classList.add('is-flagged');
+      item.querySelector('.mh-sign-item__check').textContent = '✓';
+    }
+  });
+</script>
+<script src="{{ url_for('static', filename='js/malware-hard.js') }}"></script>
+{% endblock %}

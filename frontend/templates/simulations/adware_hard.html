@@ -4,76 +4,160 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/adware-hard.css') }}">
+<script>
+  document.documentElement.style.cssText = 'background:#0a0a0a!important';
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.style.background = '#0a0a0a';
+    document.body.style.backgroundImage = 'none';
+  });
+</script>
 {% endblock %}
 
 {% block content %}
 <div class="adware-hard-app" id="adware-hard-app">
   <div class="adware-hard-layout">
+
+    <!-- ── LEFT SIDEBAR ── -->
     <aside class="adware-hard-sidebar">
       <div class="adware-hard-sidebar__top">
         <span class="adware-hard-sidebar__label">SIMULATION</span>
         <h1 class="adware-hard-sidebar__title">{{ mission.name }}</h1>
         <span class="adware-hard-sidebar__badge">HARD</span>
       </div>
+
       <div class="adware-hard-sidebar__section">
         <h3 class="adware-hard-sidebar__section-title">OBJECTIVE</h3>
-        <p class="adware-hard-sidebar__text">Investigate the popup installer and decide whether it is a trustworthy update or adware.</p>
+        <p class="adware-hard-sidebar__text">Investigate the popup installer and decide whether it is trustworthy software or adware.</p>
       </div>
+
       <div class="adware-hard-sidebar__section">
-        <h3 class="adware-hard-sidebar__section-title">TASK LOG</h3>
-        <ul class="adware-hard-sidebar__list" id="task-log">
-          <li>Inspect the popup text and source</li>
-          <li>Flag suspicious signs</li>
-          <li>Submit your incident report</li>
-        </ul>
-      </div>
-      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="adware-hard-sidebar__exit">← Exit Simulation</a>
-    </aside>
-
-    <main class="adware-hard-main">
-      <div class="adware-hard-main__header">
-        <span class="adware-hard-main__icon">🧪</span>
-        <span class="adware-hard-main__label">Adware investigation workspace</span>
-        <button type="button" class="adware-hard-main__button" id="flag-mode-btn">🚩 Flag sign</button>
-      </div>
-
-      <div class="adware-browser">
-        <div class="adware-browser__chrome">
-          <div class="adware-browser__dots"><span></span><span></span><span></span></div>
-          <div class="adware-browser__address">https://download-center.example</div>
-        </div>
-        <div class="adware-browser__body">
-          <div class="adware-browser__popup" id="popup-card">
-            <div class="adware-browser__popup-title">{{ mission.popup.title }}</div>
-            <p class="adware-browser__popup-text">{{ mission.popup.body }}</p>
-            <div class="adware-browser__popup-meta">Publisher: {{ mission.popup.publisher }}</div>
-            <button type="button" class="adware-browser__popup-cta">{{ mission.popup.cta }}</button>
-            <div class="adware-browser__popup-url">{{ mission.popup.url }}</div>
+        <h3 class="adware-hard-sidebar__section-title">MISSION PROGRESS</h3>
+        <div class="adware-hard-progress">
+          <div class="adware-hard-progress__row">
+            <span class="adware-hard-progress__pct" id="progress-percent">0%</span>
+            <span id="progress-count">0 / {{ mission.tasks | length }} tasks</span>
+          </div>
+          <div class="adware-hard-progress__bar">
+            <div class="adware-hard-progress__fill" id="mission-progress-fill" style="width:0%"></div>
           </div>
         </div>
       </div>
 
-      <div class="adware-hard-footer">
-        <div class="adware-hard-footer__item">
-          <span class="adware-hard-footer__icon">⚠</span>
-          <span id="statusbar-flags">0 / {{ mission.signs|length }} signs flagged</span>
+      <div class="adware-hard-sidebar__section">
+        <h3 class="adware-hard-sidebar__section-title">OBJECTIVES</h3>
+        <ul class="adware-hard-objectives" id="objective-list">
+          {% for obj in mission.objectives %}
+          <li class="adware-hard-objective" data-objective-index="{{ loop.index0 }}">
+            <span class="adware-hard-objective__check">☐</span>
+            <span>{{ obj }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="adware-hard-sidebar__section">
+        <h3 class="adware-hard-sidebar__section-title">TASK LOG</h3>
+        <ul class="adware-hard-task-log" id="task-log">
+          <li class="adware-hard-task-log__empty">Investigate the popup to log progress.</li>
+        </ul>
+      </div>
+
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="adware-hard-sidebar__exit">← Exit Simulation</a>
+    </aside>
+
+    <!-- ── CENTER MAIN ── -->
+    <main class="adware-hard-main">
+      <div class="adware-hard-main__header">
+        <span class="adware-hard-main__icon">🧪</span>
+        <span class="adware-hard-main__label">Adware Investigation Workspace</span>
+        <button type="button" class="adware-hard-main__button" id="flag-mode-btn">🚩 Flag sign</button>
+      </div>
+
+      <!-- Browser simulation -->
+      <div class="adware-browser">
+        <div class="adware-browser__chrome">
+          <div class="adware-browser__dots"><span></span><span></span><span></span></div>
+          <div class="adware-browser__address">https://download-center.example/update</div>
         </div>
-        <button type="button" class="adware-hard-footer__submit" id="submit-report-btn">Submit incident report</button>
+        <div class="adware-browser__body">
+          <div class="adware-browser__popup" id="popup-card">
+            <div class="adware-browser__popup-titlebar">
+              <span class="adware-browser__popup-titlebar-icon">⚠</span>
+              <span class="adware-browser__popup-titlebar-text">Security Alert</span>
+            </div>
+            <div class="adware-browser__popup-inner">
+              <div class="adware-browser__popup-title" id="popup-title">{{ mission.popup.title }}</div>
+              <p class="adware-browser__popup-text" id="popup-body">{{ mission.popup.body }}</p>
+              <div class="adware-browser__popup-meta" id="popup-meta">Publisher: {{ mission.popup.publisher }}</div>
+              <div>
+                <button type="button" class="adware-browser__popup-cta" id="popup-cta">{{ mission.popup.cta }}</button>
+              </div>
+              <div class="adware-browser__popup-url" id="popup-url">{{ mission.popup.url }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statusbar -->
+      <div class="adware-hard-statusbar">
+        <div class="adware-hard-statusbar__item">
+          <span class="adware-hard-statusbar__icon">⚠</span>
+          <div>
+            <div class="adware-hard-statusbar__label">FLAGGED SIGNS</div>
+            <div class="adware-hard-statusbar__value" id="statusbar-flags">0 / {{ mission.signs | length }} signs flagged</div>
+          </div>
+        </div>
+        <div class="adware-hard-statusbar__divider"></div>
+        <div class="adware-hard-statusbar__item">
+          <div class="adware-hard-statusbar__timer" id="mission-timer">00:00</div>
+          <div class="adware-hard-statusbar__label" style="margin-left:6px;">ELAPSED</div>
+        </div>
+        <button type="button" class="adware-hard-submit-btn" id="submit-report-btn" disabled>
+          Submit incident report
+        </button>
       </div>
     </main>
 
+    <!-- ── RIGHT: Event Feed ── -->
     <aside class="adware-hard-events">
       <div class="adware-hard-events__header">
         <span class="adware-hard-events__icon">📡</span>
         <span class="adware-hard-events__title">Event Feed</span>
       </div>
       <ul class="adware-hard-events__list" id="event-feed">
-        <li class="adware-hard-event">Suspicious installer popup detected.</li>
+        <li class="adware-hard-event adware-hard-event--warn">Suspicious installer popup detected.</li>
       </ul>
     </aside>
+
+  </div><!-- /.adware-hard-layout -->
+</div>
+
+<!-- Flag modal -->
+<div class="adware-hard-modal" id="flag-modal" hidden>
+  <div class="adware-hard-modal__backdrop" id="flag-modal-backdrop"></div>
+  <div class="adware-hard-modal__dialog" role="dialog" aria-modal="true">
+    <button type="button" class="adware-hard-modal__close" id="flag-modal-close">×</button>
+    <div class="adware-hard-modal__content">
+      <span class="adware-hard-modal__badge adware-hard-modal__badge--flag">Sign flagged</span>
+      <h2 class="adware-hard-modal__title" id="flag-modal-title"></h2>
+      <p class="adware-hard-modal__body" id="flag-modal-body"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Decision modal -->
+<div class="adware-hard-modal" id="decision-modal" hidden>
+  <div class="adware-hard-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="adware-hard-modal__dialog" role="dialog" aria-modal="true">
+    <div class="adware-hard-modal__content">
+      <span class="adware-hard-modal__badge adware-hard-modal__badge--flag">Incident report</span>
+      <h2 class="adware-hard-modal__title" id="decision-prompt"></h2>
+      <div class="adware-hard-decision-options" id="decision-options"></div>
+    </div>
   </div>
 </div>
 
 <script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>document.body.classList.remove('bg-hero-grid');</script>
 <script src="{{ url_for('static', filename='js/adware-hard.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,151 @@
+body.spyware-sim {
+  background:
+    radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.16), transparent 26%),
+    #101114;
+}
+
+.spyware-sim .malware-sidebar__badge {
+  background: rgba(192, 132, 252, 0.15);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  color: #d8b4fe;
+}
+
+.spyware-sim .malware-sidebar__report,
+.spyware-sim .malware-hint__btn {
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  background: rgba(192, 132, 252, 0.12);
+  color: #d8b4fe;
+}
+
+.spyware-sim .malware-flag-num {
+  background: #c084fc;
+  color: #3b0764;
+}
+
+.spyware-browser__chrome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #1e1b4b;
+  color: #e9d5ff;
+  border-radius: 12px 12px 0 0;
+}
+
+.spyware-browser__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.spyware-browser__dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #6b7280;
+}
+
+.spyware-browser__address {
+  flex: 1;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #c4b5fd;
+}
+
+.spyware-extension {
+  background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+  color: #312e81;
+  border-radius: 0 0 16px 16px;
+  padding: 28px;
+  box-shadow: 0 18px 40px rgba(49, 46, 129, 0.28);
+}
+
+.spyware-extension__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.spyware-extension__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  font-size: 1.4rem;
+}
+
+.spyware-extension__eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6d28d9;
+}
+
+.spyware-extension__title {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+}
+
+.spyware-extension__permissions {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.spyware-extension__permissions li {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.16);
+  color: #7f1d1d;
+  font-weight: 600;
+}
+
+.spyware-extension__reviews {
+  margin-bottom: 16px;
+  color: #5b21b6;
+  line-height: 1.5;
+}
+
+.spyware-extension__cta {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.spyware-hard .spyware-extension {
+  border: 1px solid rgba(192, 132, 252, 0.2);
+}
+
+.spyware-hard__workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.spyware-hard__card {
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: rgba(30, 27, 75, 0.72);
+  border: 1px solid rgba(192, 132, 252, 0.18);
+}
+
+.spyware-hard__card h3 {
+  margin-bottom: 0.75rem;
+  color: #d8b4fe;
+}
+
+.spyware-hard__card ul {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  color: #e9d5ff;
+}

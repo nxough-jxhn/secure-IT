@@ -1,24 +1,125 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0f1115; color: #f4f4f4; font-family: 'Roboto', sans-serif; }
-.evil-twin-hard-app { padding: 20px; }
-.evil-twin-hard-layout { display: grid; grid-template-columns: 280px 1fr 300px; gap: 16px; min-height: calc(100vh - 40px); }
-.evil-twin-hard-sidebar, .evil-twin-hard-events { background: #16181d; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-.evil-twin-hard-sidebar__label, .evil-twin-hard-events__title, .evil-twin-hard-sidebar__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: #7f8796; }
-.evil-twin-hard-sidebar__title { font-size: 1.08rem; margin-top: 8px; }
-.evil-twin-hard-sidebar__badge { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(73,176,255,0.15); color: #59b5ff; font-size: 0.74rem; }
-.evil-twin-hard-sidebar__text, .evil-twin-hard-sidebar__list li, .evil-twin-hard-event { color: #c6ccd6; line-height: 1.6; }
+/* ══════════════════════════════════════════
+   Evil Twin Hard Simulation — Full workspace
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Strip base.html chrome */
+body:has(#evil-twin-hard-app) { background:#0a0a0a!important; background-image:none!important; overflow:hidden!important; }
+body:has(#evil-twin-hard-app) #sidebar,
+body:has(#evil-twin-hard-app) #sidebar-toggle { display:none!important; }
+body:has(#evil-twin-hard-app) .app-layout { grid-template-columns:1fr!important; display:block!important; }
+body:has(#evil-twin-hard-app) .main-content { padding:0!important; margin:0!important; }
+body:has(#evil-twin-hard-app) .main-content > header { display:none!important; }
+
+body { font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0a; color: #e0e0e0; overflow: hidden; }
+
+.evil-twin-hard-app { display: flex; flex-direction: column; height: 100vh; }
+.evil-twin-hard-layout { display: grid; grid-template-columns: 280px 1fr 280px; flex: 1; overflow: hidden; }
+
+/* ══ LEFT SIDEBAR ══ */
+.evil-twin-hard-sidebar { background: #0f0f0f; border-right: 1px solid rgba(255,255,255,.08); padding: 28px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
+.evil-twin-hard-sidebar__top { display: flex; flex-direction: column; gap: 8px; }
+.evil-twin-hard-sidebar__label { font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #666; }
+.evil-twin-hard-sidebar__title { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.3; }
+.evil-twin-hard-sidebar__badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .625rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; width: fit-content; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; }
+.evil-twin-hard-sidebar__section { display: flex; flex-direction: column; gap: 10px; }
+.evil-twin-hard-sidebar__section-title { font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #5f6368; }
+.evil-twin-hard-sidebar__text { font-size: .8125rem; line-height: 1.6; color: #bbb; }
 .evil-twin-hard-sidebar__list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.evil-twin-hard-sidebar__exit { margin-top: auto; color: #59b5ff; text-decoration: none; font-weight: 600; }
-.evil-twin-hard-main { background: #16181d; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-.evil-twin-hard-main__header { display: flex; align-items: center; gap: 10px; }
-.evil-twin-hard-main__button, .evil-twin-hard-screen__submit { padding: 10px 14px; border-radius: 8px; border: none; background: #59b5ff; color: #fff; font-weight: 700; cursor: pointer; }
-.evil-twin-hard-screen { display: grid; gap: 16px; }
-.evil-twin-hard-screen__networks { display: grid; gap: 12px; }
-.evil-twin-hard-network { background: #fff; color: #111; border-radius: 10px; padding: 14px 16px; border: 1px solid #e5e7eb; }
-.evil-twin-hard-network--suspicious { border-color: #ffb84d; box-shadow: 0 0 0 1px rgba(255,184,77,0.3); }
-.evil-twin-hard-network.is-flagged { outline: 2px solid #ffb84d; }
-.evil-twin-hard-network__name { font-weight: 700; margin-bottom: 4px; }
-.evil-twin-hard-network__meta { color: #4b5563; font-size: 0.95rem; }
-.evil-twin-hard-screen__panel { background: #fff; color: #111; border-radius: 10px; padding: 16px; }
-.evil-twin-hard-screen__panel-title { font-weight: 700; margin-bottom: 8px; }
+.evil-twin-hard-sidebar__list li { font-size: .8125rem; line-height: 1.5; color: #bbb; padding-left: 20px; position: relative; }
+.evil-twin-hard-sidebar__list li::before { content: '•'; position: absolute; left: 6px; color: #59b5ff; }
+
+/* Progress */
+.evil-twin-hard-progress { display: flex; flex-direction: column; gap: 8px; }
+.evil-twin-hard-progress__row { display: flex; align-items: center; justify-content: space-between; font-size: .75rem; color: #5f6368; }
+.evil-twin-hard-progress__pct { font-weight: 700; color: #59b5ff; }
+.evil-twin-hard-progress__bar { height: 4px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+.evil-twin-hard-progress__fill { height: 100%; border-radius: inherit; background: #59b5ff; transition: width .4s ease; }
+
+/* Objectives */
+.evil-twin-hard-objectives { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.evil-twin-hard-objective { display: flex; align-items: flex-start; gap: 10px; font-size: .8125rem; line-height: 1.5; color: #bbb; }
+.evil-twin-hard-objective__check { flex-shrink: 0; font-size: 1rem; color: #374151; transition: color .2s; }
+.evil-twin-hard-objective.is-done .evil-twin-hard-objective__check { color: #00ff9f; }
+.evil-twin-hard-objective.is-done { color: #4b5563; text-decoration: line-through; }
+
+.evil-twin-hard-task-log { list-style: none; display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
+.evil-twin-hard-task-log__item { font-size: .75rem; line-height: 1.5; color: #bbb; padding-left: 16px; position: relative; }
+.evil-twin-hard-task-log__item::before { content: '›'; position: absolute; left: 4px; color: #59b5ff; }
+.evil-twin-hard-task-log__empty { font-size: .75rem; color: #374151; font-style: italic; }
+
+.evil-twin-hard-sidebar__exit { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(239,68,68,.25); background: rgba(239,68,68,.08); text-decoration: none; color: #f87171; font-size: .875rem; font-weight: 700; margin-top: auto; transition: background .2s; }
+.evil-twin-hard-sidebar__exit:hover { background: rgba(239,68,68,.14); }
+
+/* ══ CENTER MAIN ══ */
+.evil-twin-hard-main { display: flex; flex-direction: column; overflow: hidden; background: #0a0a0a; }
+.evil-twin-hard-main__header { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.08); background: #0f0f0f; flex-shrink: 0; }
+.evil-twin-hard-main__icon { font-size: 1.25rem; }
+.evil-twin-hard-main__label { font-size: .875rem; font-weight: 600; color: #fff; flex: 1; }
+.evil-twin-hard-main__button { padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(73,176,255,.3); background: rgba(73,176,255,.08); color: #59b5ff; font-family: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+.evil-twin-hard-main__button:hover { background: rgba(73,176,255,.15); }
+.evil-twin-hard-main__button.is-active { background: rgba(73,176,255,.2); border-color: #59b5ff; }
+
+/* Wi-Fi screen */
+.evil-twin-hard-screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Phone frame */
+.evil-twin-hard-phone { flex: 1; display: flex; flex-direction: column; background: #fff; margin: 20px 24px 0; border-radius: 16px 16px 0 0; overflow: hidden; box-shadow: 0 -8px 32px rgba(0,0,0,.3); }
+.evil-twin-hard-phone__bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: #1a202c; color: #e2e8f0; font-size: .75rem; font-weight: 600; flex-shrink: 0; }
+.evil-twin-hard-phone__label { font-size: .8125rem; font-weight: 700; }
+
+.evil-twin-hard-network-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; background: #f8f9fa; }
+
+.evil-twin-hard-network { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 12px; border: 1px solid #e5e7eb; background: #fff; color: #1a1a1a; cursor: pointer; transition: border-color .2s, box-shadow .2s; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.evil-twin-hard-network:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(59,130,246,.1); }
+.evil-twin-hard-network--suspicious { border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.18); }
+.evil-twin-hard-network.is-flagged { outline: 2px solid #f87171; outline-offset: 2px; }
+.evil-twin-hard-network__top { display: flex; align-items: center; justify-content: space-between; }
+.evil-twin-hard-network__name { font-size: .9375rem; font-weight: 700; color: #111; }
+.evil-twin-hard-network__signal { font-size: .8125rem; color: #6b7280; }
+.evil-twin-hard-network__meta { font-size: .8125rem; color: #6b7280; display: flex; align-items: center; gap: 8px; }
+.evil-twin-hard-network__badge { padding: 2px 8px; border-radius: 4px; font-size: .6875rem; font-weight: 700; }
+.evil-twin-hard-network--suspicious .evil-twin-hard-network__badge { background: rgba(251,191,36,.15); color: #d97706; border: 1px solid rgba(251,191,36,.3); }
+.evil-twin-hard-network:not(.evil-twin-hard-network--suspicious) .evil-twin-hard-network__badge { background: rgba(0,255,159,.1); color: #059669; border: 1px solid rgba(0,255,159,.25); }
+
+/* Status bar */
+.evil-twin-hard-statusbar { display: flex; align-items: center; gap: 20px; padding: 12px 20px; background: #0f0f0f; border-top: 1px solid rgba(255,255,255,.08); flex-shrink: 0; }
+.evil-twin-hard-statusbar__item { display: flex; align-items: center; gap: 8px; }
+.evil-twin-hard-statusbar__icon { font-size: 1rem; }
+.evil-twin-hard-statusbar__label { font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #5f6368; }
+.evil-twin-hard-statusbar__value { font-size: .8125rem; font-weight: 600; color: #bbb; }
+.evil-twin-hard-statusbar__divider { width: 1px; height: 28px; background: rgba(255,255,255,.08); }
+.evil-twin-hard-statusbar__timer { font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: 700; color: #59b5ff; }
+.evil-twin-hard-submit-btn { margin-left: auto; padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(0,255,159,.35); background: rgba(0,255,159,.1); color: #00ff9f; font-family: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+.evil-twin-hard-submit-btn:disabled { opacity: .4; cursor: not-allowed; }
+.evil-twin-hard-submit-btn:not(:disabled):hover { background: rgba(0,255,159,.18); }
+
+/* ══ RIGHT — Event Feed ══ */
+.evil-twin-hard-events { background: #0f0f0f; border-left: 1px solid rgba(255,255,255,.08); padding: 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.evil-twin-hard-events__header { display: flex; align-items: center; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.evil-twin-hard-events__icon { font-size: 1.25rem; }
+.evil-twin-hard-events__title { font-size: .875rem; font-weight: 700; color: #fff; }
 .evil-twin-hard-events__list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.evil-twin-hard-event { font-size: .8125rem; line-height: 1.55; color: #bbb; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.02); }
+.evil-twin-hard-event--warn { border-color: rgba(73,176,255,.25); color: #59b5ff; }
+.evil-twin-hard-event--alert { border-color: rgba(239,68,68,.25); color: #f87171; }
+.evil-twin-hard-event--good { border-color: rgba(0,255,159,.25); color: #00ff9f; }
+
+/* ══ MODALS ══ */
+.evil-twin-hard-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; pointer-events: none; }
+.evil-twin-hard-modal[hidden] { display: none; }
+.evil-twin-hard-modal:not([hidden]) { pointer-events: auto; }
+.evil-twin-hard-modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.85); backdrop-filter: blur(4px); }
+.evil-twin-hard-modal__dialog { position: relative; width: min(560px,100%); max-height: 90vh; background: #1a1a1a; border-radius: 20px; border: 1px solid rgba(255,255,255,.1); padding: 32px 36px; overflow-y: auto; animation: ethModalIn .28s ease; }
+@keyframes ethModalIn { from { opacity:0; transform: translateY(18px) scale(.96); } to { opacity:1; transform: none; } }
+.evil-twin-hard-modal__close { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #5f6368; font-size: 1.2rem; cursor: pointer; display: grid; place-items: center; transition: background .2s, color .2s; }
+.evil-twin-hard-modal__close:hover { background: rgba(239,68,68,.15); color: #f87171; }
+.evil-twin-hard-modal__content { display: flex; flex-direction: column; gap: 16px; }
+.evil-twin-hard-modal__badge { display: inline-flex; padding: 5px 12px; border-radius: 999px; font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; width: fit-content; }
+.evil-twin-hard-modal__badge--flag { background: rgba(73,176,255,.1); border: 1px solid rgba(73,176,255,.25); color: #59b5ff; }
+.evil-twin-hard-modal__badge--warn { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); color: #f87171; }
+.evil-twin-hard-modal__title { font-size: 1.35rem; font-weight: 700; color: #fff; line-height: 1.3; margin: 0; }
+.evil-twin-hard-modal__body { font-size: .9375rem; line-height: 1.7; color: #bbb; margin: 0; }
+.evil-twin-hard-decision-options { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.evil-twin-hard-decision-btn { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); font-family: inherit; font-size: .875rem; font-weight: 600; color: #fff; cursor: pointer; text-align: left; transition: border-color .2s, background .2s; }
+.evil-twin-hard-decision-btn:hover { border-color: rgba(0,255,159,.3); background: rgba(0,255,159,.04); }

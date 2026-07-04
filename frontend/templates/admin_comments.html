@@ -1,0 +1,284 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+
+<div style="display:grid;grid-template-columns:260px 1fr;gap:20px;height:calc(100vh - 120px);min-height:600px;">
+
+  <!-- ══ LEFT: User selector ══ -->
+  <aside style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+    <div>
+      <div style="font-size:0.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b5563;margin-bottom:6px;">Select User</div>
+      <div class="au-search" style="padding:7px 10px;">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <input type="text" id="acm-user-search" placeholder="Search users…" class="au-search__input">
+      </div>
+    </div>
+    <div id="acm-user-list" style="display:flex;flex-direction:column;gap:3px;overflow-y:auto;flex:1;">
+      {% for u in user_list %}
+      <button type="button" class="acm-user-item"
+              data-email="{{ u.email }}"
+              data-name="{{ u.name | lower }}"
+              style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;border:1px solid transparent;background:none;cursor:pointer;text-align:left;width:100%;transition:background .15s,border-color .15s;">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,255,159,0.1);border:1px solid rgba(0,255,159,0.2);display:grid;place-items:center;font-size:9px;font-weight:800;color:#00ff9f;flex-shrink:0;">
+          {{ u.name[:2] | upper }}
+        </div>
+        <div style="min-width:0;">
+          <div style="font-size:0.78rem;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ u.name }}</div>
+          <div style="font-size:9px;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ u.email }}</div>
+        </div>
+      </button>
+      {% else %}
+      <p style="color:#374151;font-size:0.8125rem;font-style:italic;">No users found.</p>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- ══ RIGHT: Posts + Comments panel ══ -->
+  <div style="display:flex;flex-direction:column;gap:12px;overflow:hidden;height:100%;">
+
+    <!-- post list (hidden until user selected) -->
+    <div id="acm-posts-panel" hidden style="flex-shrink:0;">
+      <div style="font-size:0.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b5563;margin-bottom:8px;">
+        Posts by <span id="acm-selected-name" style="color:#00ff9f;">—</span>
+        <span id="acm-posts-count" style="color:#374151;font-weight:400;margin-left:6px;"></span>
+      </div>
+      <div id="acm-posts-grid" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;"></div>
+    </div>
+
+    <!-- selected post detail + comments — fills remaining height -->
+    <div id="acm-detail-panel" hidden style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0;">
+
+      <!-- post preview left -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+        <div style="font-size:0.6875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b5563;">Post Preview</div>
+        <div id="acm-detail-images" style="border-radius:8px;overflow:hidden;background:#060910;min-height:120px;display:flex;align-items:center;justify-content:center;"></div>
+        <div>
+          <div id="acm-detail-title" style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:6px;"></div>
+          <div id="acm-detail-meta" style="font-size:10px;color:#4b5563;margin-bottom:8px;"></div>
+          <p id="acm-detail-content" style="font-size:0.8125rem;color:#94a3b8;line-height:1.65;white-space:pre-wrap;word-break:break-word;"></p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);">
+          <span style="font-size:0.8125rem;color:#6b7280;">
+            <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px;vertical-align:middle;margin-right:3px;"><path d="M8 13.5S1.5 9.5 1.5 5.5a3.5 3.5 0 0 1 6.5-1.8A3.5 3.5 0 0 1 14.5 5.5c0 4-6.5 8-6.5 8z" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span id="acm-detail-likes">0</span> likes
+          </span>
+          <span id="acm-detail-status-badge" style="padding:3px 9px;border-radius:5px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;"></span>
+          <button type="button" id="acm-toggle-post-btn"
+                  style="margin-left:auto;padding:7px 14px;border-radius:8px;border:1px solid;font-weight:700;font-size:0.8125rem;font-family:inherit;cursor:pointer;">
+            Disable Post
+          </button>
+        </div>
+      </div>
+
+      <!-- comments right -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:0.6875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b5563;">Comments</div>
+          <span id="acm-comment-count" style="font-size:0.75rem;color:#00ff9f;font-weight:600;"></span>
+        </div>
+        <div id="acm-comments-table-wrap" style="overflow-y:auto;flex:1;max-height:420px;">
+          <table class="au-table" style="font-size:0.8125rem;">
+            <thead>
+              <tr>
+                <th class="au-th">Author</th>
+                <th class="au-th">Comment</th>
+                <th class="au-th">Date</th>
+                <th class="au-th">Status</th>
+                <th class="au-th"></th>
+              </tr>
+            </thead>
+            <tbody id="acm-comments-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script id="acm-users-data" type="application/json">{{ user_list | tojson }}</script>
+
+<script>
+(function () {
+  let currentPosts = [];
+  let currentPost  = null;
+
+  /* ── user list filter ── */
+  const userSearch  = document.getElementById('acm-user-search');
+  const userItems   = Array.from(document.querySelectorAll('.acm-user-item'));
+
+  userSearch?.addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    userItems.forEach(item => {
+      item.hidden = q && !item.dataset.name.includes(q) && !item.dataset.email.toLowerCase().includes(q);
+    });
+  });
+
+  /* ── user item hover style ── */
+  userItems.forEach(item => {
+    item.addEventListener('mouseenter', () => { item.style.background = 'rgba(255,255,255,0.05)'; item.style.borderColor = 'rgba(255,255,255,0.1)'; });
+    item.addEventListener('mouseleave', () => {
+      if (!item.classList.contains('is-active')) { item.style.background = 'none'; item.style.borderColor = 'transparent'; }
+    });
+  });
+
+  /* ── select user → fetch posts ── */
+  userItems.forEach(item => {
+    item.addEventListener('click', async function () {
+      userItems.forEach(i => { i.classList.remove('is-active'); i.style.background = 'none'; i.style.borderColor = 'transparent'; });
+      this.classList.add('is-active');
+      this.style.background   = 'rgba(0,255,159,0.08)';
+      this.style.borderColor  = 'rgba(0,255,159,0.25)';
+
+      const email = this.dataset.email;
+      const name  = this.querySelector('div > div:first-child')?.textContent || email;
+
+      document.getElementById('acm-selected-name').textContent = name;
+      document.getElementById('acm-empty-state')?.remove();
+      document.getElementById('acm-posts-panel').hidden = false;
+      document.getElementById('acm-detail-panel').hidden = true;
+      document.getElementById('acm-posts-grid').innerHTML = '<p style="color:#4b5563;font-size:0.8125rem;">Loading…</p>';
+
+      try {
+        const res  = await fetch('/admin/community/posts?email=' + encodeURIComponent(email));
+        currentPosts = await res.json();
+        renderPostList(currentPosts);
+      } catch {
+        document.getElementById('acm-posts-grid').innerHTML = '<p style="color:#f87171;font-size:0.8125rem;">Failed to load posts.</p>';
+      }
+    });
+  });
+
+  /* ── render post list ── */
+  function renderPostList(posts) {
+    const grid = document.getElementById('acm-posts-grid');
+    document.getElementById('acm-posts-count').textContent = posts.length + ' post' + (posts.length !== 1 ? 's' : '');
+    if (!posts.length) {
+      grid.innerHTML = '<p style="color:#374151;font-size:0.8125rem;font-style:italic;">No posts from this user.</p>';
+      return;
+    }
+    grid.innerHTML = '';
+    posts.forEach((post, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.style.cssText = 'display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;text-align:left;transition:border-color .15s,background .15s;';
+      btn.innerHTML =
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:0.875rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (post.title || '(no title)') + '</div>' +
+          '<div style="font-size:10px;color:#4b5563;margin-top:2px;">' + (post.category || 'General') + ' · ' + (post.created_at || '') + '</div>' +
+        '</div>' +
+        '<span style="font-size:9px;padding:2px 8px;border-radius:4px;font-weight:800;text-transform:uppercase;' +
+          (post.disabled ? 'background:rgba(248,113,113,0.15);color:#f87171;' : 'background:rgba(0,255,159,0.1);color:#00ff9f;') + '">' +
+          (post.disabled ? 'Disabled' : 'Active') + '</span>' +
+        '<span style="font-size:0.75rem;color:#4b5563;">' + (post.comments_count || 0) + ' 💬</span>';
+
+      btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'rgba(0,255,159,0.3)'; btn.style.background = 'rgba(0,255,159,0.04)'; });
+      btn.addEventListener('mouseleave', () => {
+        if (currentPost && currentPost.id === post.id) return;
+        btn.style.borderColor = 'rgba(255,255,255,0.07)'; btn.style.background = 'rgba(255,255,255,0.02)';
+      });
+      btn.addEventListener('click', () => selectPost(post, btn));
+      grid.appendChild(btn);
+    });
+  }
+
+  /* ── select post → show detail ── */
+  function selectPost(post, btnEl) {
+    currentPost = post;
+    document.getElementById('acm-detail-panel').hidden = false;
+
+    // highlight selected
+    document.querySelectorAll('#acm-posts-grid button').forEach(b => { b.style.borderColor = 'rgba(255,255,255,0.07)'; b.style.background = 'rgba(255,255,255,0.02)'; });
+    if (btnEl) { btnEl.style.borderColor = 'rgba(0,255,159,0.4)'; btnEl.style.background = 'rgba(0,255,159,0.07)'; }
+
+    // post preview
+    const imgEl = document.getElementById('acm-detail-images');
+    if (post.images && post.images.length) {
+      imgEl.innerHTML = '<img src="' + post.images[0] + '" style="width:100%;max-height:180px;object-fit:cover;display:block;">';
+    } else {
+      imgEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" style="width:40px;height:40px;color:#374151;"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.2" opacity=".3"/></svg>';
+    }
+
+    document.getElementById('acm-detail-title').textContent   = post.title || '(no title)';
+    document.getElementById('acm-detail-meta').textContent    = post.category + ' · ' + post.created_at;
+    document.getElementById('acm-detail-content').textContent = post.content || '';
+    document.getElementById('acm-detail-likes').textContent   = post.likes_count || 0;
+
+    const statusBadge = document.getElementById('acm-detail-status-badge');
+    statusBadge.textContent        = post.disabled ? 'Disabled' : 'Active';
+    statusBadge.style.background   = post.disabled ? 'rgba(248,113,113,0.15)' : 'rgba(0,255,159,0.12)';
+    statusBadge.style.color        = post.disabled ? '#f87171' : '#00ff9f';
+    statusBadge.style.border       = post.disabled ? '1px solid rgba(248,113,113,0.3)' : '1px solid rgba(0,255,159,0.25)';
+
+    const togglePostBtn = document.getElementById('acm-toggle-post-btn');
+    togglePostBtn.textContent      = post.disabled ? 'Re-enable Post' : 'Disable Post';
+    togglePostBtn.style.background = post.disabled ? 'rgba(0,255,159,0.1)' : 'rgba(248,113,113,0.1)';
+    togglePostBtn.style.borderColor= post.disabled ? 'rgba(0,255,159,0.3)' : 'rgba(248,113,113,0.3)';
+    togglePostBtn.style.color      = post.disabled ? '#00ff9f' : '#f87171';
+
+    renderCommentsTable(post.comments || []);
+  }
+
+  /* ── toggle post ── */
+  document.getElementById('acm-toggle-post-btn')?.addEventListener('click', async function () {
+    if (!currentPost) return;
+    if (!confirm((currentPost.disabled ? 'Re-enable' : 'Disable') + ' this post?')) return;
+    const res = await fetch('/admin/community/post/' + currentPost.id + '/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disabled: !currentPost.disabled }),
+    });
+    if (res.ok) {
+      currentPost.disabled = !currentPost.disabled;
+      // re-select to refresh UI
+      selectPost(currentPost, null);
+      // refresh post list
+      renderPostList(currentPosts.map(p => p.id === currentPost.id ? { ...p, disabled: currentPost.disabled } : p));
+    } else { alert('Could not update post status.'); }
+  });
+
+  /* ── render comments table ── */
+  function renderCommentsTable(comments) {
+    const tbody = document.getElementById('acm-comments-tbody');
+    document.getElementById('acm-comment-count').textContent = comments.length + ' comment' + (comments.length !== 1 ? 's' : '');
+    tbody.innerHTML = '';
+    if (!comments.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="au-td au-td--empty">No comments on this post.</td></tr>'; return;
+    }
+    comments.forEach((c, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = 'au-tr' + (c.disabled ? ' au-tr--disabled' : '');
+      tr.innerHTML =
+        '<td class="au-td"><div class="au-user-cell"><div class="au-user-cell__avatar" style="font-size:10px;">' + (c.author_name || 'L').slice(0, 2).toUpperCase() + '</div>' +
+          '<div class="au-user-cell__info"><span class="au-user-cell__name" style="font-size:0.8rem;">' + (c.author_name || '—') + '</span></div></div></td>' +
+        '<td class="au-td" style="max-width:200px;font-size:0.78rem;color:' + (c.disabled ? '#4b5563' : '#94a3b8') + ';' + (c.disabled ? 'text-decoration:line-through;' : '') + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (c.content || '') + '</td>' +
+        '<td class="au-td" style="font-size:0.72rem;color:#4b5563;">' + (c.created_at || '') + '</td>' +
+        '<td class="au-td">' + (c.disabled ? '<span class="au-badge au-badge--disabled">Disabled</span>' : '<span class="au-badge au-badge--active">Active</span>') + '</td>' +
+        '<td class="au-td au-td--actions"><button type="button" class="au-row-btn ' + (c.disabled ? 'au-row-btn--enable' : 'au-row-btn--disable') + ' acm-comment-toggle" data-index="' + idx + '" data-disabled="' + (c.disabled ? 'true' : 'false') + '" title="' + (c.disabled ? 'Re-enable' : 'Disable') + ' comment">' +
+          (c.disabled
+            ? '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM5 8h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
+            : '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 6l-3.5 3.5-1.5-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>') +
+          '</button></td>';
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll('.acm-comment-toggle').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        const idx      = parseInt(this.dataset.index);
+        const disabled = this.dataset.disabled === 'true';
+        const res = await fetch('/admin/community/post/' + currentPost.id + '/comment/' + idx + '/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ disabled: !disabled }),
+        });
+        if (res.ok) {
+          currentPost.comments[idx].disabled = !disabled;
+          renderCommentsTable(currentPost.comments);
+        } else { alert('Could not update comment status.'); }
+      });
+    });
+  }
+})();
+</script>
+
+{% endblock %}

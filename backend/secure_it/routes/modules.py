@@ -1,4 +1,4 @@
-from flask import abort, session
+from flask import abort, session, redirect, url_for
 
 from database import get_app_shell_context, get_cyber_range_categories
 from secure_it import login_required, make_layout
@@ -6,7 +6,6 @@ from secure_it import login_required, make_layout
 VALID_CATEGORIES = frozenset({"social_based", "malware_based", "network_based", "injection_based"})
 
 
-@login_required
 def modules_page():
     email = session.get("user_email", "")
     shell = get_app_shell_context(email)
@@ -22,7 +21,6 @@ def modules_page():
     )
 
 
-@login_required
 def modules_category_page(category_id: str):
     if category_id not in VALID_CATEGORIES:
         abort(404)

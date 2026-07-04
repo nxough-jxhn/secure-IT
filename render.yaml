@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: secure-it
+    runtime: python
+    region: singapore   # closest to PH — change to oregon if needed
+    plan: free
+
+    # where pip finds requirements.txt
+    buildCommand: pip install -r backend/requirements.txt
+
+    # gunicorn starts the Flask app object defined in backend/app.py
+    startCommand: gunicorn --chdir backend "app:app" --workers 2 --timeout 120
+
+    # Render injects PORT automatically; Flask reads it from os.getenv("PORT")
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # ── Flask ──────────────────────────────────────────────────
+      - key: SECRET_KEY
+        generateValue: true        # Render auto-generates a secure random value
+
+      - key: REQUIRE_EMAIL_VERIFICATION
+        value: "true"
+
+      - key: EMAIL_VERIFY_TTL_HOURS
+        value: "24"
+
+      # ── MongoDB Atlas ──────────────────────────────────────────
+      # Set this in the Render dashboard — do NOT commit the real URI
+      - key: MONGO_URI
+        sync: false                # marks it as a secret; enter value in dashboard
+
+      # ── Cloudinary ─────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # ── Firebase ───────────────────────────────────────────────
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      # FIREBASE_CREDENTIALS_PATH is a file path — see note below

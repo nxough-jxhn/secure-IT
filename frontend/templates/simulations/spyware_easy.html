@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/malware-easy.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/spyware-sim.css') }}">
+  </head>
+  <body class="malware-sim spyware-sim">
+    <div class="malware-sim__layout">
+      <aside class="malware-sidebar">
+        <div class="malware-sidebar__header">
+          <span class="malware-sidebar__label">SIMULATION</span>
+          <h1 class="malware-sidebar__title">{{ attack.name }}</h1>
+          <span class="malware-sidebar__badge">BEGINNER</span>
+        </div>
+
+        <div class="malware-sidebar__section">
+          <h3 class="malware-sidebar__section-title">OBJECTIVE</h3>
+          <p class="malware-sidebar__text">Inspect the browser extension permission request and identify spyware warning signs before installing it.</p>
+        </div>
+
+        <div class="malware-sidebar__section">
+          <h3 class="malware-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="malware-sidebar__timer" id="timer">00:00</div>
+        </div>
+
+        <div class="malware-sidebar__section">
+          <h3 class="malware-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="malware-sidebar__list">
+            <li>Click suspicious parts of the extension prompt</li>
+            <li>Review all indicators</li>
+            <li>Decide if this extension is safe to install</li>
+          </ul>
+        </div>
+
+        <a href="{{ back_url }}" class="malware-sidebar__report">← Exit Simulation</a>
+      </aside>
+
+      <main class="malware-screen">
+        <div class="malware-screen__header">
+          <span class="malware-screen__icon">👁️</span>
+          <span class="malware-screen__label">Spyware Simulation</span>
+        </div>
+
+        <div class="malware-window">
+          <div class="spyware-browser__chrome">
+            <div class="spyware-browser__dots"><span></span><span></span><span></span></div>
+            <div class="spyware-browser__address">chrome://extensions/install</div>
+          </div>
+
+          <div class="spyware-extension">
+            <div class="spyware-extension__header">
+              <span class="spyware-extension__icon">👁️</span>
+              <div>
+                <div class="spyware-extension__eyebrow">Extension install request</div>
+                <h2 class="spyware-extension__title">
+                  <button type="button" class="malware-hotspot" data-indicator="unknown_publisher">
+                    <span class="malware-flag-num" aria-hidden="true">1</span>
+                    {{ extension_data.name }}
+                  </button>
+                </h2>
+              </div>
+            </div>
+
+            <ul class="spyware-extension__permissions">
+              {% for permission in extension_data.permissions %}
+                <li>
+                  <button type="button" class="malware-hotspot" data-indicator="excessive_permissions">
+                    <span class="malware-flag-num" aria-hidden="true">2</span>
+                    {{ permission }}
+                  </button>
+                </li>
+              {% endfor %}
+            </ul>
+
+            <p class="spyware-extension__reviews">
+              <button type="button" class="malware-hotspot" data-indicator="negative_reviews">
+                <span class="malware-flag-num" aria-hidden="true">3</span>
+                Reviews: {{ extension_data.reviews }}
+              </button>
+            </p>
+
+            <button type="button" class="malware-hotspot spyware-extension__cta" data-indicator="broad_access">
+              <span class="malware-flag-num" aria-hidden="true">4</span>
+              Add extension with full permissions
+            </button>
+          </div>
+
+          <div class="malware-hint">
+            <span class="malware-hint__icon">💡</span>
+            <span class="malware-hint__text">Hint</span>
+            <span class="malware-hint__desc">Click the suspicious parts of the extension prompt to review the red flags.</span>
+            <button type="button" class="malware-hint__btn" id="complete-easy" disabled>Complete simulation</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="malware-indicators">
+        <div class="malware-indicators__header">
+          <span class="malware-indicators__icon">🚨</span>
+          <span class="malware-indicators__title">Indicators</span>
+          <span class="malware-indicators__count" id="indicator-count">0 / {{ indicators | length }} reviewed</span>
+        </div>
+        <div class="malware-indicators__list" id="indicator-list"></div>
+        <div class="malware-verdict">
+          <h3 class="malware-verdict__title">What do you think?</h3>
+          <p class="malware-verdict__subtitle">Is this extension trustworthy or possible spyware?</p>
+          <div class="malware-verdict__buttons">
+            <button type="button" class="malware-verdict__btn malware-verdict__btn--safe" id="verdict-safe">Trustworthy</button>
+            <button type="button" class="malware-verdict__btn malware-verdict__btn--danger" id="verdict-danger">Spyware</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="malware-modal" id="malware-modal" hidden>
+      <div class="malware-modal__backdrop" id="malware-modal-backdrop"></div>
+      <div class="malware-modal__dialog" id="malware-modal-dialog">
+        <button type="button" class="malware-modal__close" id="malware-modal-close">×</button>
+        <div class="malware-modal__content">
+          <span class="malware-modal__badge">Red flag spotted</span>
+          <h2 class="malware-modal__title" id="malware-modal-title"></h2>
+          <p class="malware-modal__desc" id="malware-modal-desc"></p>
+          <div class="malware-modal__compare">
+            <div class="malware-modal__box">
+              <span class="malware-modal__label">What you see</span>
+              <p class="malware-modal__text" id="malware-modal-wrong"></p>
+            </div>
+            <div class="malware-modal__box">
+              <span class="malware-modal__label">What you should expect</span>
+              <p class="malware-modal__text" id="malware-modal-correct"></p>
+            </div>
+          </div>
+          <div class="malware-modal__tip" id="malware-modal-tip" style="display: none;">
+            <span class="malware-modal__tip-icon">💡</span>
+            <span class="malware-modal__tip-text" id="malware-modal-tip-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.MALWARE_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+        labels: {
+          safeAlert: 'This extension is requesting broad access to your data. Review the warning signs before installing it.',
+          dangerAlertCorrect: 'Correct! This looks like possible spyware. Click complete to finish.',
+          dangerAlertReview: 'Good instinct. Review the remaining indicators first.',
+        },
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/malware-easy.js') }}"></script>
+  </body>
+</html>

@@ -66,9 +66,8 @@
     </a>
     <a href="{{ url_for('quizzes_page') }}" class="dash-nav__link {% if active_page == 'quizzes' %}is-active{% endif %}">Quizzes</a>
     <a href="{{ url_for('leaderboard_page') }}" class="dash-nav__link {% if active_page == 'leaderboard' %}is-active{% endif %}">Leaderboard</a>
-    <span class="dash-nav__link dash-nav__link--muted">Community</span>
-    <a href="{{ url_for('collection_page') }}" class="dash-nav__link {% if active_page == 'collection' %}is-active{% endif %}">Certificates</a>
-    <a href="{{ url_for('collection_page') }}" class="dash-nav__link {% if active_page == 'collection' %}is-active{% endif %}">Namecard Gallery</a>
+    <a href="{{ url_for('forum_page') }}" class="dash-nav__link {% if active_page == 'community' %}is-active{% endif %}">Community</a>
+    <a href="{{ url_for('collection_page') }}" class="dash-nav__link {% if active_page == 'collection' %}is-active{% endif %}">Collection</a>
   </nav>
 
   <div class="dash-sidebar__account">

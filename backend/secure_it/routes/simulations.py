@@ -41,8 +41,9 @@ def _module_progress_entry(email: str, attack_id: str) -> dict:
 
 def _render_attack_info_page(attack_id: str, attack: dict):
     email = session.get("user_email", "")
-    update_module_progress(email, attack_id, {"info_viewed": True})
-    module_progress = _module_progress_entry(email, attack_id)
+    if email:
+        update_module_progress(email, attack_id, {"info_viewed": True})
+    module_progress = _module_progress_entry(email, attack_id) if email else {}
     shell = get_app_shell_context(email)
     overview = attack.get("overview", {})
     info_page = attack.get("info_page", {})
@@ -61,7 +62,6 @@ def _render_attack_info_page(attack_id: str, attack: dict):
     )
 
 
-@login_required
 def simulations_page():
     email = session.get("user_email", "")
     shell = get_app_shell_context(email)
@@ -76,11 +76,14 @@ def simulations_page():
     )
 
 
-@login_required
 def simulation_overview_page(attack_id: str):
     attack = _require_attack(attack_id)
     if attack.get("info_page"):
         return _render_attack_info_page(attack_id, attack)
+
+    # Non-info attacks (mission briefing) require login
+    if not session.get("logged_in"):
+        return redirect(url_for("login_page"))
 
     mission = _require_mission(attack_id)
     progress = get_user_progress(session.get("user_email", ""))
@@ -101,6 +104,11 @@ def phishing_fake_email_page():
 
 
 @login_required
+def phishing_fake_website_page():
+    return simulation_overview_page("phishing_fake_website")
+
+
+@login_required
 def adware_pop_up_page():
     return simulation_overview_page("adware_pop_up")
 
@@ -115,9 +123,25 @@ EASY_SIMULATION_PAGES: dict[str, dict[str, str]] = {
         "template": "simulations/phishing_easy.html",
         "interface_key": "email_data",
     },
+    "phishing_fake_website": {
+        "template": "simulations/phishing_website_easy.html",
+        "interface_key": "website_data",
+    },
     "adware_pop_up": {
         "template": "simulations/adware_easy.html",
         "interface_key": "popup_data",
+    },
+    "keylogger": {
+        "template": "simulations/keylogger_easy.html",
+        "interface_key": "popup_data",
+    },
+    "ransomware": {
+        "template": "simulations/ransomware_easy.html",
+        "interface_key": "ransom_data",
+    },
+    "spyware": {
+        "template": "simulations/spyware_easy.html",
+        "interface_key": "extension_data",
     },
     "evil_twin": {
         "template": "simulations/evil_twin_easy.html",
@@ -230,6 +254,13 @@ def simulation_play_page(attack_id: str):
         "url_analysis": mission.get("url_analysis", {}),
         "login_form": mission.get("login_form", {}),
         "request_inspector": mission.get("request_inspector", {}),
+        # Evil Twin / Adware custom fields
+        "wifi_options": mission.get("wifi_options", {}),
+        "popup": mission.get("popup", {}),
+        # Ransomware / Spyware / Keylogger / Phishing Website fields
+        "ransom": mission.get("ransom", {}),
+        "extension": mission.get("extension", {}),
+        "website": mission.get("website", {}),
     }
 
     if mission.get("gmail_mode"):

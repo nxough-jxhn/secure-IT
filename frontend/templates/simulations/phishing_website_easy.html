@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Simulation — {{ attack.name }} | Secure-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-easy.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-website.css') }}">
+  </head>
+  <body class="phish-sim website-phish">
+    <div class="phish-sim__layout website-phish__layout">
+      <aside class="phish-sidebar">
+        <div class="phish-sidebar__header">
+          <span class="phish-sidebar__label">SIMULATION</span>
+          <h1 class="phish-sidebar__title">{{ attack.name }}</h1>
+          <span class="phish-sidebar__badge phish-sidebar__badge--beginner">BEGINNER</span>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">OBJECTIVE</h3>
+          <p class="phish-sidebar__text">Inspect the cloned portal and identify the warning signs before entering any credentials.</p>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">TIME ELAPSED</h3>
+          <div class="phish-sidebar__timer" id="timer">00:00</div>
+        </div>
+
+        <div class="phish-sidebar__section">
+          <h3 class="phish-sidebar__section-title">WHAT TO DO</h3>
+          <ul class="phish-sidebar__list">
+            <li>Click suspicious parts of the login portal</li>
+            <li>Review all indicators</li>
+            <li>Decide if this is the official site</li>
+          </ul>
+        </div>
+
+        <a href="{{ back_url }}" class="phish-sidebar__report">← Exit Simulation</a>
+      </aside>
+
+      <main class="website-phish__main">
+        <div class="website-phish__header">
+          <span class="website-phish__icon">🌐</span>
+          <span class="website-phish__label">Website Phishing Simulation</span>
+        </div>
+
+        <div class="website-browser">
+          <div class="website-browser__chrome">
+            <div class="website-browser__dots"><span></span><span></span><span></span></div>
+            <div class="website-browser__address phish-hotspot" data-indicator="lookalike_domain">{{ website_data.url }}</div>
+          </div>
+
+          <div class="website-browser__body">
+            <section class="website-login-card">
+              <div class="website-login-card__banner phish-hotspot" data-indicator="urgent_banner">{{ website_data.banner }}</div>
+              <header class="website-login-card__head">
+                <span class="website-login-card__logo">U</span>
+                <div>
+                  <h2 class="website-login-card__title phish-hotspot" data-indicator="missing_security">{{ website_data.site_name }}</h2>
+                  <p class="website-login-card__subtitle">Official campus portal verification</p>
+                </div>
+              </header>
+
+              <div class="website-login-card__notice">This portal requests your credentials to continue.</div>
+
+              <form class="website-login-card__form" id="login-form" autocomplete="off">
+                <label class="website-field">
+                  <span class="website-field__label">{{ website_data.username_label }}</span>
+                  <input type="text" id="username-input" class="website-field__input phish-hotspot" data-indicator="credential_request" placeholder="student@up.edu.ph" spellcheck="false">
+                </label>
+                <label class="website-field">
+                  <span class="website-field__label">{{ website_data.password_label }}</span>
+                  <input type="password" id="password-input" class="website-field__input" placeholder="••••••••">
+                </label>
+                <button type="submit" class="website-login-card__submit">{{ website_data.submit_label }}</button>
+              </form>
+
+              <p class="website-login-card__hint">{{ website_data.cta }}</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="website-phish__footer">
+          <span class="website-phish__footer-label">Hint</span>
+          <span class="website-phish__footer-text">Click the suspicious parts of the page to review the red flags.</span>
+          <button type="button" class="website-phish__complete" id="complete-easy" disabled>Complete simulation</button>
+        </div>
+      </main>
+
+      <aside class="phish-indicators">
+        <div class="phish-indicators__header">
+          <span class="phish-indicators__icon">🚨</span>
+          <span class="phish-indicators__title">Indicators</span>
+          <span class="phish-indicators__count" id="indicator-count">0 / {{ indicators | length }} reviewed</span>
+        </div>
+
+        <div class="phish-indicators__list" id="indicator-list"></div>
+
+        <div class="phish-verdict">
+          <h3 class="phish-verdict__title">What do you think?</h3>
+          <p class="phish-verdict__subtitle">Is this login portal legitimate or a phishing site?</p>
+          <div class="phish-verdict__buttons">
+            <button type="button" class="phish-verdict__btn phish-verdict__btn--legit" id="verdict-legit">Legitimate</button>
+            <button type="button" class="phish-verdict__btn phish-verdict__btn--phish" id="verdict-phish">Phishing</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="phish-modal" id="phish-modal" hidden>
+      <div class="phish-modal__backdrop" id="phish-modal-backdrop"></div>
+      <div class="phish-modal__dialog" id="phish-modal-dialog">
+        <button type="button" class="phish-modal__close" id="phish-modal-close">×</button>
+
+        <div class="phish-modal__content">
+          <span class="phish-modal__badge">Red flag spotted</span>
+          <h2 class="phish-modal__title" id="phish-modal-title"></h2>
+          <p class="phish-modal__desc" id="phish-modal-desc"></p>
+
+          <div class="phish-modal__compare" id="phish-modal-compare">
+            <div class="phish-modal__box phish-modal__box--wrong">
+              <span class="phish-modal__label">What you see</span>
+              <p class="phish-modal__text" id="phish-modal-wrong"></p>
+            </div>
+            <div class="phish-modal__box phish-modal__box--correct">
+              <span class="phish-modal__label">What you should expect</span>
+              <p class="phish-modal__text" id="phish-modal-correct"></p>
+            </div>
+          </div>
+
+          <div class="phish-modal__tip" id="phish-modal-tip" hidden>
+            <span class="phish-modal__tip-icon">💡</span>
+            <span class="phish-modal__tip-text" id="phish-modal-tip-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.PHISHING_EASY = {
+        completeUrl: {{ complete_url | tojson }},
+        redirectUrl: {{ back_url | tojson }},
+        totalIndicators: {{ indicators | length }},
+        indicators: {{ indicators | tojson }},
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/phishing-easy.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-hard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phishing-website.css') }}">
+<script>
+  document.documentElement.style.cssText = 'background:#0a0a0a!important';
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.classList.remove('bg-hero-grid');
+    document.body.style.background = '#0a0a0a';
+    document.body.style.backgroundImage = 'none';
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="phish-hard website-phish" id="phishing-website-hard-app">
+  <div class="phish-hard__layout website-phish__layout">
+
+    <!-- ══ LEFT SIDEBAR ══ -->
+    <aside class="phish-hard__sidebar">
+      <div class="phish-hard__eyebrow">SECURE-IT / HARD SIMULATION</div>
+      <h1 class="phish-hard__title">{{ mission.name }}</h1>
+      <p class="phish-hard__mission">{{ mission.mission_title }}</p>
+      <p class="phish-hard__story">{{ mission.story }}</p>
+
+      <div class="phish-hard__panel">
+        <h2>Objectives</h2>
+        <ol>
+          {% for objective in mission.objectives %}
+            <li>{{ objective }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <div class="phish-hard__panel">
+        <h2>Tools</h2>
+        <ul>
+          {% for tool in mission.tools %}
+            <li>{{ tool }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="phish-hard__panel">
+        <h2>Skills Learned</h2>
+        <ul>
+          {% for skill in mission.skills_learned %}
+            <li>{{ skill }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="phish-hard__timer-row">
+        <span class="phish-hard__timer-label">TIME ELAPSED</span>
+        <span class="phish-hard__timer" id="mission-timer">00:00</span>
+      </div>
+
+      <div class="phish-hard__progress">
+        <div class="phish-hard__progress-row">
+          <span id="progress-percent">0%</span>
+          <span id="progress-count">0 / {{ mission.tasks | length }} tasks</span>
+        </div>
+        <div class="phish-hard__progress-bar">
+          <div class="phish-hard__progress-fill" id="mission-progress-fill" style="width:0%"></div>
+        </div>
+        <span id="flags-meta">0 / {{ mission.signs | length }} signs flagged</span>
+      </div>
+
+      <div class="phish-hard__objectives-section">
+        <h3>OBJECTIVES</h3>
+        <ul id="objective-list">
+          {% for objective in mission.objectives %}
+          <li class="phish-hard__objective" data-objective-index="{{ loop.index0 }}">
+            <span class="phish-hard__obj-check">☐</span>
+            <span>{{ objective }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="phish-hard__task-log-section">
+        <h3>TASK LOG</h3>
+        <ul id="task-log">
+          <li class="phish-hard__task-empty">Complete tasks to log progress.</li>
+        </ul>
+      </div>
+
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="phish-hard__exit">
+        ← Exit Simulation
+      </a>
+    </aside>
+
+    <!-- ══ CENTER MAIN ══ -->
+    <main class="website-phish__main website-phish__main--hard">
+
+      <div class="phish-hard__topbar">
+        <span class="phish-hard__topbar-icon">🌐</span>
+        <span class="phish-hard__topbar-label">Fake Website Detection — Portal Analysis</span>
+        <button type="button" class="phish-hard__topbar-btn" id="flag-mode-btn">🚩 Flag sign</button>
+      </div>
+
+      <!-- Cloned portal browser mockup (flaggable) -->
+      <div class="website-browser website-browser--hard">
+        <div class="website-browser__chrome">
+          <div class="website-browser__dots"><span></span><span></span><span></span></div>
+          <div class="website-browser__address phish-flaggable"
+               data-sign-id="lookalike_domain"
+               data-sign-label="Look-alike domain"
+               data-sign-hint="{{ (mission.signs | selectattr('id','eq','lookalike_domain') | first | default({'hint':''})).hint }}">
+            {{ workspace_data.website.url }}
+          </div>
+        </div>
+
+        <div class="website-browser__body">
+          <section class="website-login-card website-login-card--hard">
+            <div class="website-login-card__banner phish-flaggable"
+                 data-sign-id="urgent_banner"
+                 data-sign-label="Urgent security banner"
+                 data-sign-hint="{{ (mission.signs | selectattr('id','eq','urgent_banner') | first | default({'hint':''})).hint }}">
+              {{ workspace_data.website.banner }}
+            </div>
+            <header class="website-login-card__head">
+              <span class="website-login-card__logo">U</span>
+              <div>
+                <h2 class="website-login-card__title phish-flaggable"
+                    data-sign-id="missing_security"
+                    data-sign-label="Missing expected security cues"
+                    data-sign-hint="{{ (mission.signs | selectattr('id','eq','missing_security') | first | default({'hint':''})).hint }}">
+                  {{ workspace_data.website.title }}
+                </h2>
+                <p class="website-login-card__subtitle">Official campus portal verification</p>
+              </div>
+            </header>
+
+            <div class="website-login-card__notice">This portal requests your credentials to continue.</div>
+
+            <form class="website-login-card__form" autocomplete="off">
+              <label class="website-field">
+                <span class="website-field__label">{{ workspace_data.website.username_label }}</span>
+                <input type="text" class="website-field__input phish-flaggable"
+                       data-sign-id="credential_request"
+                       data-sign-label="Credential request on first visit"
+                       data-sign-hint="{{ (mission.signs | selectattr('id','eq','credential_request') | first | default({'hint':''})).hint }}"
+                       placeholder="student@up.edu.ph" spellcheck="false">
+              </label>
+              <label class="website-field">
+                <span class="website-field__label">{{ workspace_data.website.password_label }}</span>
+                <input type="password" class="website-field__input" placeholder="••••••••">
+              </label>
+              <button type="button" class="website-login-card__submit">{{ workspace_data.website.submit_label }}</button>
+            </form>
+
+            <p class="website-login-card__hint">{{ workspace_data.website.hint }}</p>
+          </section>
+        </div>
+      </div>
+
+      <!-- URL Analyzer panel -->
+      {% if workspace_data.url_analysis %}
+      <div class="phish-hard__url-panel">
+        <div class="phish-hard__url-panel-header">
+          <span>🔍 URL Analyzer</span>
+          <button type="button" class="phish-hard__topbar-btn" id="analyze-url-btn">Analyze portal URL</button>
+        </div>
+        <div class="phish-hard__url-result" id="url-result" hidden>
+          {% for url, result in workspace_data.url_analysis.items() %}
+          <div class="phish-hard__url-entry" data-url="{{ url }}">
+            <div class="phish-hard__url-verdict phish-hard__url-verdict--{{ 'danger' if 'HIGH RISK' in result.verdict else 'info' }}">
+              {{ result.verdict }}
+            </div>
+            <ul class="phish-hard__url-details">
+              {% if result.domain_age %}<li><strong>Domain age:</strong> {{ result.domain_age }}</li>{% endif %}
+              {% if result.ssl %}<li><strong>SSL:</strong> {{ result.ssl }}</li>{% endif %}
+              {% if result.reputation %}<li><strong>Reputation:</strong> {{ result.reputation }}</li>{% endif %}
+              {% if result.similar_to %}<li><strong>Similar to:</strong> {{ result.similar_to }}</li>{% endif %}
+              {% if result.recommendation %}<li><strong>Action:</strong> {{ result.recommendation }}</li>{% endif %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Security log -->
+      <div class="phish-hard__logs">
+        <div class="phish-hard__logs-header">
+          <span>🔒 Security Alerts</span>
+        </div>
+        <ul class="phish-hard__logs-list">
+          {% for log in mission.logs %}
+          <li class="phish-hard__log-entry">
+            <span class="phish-hard__log-time">{{ log.time }}</span>
+            <span class="phish-hard__log-level phish-hard__log-level--{{ log.level | lower }}">{{ log.level }}</span>
+            <span class="phish-hard__log-msg">{{ log.message }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Signs checklist -->
+      <div class="phish-hard__signs">
+        <div class="phish-hard__signs-header">
+          <span>🚩 Suspicious Signs — flag by clicking elements above</span>
+        </div>
+        <ul class="phish-hard__signs-list">
+          {% for sign in mission.signs %}
+          <li class="phish-hard__sign-item" id="sign-item-{{ sign.id }}">
+            <span class="phish-hard__sign-check">○</span>
+            <span>{{ sign.label }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Status bar -->
+      <div class="phish-hard__statusbar">
+        <div class="phish-hard__statusbar-section">
+          <span>🚩</span>
+          <div>
+            <div class="phish-hard__statusbar-label">FLAGGED SIGNS</div>
+            <div class="phish-hard__statusbar-value" id="statusbar-flags">0 / {{ mission.signs | length }} signs flagged</div>
+          </div>
+        </div>
+        <div class="phish-hard__statusbar-divider"></div>
+        <div class="phish-hard__statusbar-section">
+          <div>
+            <div class="phish-hard__statusbar-timer" id="statusbar-timer">00:00</div>
+            <div class="phish-hard__statusbar-timer-label">ELAPSED TIME</div>
+          </div>
+        </div>
+        <button type="button" class="phish-hard__submit-btn" id="submit-report-btn" disabled>
+          Submit incident report
+        </button>
+      </div>
+    </main>
+
+    <!-- ══ RIGHT EVENT FEED ══ -->
+    <aside class="phish-hard__events">
+      <div class="phish-hard__events-header">
+        <span>📡</span>
+        <span>Event Feed</span>
+      </div>
+      <ul class="phish-hard__events-list" id="event-feed">
+        <li class="phish-hard__event phish-hard__event--warn">Cloned portal detected. Credential harvesting risk identified.</li>
+      </ul>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Decision modal -->
+<div class="phish-modal" id="decision-modal" hidden>
+  <div class="phish-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true">
+    <div class="phish-modal__content">
+      <span class="phish-modal__badge">Incident report</span>
+      <h2 class="phish-modal__title" id="decision-prompt"></h2>
+      <div class="phish-modal__options" id="decision-options"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Result modal -->
+<div class="phish-modal" id="result-modal" hidden>
+  <div class="phish-modal__backdrop"></div>
+  <div class="phish-modal__dialog" role="dialog" aria-modal="true">
+    <div class="phish-modal__content">
+      <span class="phish-modal__badge">Simulation complete</span>
+      <div class="phish-modal__score" id="result-score">—</div>
+      <p class="phish-modal__feedback" id="result-feedback"></p>
+      <button type="button" class="phish-modal__continue" id="result-continue-btn">
+        Return to overview →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>
+  document.body.classList.remove('bg-hero-grid');
+  /* Sync sign checklist when flaggable elements are clicked */
+  document.addEventListener('click', function (e) {
+    const el = e.target.closest('.phish-flaggable');
+    if (!el) return;
+    const id = el.dataset.signId;
+    if (!id) return;
+    const item = document.getElementById('sign-item-' + id);
+    if (item) {
+      item.classList.add('is-flagged');
+      item.querySelector('.phish-hard__sign-check').textContent = '✓';
+    }
+  });
+
+  /* URL analyzer toggle */
+  const analyzeBtn = document.getElementById('analyze-url-btn');
+  const urlResult = document.getElementById('url-result');
+  if (analyzeBtn && urlResult) {
+    analyzeBtn.addEventListener('click', function () {
+      urlResult.hidden = !urlResult.hidden;
+      analyzeBtn.textContent = urlResult.hidden ? 'Analyze portal URL' : 'Hide analysis';
+    });
+  }
+</script>
+<script src="{{ url_for('static', filename='js/phishing-hard.js') }}"></script>
+{% endblock %}

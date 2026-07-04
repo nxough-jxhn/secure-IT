@@ -4,32 +4,68 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/evil-twin-hard.css') }}">
+<script>
+  document.documentElement.style.cssText = 'background:#0a0a0a!important';
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.style.background = '#0a0a0a';
+    document.body.style.backgroundImage = 'none';
+  });
+</script>
 {% endblock %}
 
 {% block content %}
-<div class="evil-twin-hard-app">
+<div class="evil-twin-hard-app" id="evil-twin-hard-app">
   <div class="evil-twin-hard-layout">
+
+    <!-- ── LEFT SIDEBAR ── -->
     <aside class="evil-twin-hard-sidebar">
       <div class="evil-twin-hard-sidebar__top">
         <span class="evil-twin-hard-sidebar__label">SIMULATION</span>
         <h1 class="evil-twin-hard-sidebar__title">{{ mission.name }}</h1>
         <span class="evil-twin-hard-sidebar__badge">HARD</span>
       </div>
+
       <div class="evil-twin-hard-sidebar__section">
         <h3 class="evil-twin-hard-sidebar__section-title">OBJECTIVE</h3>
-        <p class="evil-twin-hard-sidebar__text">Inspect the hotspot list and determine whether the network is legitimate or a rogue access point.</p>
+        <p class="evil-twin-hard-sidebar__text">Inspect the available Wi-Fi networks, flag suspicious signs, and identify the rogue access point.</p>
       </div>
+
       <div class="evil-twin-hard-sidebar__section">
-        <h3 class="evil-twin-hard-sidebar__section-title">TASK LOG</h3>
-        <ul class="evil-twin-hard-sidebar__list" id="task-log">
-          <li>Inspect hotspot names and signal strength</li>
-          <li>Flag suspicious indicators</li>
-          <li>Submit your incident report</li>
+        <h3 class="evil-twin-hard-sidebar__section-title">MISSION PROGRESS</h3>
+        <div class="evil-twin-hard-progress">
+          <div class="evil-twin-hard-progress__row">
+            <span class="evil-twin-hard-progress__pct" id="progress-percent">0%</span>
+            <span id="progress-count">0 / {{ mission.tasks | length }} tasks</span>
+          </div>
+          <div class="evil-twin-hard-progress__bar">
+            <div class="evil-twin-hard-progress__fill" id="mission-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="evil-twin-hard-sidebar__section">
+        <h3 class="evil-twin-hard-sidebar__section-title">OBJECTIVES</h3>
+        <ul class="evil-twin-hard-objectives" id="objective-list">
+          {% for obj in mission.objectives %}
+          <li class="evil-twin-hard-objective" data-objective-index="{{ loop.index0 }}">
+            <span class="evil-twin-hard-objective__check">☐</span>
+            <span>{{ obj }}</span>
+          </li>
+          {% endfor %}
         </ul>
       </div>
+
+      <div class="evil-twin-hard-sidebar__section">
+        <h3 class="evil-twin-hard-sidebar__section-title">TASK LOG</h3>
+        <ul class="evil-twin-hard-task-log" id="task-log">
+          <li class="evil-twin-hard-task-log__empty">Inspect the networks to log progress.</li>
+        </ul>
+      </div>
+
       <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="evil-twin-hard-sidebar__exit">← Exit Simulation</a>
     </aside>
 
+    <!-- ── CENTER MAIN ── -->
     <main class="evil-twin-hard-main">
       <div class="evil-twin-hard-main__header">
         <span class="evil-twin-hard-main__icon">📶</span>
@@ -37,34 +73,79 @@
         <button type="button" class="evil-twin-hard-main__button" id="flag-mode-btn">🚩 Flag sign</button>
       </div>
 
+      <!-- Phone-style Wi-Fi list -->
       <div class="evil-twin-hard-screen">
-        <div class="evil-twin-hard-screen__networks" id="network-list">
-          {% for network in mission.wifi_options.networks %}
-          <div class="evil-twin-hard-network {% if not network.official %}evil-twin-hard-network--suspicious{% endif %}">
-            <div class="evil-twin-hard-network__name">{{ network.name }}</div>
-            <div class="evil-twin-hard-network__meta">{{ network.security }} · {{ network.signal }}</div>
+        <div class="evil-twin-hard-phone">
+          <div class="evil-twin-hard-phone__bar">
+            <span class="evil-twin-hard-phone__label">Available Networks</span>
+            <span>📶 Wi-Fi Settings</span>
           </div>
-          {% endfor %}
+          <div class="evil-twin-hard-network-list" id="network-list">
+            <!-- populated by JS from workspace_data -->
+          </div>
         </div>
-        <div class="evil-twin-hard-screen__panel">
-          <div class="evil-twin-hard-screen__panel-title">Selection Guidance</div>
-          <p>Check the SSID, security posture, and the use of a captive portal before trusting the network.</p>
-          <button type="button" class="evil-twin-hard-screen__submit" id="submit-report-btn">Submit incident report</button>
+      </div>
+
+      <!-- Statusbar -->
+      <div class="evil-twin-hard-statusbar">
+        <div class="evil-twin-hard-statusbar__item">
+          <span class="evil-twin-hard-statusbar__icon">🚩</span>
+          <div>
+            <div class="evil-twin-hard-statusbar__label">FLAGGED SIGNS</div>
+            <div class="evil-twin-hard-statusbar__value" id="statusbar-flags">0 / {{ mission.signs | length }} signs flagged</div>
+          </div>
         </div>
+        <div class="evil-twin-hard-statusbar__divider"></div>
+        <div class="evil-twin-hard-statusbar__item">
+          <div class="evil-twin-hard-statusbar__timer" id="mission-timer">00:00</div>
+          <div class="evil-twin-hard-statusbar__label" style="margin-left:6px;">ELAPSED</div>
+        </div>
+        <button type="button" class="evil-twin-hard-submit-btn" id="submit-report-btn" disabled>
+          Submit incident report
+        </button>
       </div>
     </main>
 
+    <!-- ── RIGHT: Event Feed ── -->
     <aside class="evil-twin-hard-events">
       <div class="evil-twin-hard-events__header">
         <span class="evil-twin-hard-events__icon">📡</span>
         <span class="evil-twin-hard-events__title">Event Feed</span>
       </div>
       <ul class="evil-twin-hard-events__list" id="event-feed">
-        <li class="evil-twin-hard-event">Suspicious hotspots detected in the area.</li>
+        <li class="evil-twin-hard-event evil-twin-hard-event--warn">Suspicious hotspots detected in range.</li>
       </ul>
     </aside>
+
+  </div><!-- /.evil-twin-hard-layout -->
+</div>
+
+<!-- Flag modal -->
+<div class="evil-twin-hard-modal" id="flag-modal" hidden>
+  <div class="evil-twin-hard-modal__backdrop" id="flag-modal-backdrop"></div>
+  <div class="evil-twin-hard-modal__dialog" role="dialog" aria-modal="true">
+    <button type="button" class="evil-twin-hard-modal__close" id="flag-modal-close">×</button>
+    <div class="evil-twin-hard-modal__content">
+      <span class="evil-twin-hard-modal__badge evil-twin-hard-modal__badge--flag">Sign flagged</span>
+      <h2 class="evil-twin-hard-modal__title" id="flag-modal-title"></h2>
+      <p class="evil-twin-hard-modal__body" id="flag-modal-body"></p>
+    </div>
   </div>
 </div>
 
+<!-- Decision modal -->
+<div class="evil-twin-hard-modal" id="decision-modal" hidden>
+  <div class="evil-twin-hard-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="evil-twin-hard-modal__dialog" role="dialog" aria-modal="true">
+    <div class="evil-twin-hard-modal__content">
+      <span class="evil-twin-hard-modal__badge evil-twin-hard-modal__badge--flag">Incident report</span>
+      <h2 class="evil-twin-hard-modal__title" id="decision-prompt"></h2>
+      <div class="evil-twin-hard-decision-options" id="decision-options"></div>
+    </div>
+  </div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>document.body.classList.remove('bg-hero-grid');</script>
 <script src="{{ url_for('static', filename='js/evil-twin-hard.js') }}"></script>
 {% endblock %}

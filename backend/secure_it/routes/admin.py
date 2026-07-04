@@ -9,6 +9,11 @@ from database import (
     delete_quiz_question,
     toggle_quiz_question_active,
     count_active_quiz_questions,
+    list_all_forum_posts,
+    get_forum_posts_by_user,
+    admin_disable_forum_post,
+    admin_disable_forum_comment,
+    list_all_users,
 )
 from secure_it import admin_required
 
@@ -167,3 +172,64 @@ def admin_simulations_page():
         attacks=attacks,
         activities=activities,
     )
+
+
+@admin_required
+def admin_community_page():
+    """GET /admin/community — post management table."""
+    posts = list_all_forum_posts(limit=200)
+    return make_admin_layout(
+        "admin_community",
+        "Community Post Management",
+        "Review, disable, or re-enable community posts and monitor forum activity.",
+        "admin_community.html",
+        posts=posts,
+    )
+
+
+@admin_required
+def admin_comments_page():
+    """GET /admin/community/comments — comment management by user."""
+    users = list_all_users()
+    user_list = [
+        {
+            "name":  u.get("name", u.get("email", "")),
+            "email": u.get("email", ""),
+        }
+        for u in users
+    ]
+    return make_admin_layout(
+        "admin_comments",
+        "Comment Management",
+        "Select a user to review their posts and manage comments.",
+        "admin_comments.html",
+        user_list=user_list,
+    )
+
+
+@admin_required
+def admin_community_posts_api():
+    """GET /admin/community/posts?email=<email> — return posts for a user (AJAX)."""
+    email = flask_request.args.get("email", "").strip()
+    if not email:
+        return jsonify({"error": "email required"}), 400
+    posts = get_forum_posts_by_user(email)
+    return jsonify(posts)
+
+
+@admin_required
+def admin_toggle_post_api(post_id: str):
+    """POST /admin/community/post/<post_id>/toggle  { disabled: bool }"""
+    payload  = flask_request.get_json(silent=True) or {}
+    disabled = bool(payload.get("disabled", False))
+    ok = admin_disable_forum_post(post_id, disabled)
+    return jsonify({"success": ok, "post_id": post_id, "disabled": disabled})
+
+
+@admin_required
+def admin_toggle_comment_api(post_id: str, comment_index: int):
+    """POST /admin/community/post/<post_id>/comment/<comment_index>/toggle  { disabled: bool }"""
+    payload  = flask_request.get_json(silent=True) or {}
+    disabled = bool(payload.get("disabled", False))
+    ok = admin_disable_forum_comment(post_id, comment_index, disabled)
+    return jsonify({"success": ok, "post_id": post_id, "comment_index": comment_index, "disabled": disabled})

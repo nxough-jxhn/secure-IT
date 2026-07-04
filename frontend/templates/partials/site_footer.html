@@ -1,27 +1,54 @@
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <div class="site-footer__brand">
-      <span class="site-footer__logo" aria-hidden="true">S</span>
-      <div>
-        <div class="site-footer__name">Secure-IT</div>
-        <p class="site-footer__tagline">Gamified cybersecurity awareness for students.</p>
+
+    <!-- Left: brand + description -->
+    <div class="site-footer__brand-col">
+      <div class="site-footer__brand">
+        <span class="site-footer__logo" aria-hidden="true">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 22L14 4L24 22H4Z" stroke="#00ff9f" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M9 22L14 12L19 22H9Z" fill="#00ff9f" opacity="0.6"/>
+          </svg>
+        </span>
+        <span class="site-footer__name">Secure-IT</span>
       </div>
+      <p class="site-footer__desc">
+        Secure-IT is a gamified cybersecurity awareness platform designed to train students through
+        interactive simulations, real-world attack scenarios, and community-driven learning.
+        Built to make cybersecurity education engaging, practical, and accessible for everyone.
+      </p>
+      <p class="site-footer__tagline">Empowering the next generation of cyber defenders.</p>
     </div>
 
-    <div class="site-footer__links">
-      <a href="{{ url_for('landing_page') }}">Home</a>
+    <!-- Center: quick links -->
+    <div class="site-footer__links-col">
+      <div class="site-footer__col-heading">Platform</div>
+      <a href="{{ url_for('landing_page') }}" class="site-footer__link">Home</a>
+      <a href="{{ url_for('simulations_page') }}" class="site-footer__link">Modules</a>
       {% if is_logged_in %}
-      <a href="{{ url_for('simulations_page') }}">Modules</a>
-      <a href="{{ url_for('profile_page') }}">Profile</a>
+      <a href="{{ url_for('dashboard_page') }}" class="site-footer__link">Dashboard</a>
+      <a href="{{ url_for('forum_page') }}" class="site-footer__link">Community</a>
+      <a href="{{ url_for('leaderboard_page') }}" class="site-footer__link">Leaderboard</a>
       {% else %}
-      <a href="{{ url_for('login_page') }}">Login</a>
+      <a href="{{ url_for('login_page') }}" class="site-footer__link">Login / Register</a>
       {% endif %}
     </div>
 
-    <div class="site-footer__meta">
-      <span>&copy; {{ year }} Secure-IT</span>
-      <span class="site-footer__dot" aria-hidden="true">·</span>
-      <span>Built for cyber defense training</span>
+    <!-- Right: meta info -->
+    <div class="site-footer__meta-col">
+      <div class="site-footer__col-heading">Contact</div>
+      <p class="site-footer__meta-line">
+        <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px;flex-shrink:0;"><path d="M2 4l6 5 6-5M2 4h12v8H2V4z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        secureit.system@gmail.org
+      </p>
+      <p class="site-footer__meta-line">
+        <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px;flex-shrink:0;"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM8 4v5l3 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Available to all willing to learn online safety and understand cyber security.
+      </p>
+      <div class="site-footer__divider"></div>
+      <p class="site-footer__copy">&copy; {{ year }} Secure-IT. All rights reserved.</p>
+      <p class="site-footer__copy">Built for cybersecurity education and awareness.</p>
     </div>
+
   </div>
 </footer>

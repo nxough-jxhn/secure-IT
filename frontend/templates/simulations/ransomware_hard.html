@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/malware-hard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ransomware-sim.css') }}">
+<style>
+  /* Ransomware accent overrides for hard sim */
+  body:has(.mh-sim) { background: #0a0c0f !important; }
+  .mh-sidebar__badge { background: rgba(239,68,68,.12) !important; border-color: rgba(239,68,68,.3) !important; color: #fca5a5 !important; }
+  .mh-sidebar__timer { color: #fca5a5; }
+  .mh-progress__fill { background: #ef4444; }
+  .mh-submit-btn     { background: #ef4444; }
+  .mh-submit-btn:not(:disabled):hover { filter: brightness(1.1); }
+  .mh-exit-btn       { background: rgba(239,68,68,.08) !important; border-color: rgba(239,68,68,.25) !important; color: #fca5a5 !important; }
+  .mh-exit-btn:hover { background: rgba(239,68,68,.15) !important; }
+  .mh-inspect-btn    { border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.06); color: #fca5a5; }
+  .mh-inspect-btn:hover:not(:disabled) { background: rgba(239,68,68,.14); }
+  .mh-complete-btn   { background: #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mh-sim" id="ransomware-hard-app">
+  <div class="mh-layout">
+
+    <!-- ══ LEFT SIDEBAR ══ -->
+    <aside class="mh-sidebar">
+      <div class="mh-sidebar__top">
+        <span class="mh-sidebar__label">HARD SIMULATION</span>
+        <h1 class="mh-sidebar__title">{{ mission.name }}</h1>
+        <span class="mh-sidebar__badge">HARD</span>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">STORY</h3>
+        <p class="mh-sidebar__text">{{ mission.story }}</p>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">TIME ELAPSED</h3>
+        <div class="mh-sidebar__timer" id="mission-timer">00:00</div>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">MISSION PROGRESS</h3>
+        <div class="mh-progress">
+          <div class="mh-progress__row">
+            <span class="mh-progress__pct" id="progress-percent">0%</span>
+            <span class="mh-progress__count" id="progress-count">0 / {{ mission.tasks | length }} tasks</span>
+          </div>
+          <div class="mh-progress__bar">
+            <div class="mh-progress__fill" id="mission-progress-fill" style="width:0%"></div>
+          </div>
+          <span class="mh-progress__flags" id="flags-meta">0 / {{ mission.signs | length }} signs flagged</span>
+        </div>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">OBJECTIVES</h3>
+        <ul class="mh-objectives" id="objective-list">
+          {% for objective in mission.objectives %}
+          <li class="mh-objective" data-objective-index="{{ loop.index0 }}">
+            <span class="mh-objective__check">☐</span>
+            <span>{{ objective }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="mh-sidebar__section">
+        <h3 class="mh-sidebar__section-title">TASK LOG</h3>
+        <ul class="mh-task-log" id="task-log">
+          <li class="mh-task-log__empty">Complete tasks to log progress.</li>
+        </ul>
+      </div>
+
+      <a href="{{ url_for('simulation_overview_page', attack_id=mission.attack_id) }}" class="mh-exit-btn">
+        ← Exit Simulation
+      </a>
+    </aside>
+
+    <!-- ══ CENTER MAIN ══ -->
+    <main class="mh-main">
+      <div class="mh-main__topbar">
+        <span class="mh-main__topbar-icon">🔒</span>
+        <span class="mh-main__topbar-label">Ransomware Incident Response — System Analysis</span>
+        <button type="button" class="mh-topbar-btn" id="flag-mode-btn">🚩 Flag sign</button>
+      </div>
+
+      <div class="mh-main__scroll">
+
+        <!-- Ransom screen (flaggable) -->
+        <section class="ransom-note">
+          <h2 class="ransom-note__headline mh-flaggable"
+              data-sign-id="encryption_note"
+              data-sign-label="Ransom note on desktop"
+              data-sign-hint="{{ (mission.signs | selectattr('id','eq','encryption_note') | first | default({'hint':''})).hint }}">
+            {{ mission.ransom.headline }}
+          </h2>
+
+          <p class="ransom-note__message mh-flaggable"
+             data-sign-id="urgent_payment"
+             data-sign-label="Urgent cryptocurrency payment demand"
+             data-sign-hint="{{ (mission.signs | selectattr('id','eq','urgent_payment') | first | default({'hint':''})).hint }}">
+            {{ mission.ransom.message }}
+          </p>
+
+          <div class="ransom-note__timer mh-flaggable"
+               data-sign-id="urgent_payment"
+               data-sign-label="Urgent cryptocurrency payment demand"
+               data-sign-hint="{{ (mission.signs | selectattr('id','eq','urgent_payment') | first | default({'hint':''})).hint }}">
+            Timer: {{ mission.ransom.timer }}
+          </div>
+
+          <h3 class="ransom-note__files-title">Encrypted files</h3>
+          <ul class="ransom-note__files">
+            {% for file in mission.ransom.files %}
+              <li class="mh-flaggable"
+                  data-sign-id="file_extension_change"
+                  data-sign-label="Mass file extension changes"
+                  data-sign-hint="{{ (mission.signs | selectattr('id','eq','file_extension_change') | first | default({'hint':''})).hint }}">
+                {{ file }}
+              </li>
+            {% endfor %}
+          </ul>
+
+          <div style="margin-top:16px;">
+            <button type="button" id="inspect-btn" class="mh-inspect-btn">🔍 Analyze ransom note</button>
+          </div>
+        </section>
+
+        <!-- Security log -->
+        <div class="mh-logs">
+          <div class="mh-logs__header">
+            <span class="mh-logs__title">🔒 Security Alerts</span>
+          </div>
+          <ul class="mh-logs__list">
+            {% for log in mission.logs %}
+            <li class="mh-log-entry">
+              <span class="mh-log-entry__time">{{ log.time }}</span>
+              <span class="mh-log-entry__level mh-log-entry__level--{{ log.level }}">{{ log.level }}</span>
+              <span class="mh-log-entry__msg">{{ log.message }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Signs checklist -->
+        <div class="mh-signs">
+          <div class="mh-signs__header">
+            <span class="mh-signs__title">🚩 Ransomware Signs — flag by clicking elements above</span>
+          </div>
+          <ul class="mh-signs__list">
+            {% for sign in mission.signs %}
+            <li class="mh-sign-item" id="sign-item-{{ sign.id }}">
+              <span class="mh-sign-item__check">○</span>
+              <span>{{ sign.label }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+      </div><!-- /.mh-main__scroll -->
+
+      <!-- Hint bar -->
+      <div class="mh-hint-bar">
+        <span class="mh-hint-bar__icon">💡</span>
+        <span class="mh-hint-bar__label">Hint</span>
+        <span class="mh-hint-bar__text">Enable flag mode then click suspicious parts of the ransom screen above. Analyze the note, flag signs, then submit your incident response.</span>
+      </div>
+
+      <!-- Status bar -->
+      <div class="mh-statusbar">
+        <div class="mh-statusbar__section">
+          <span class="mh-statusbar__icon">🚩</span>
+          <div>
+            <div class="mh-statusbar__label">FLAGGED SIGNS</div>
+            <div class="mh-statusbar__value" id="statusbar-flags">0 / {{ mission.signs | length }} signs flagged</div>
+          </div>
+        </div>
+        <div class="mh-statusbar__divider"></div>
+        <div class="mh-statusbar__section">
+          <div>
+            <div class="mh-statusbar__timer-display" id="statusbar-timer">00:00</div>
+            <div class="mh-statusbar__timer-label">ELAPSED TIME</div>
+          </div>
+        </div>
+        <button type="button" class="mh-submit-btn" id="submit-report-btn" disabled>
+          Submit incident response
+        </button>
+      </div>
+    </main>
+
+    <!-- ══ RIGHT EVENT FEED ══ -->
+    <aside class="mh-events">
+      <div class="mh-events__header">
+        <span class="mh-events__icon">📡</span>
+        <span class="mh-events__title">Event Feed</span>
+      </div>
+      <ul class="mh-events__list" id="event-feed">
+        <li class="mh-event mh-event--warn">Ransomware encryption detected. Immediate containment required.</li>
+      </ul>
+    </aside>
+
+  </div><!-- /.mh-layout -->
+</div><!-- /.mh-sim -->
+
+<!-- Decision modal -->
+<div class="mh-modal" id="decision-modal" hidden>
+  <div class="mh-modal__backdrop" id="decision-modal-backdrop"></div>
+  <div class="mh-modal__dialog" role="dialog" aria-modal="true">
+    <div class="mh-modal__content">
+      <span class="mh-modal__badge">Incident response</span>
+      <h2 class="mh-modal__title" id="decision-prompt"></h2>
+      <div class="mh-modal__options" id="decision-options"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Result modal -->
+<div class="mh-modal" id="result-modal" hidden>
+  <div class="mh-modal__backdrop"></div>
+  <div class="mh-modal__dialog" role="dialog" aria-modal="true">
+    <div class="mh-modal__content">
+      <span class="mh-modal__badge">Simulation complete</span>
+      <div class="mh-result__score" id="result-score">—</div>
+      <p class="mh-result__feedback" id="result-feedback"></p>
+      <button type="button" class="mh-result__continue" id="result-continue-btn">
+        Return to overview →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script id="workspace-data" type="application/json">{{ workspace_data | tojson }}</script>
+<script>
+  document.body.classList.remove('bg-hero-grid');
+  document.body.style.backgroundImage = 'none';
+  /* Sync sign checklist with flag events */
+  document.addEventListener('click', function (e) {
+    const el = e.target.closest('.mh-flaggable');
+    if (!el) return;
+    const id = el.dataset.signId;
+    if (!id) return;
+    const item = document.getElementById('sign-item-' + id);
+    if (item) {
+      item.classList.add('is-flagged');
+      item.querySelector('.mh-sign-item__check').textContent = '✓';
+    }
+  });
+</script>
+<script src="{{ url_for('static', filename='js/malware-hard.js') }}"></script>
+{% endblock %}

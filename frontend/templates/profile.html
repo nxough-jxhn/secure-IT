@@ -302,42 +302,52 @@
 
       </div><!-- /pf-col left -->
 
-      <!-- RIGHT COL: Recent Community Posts (placeholder) -->
+      <!-- RIGHT COL: Recent Community Posts -->
       <div class="pf-col">
         <section class="pf-card">
           <div class="pf-card__title-row">
             <h3 class="pf-card__title">Recent Community Posts</h3>
-            <span class="pf-card__coming-soon">Coming soon</span>
+            <a href="{{ url_for('forum_page') }}" class="pf-btn pf-btn--ghost pf-btn--sm">View all</a>
           </div>
           <div class="pf-community-list">
-            {% set placeholder_posts = [
-              {"user": "Anna M.", "time": "2h ago",  "text": "Just completed the SQL Injection hard sim on my first try — the URL params hint was key.", "likes": 12},
-              {"user": "Jake R.", "time": "5h ago",  "text": "Anyone else notice the spoofed domain in the phishing email uses 'univeristy' misspelled?",  "likes": 7},
-              {"user": "Clara S.", "time": "1d ago", "text": "Finished all social-based modules this week. The social engineering one is the hardest by far.", "likes": 21},
-            ] %}
-            {% for post in placeholder_posts %}
+            {% if recent_posts %}
+            {% for post in recent_posts %}
             <div class="pf-post">
-              <div class="pf-post__avatar">{{ post.user[:2]|upper }}</div>
+              <div class="pf-post__avatar">
+                {% if post.profile_picture %}
+                <img src="{{ post.profile_picture if post.profile_picture.startswith('http') else url_for('static', filename=post.profile_picture) }}"
+                     alt="{{ post.author_name }}"
+                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                {% else %}
+                {{ post.author_name[:2]|upper }}
+                {% endif %}
+              </div>
               <div class="pf-post__body">
                 <div class="pf-post__meta">
-                  <span class="pf-post__name">{{ post.user }}</span>
-                  <span class="pf-post__time">{{ post.time }}</span>
+                  <span class="pf-post__name">{{ post.author_name }}</span>
+                  <span class="pf-post__time">{{ post.created_at | string | truncate(10, true, '') }}</span>
                 </div>
-                <p class="pf-post__text">{{ post.text }}</p>
+                <p class="pf-post__text">{{ post.content | truncate(100, true, '…') }}</p>
                 <div class="pf-post__actions">
                   <button type="button" class="pf-post__like">
                     <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" fill="currentColor"/></svg>
-                    {{ post.likes }}
+                    {{ post.likes_count }}
                   </button>
-                  <button type="button" class="pf-post__reply">Reply</button>
+                  <a href="{{ url_for('forum_page') }}" class="pf-post__reply">Reply</a>
                 </div>
               </div>
             </div>
             {% endfor %}
             <div class="pf-community-cta">
-              <p>Community features launch soon. Discussions, peer reviews, and challenge sharing.</p>
-              <a href="#" class="pf-btn pf-btn--ghost pf-btn--sm" style="pointer-events:none;opacity:.45;">Join waitlist</a>
+              <p>Join the conversation — share tips, ask questions, and connect with other learners.</p>
+              <a href="{{ url_for('forum_page') }}" class="pf-btn pf-btn--ghost pf-btn--sm">Open forum</a>
             </div>
+            {% else %}
+            <div class="pf-community-cta">
+              <p>No posts yet. Be the first to start a conversation in the community forum.</p>
+              <a href="{{ url_for('forum_page') }}" class="pf-btn pf-btn--ghost pf-btn--sm">Go to forum</a>
+            </div>
+            {% endif %}
           </div>
         </section>
       </div><!-- /pf-col right -->

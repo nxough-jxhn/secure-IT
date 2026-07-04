@@ -97,7 +97,7 @@ def create_app():
     except ValueError:
         app.config["EMAIL_VERIFY_TTL_HOURS"] = 24
 
-    from .routes.admin import admin_page, admin_users_page, toggle_user_page, admin_simulations_page, admin_quiz_manager_page, admin_quiz_questions_api, admin_quiz_create_api, admin_quiz_update_api, admin_quiz_delete_api, admin_quiz_toggle_api
+    from .routes.admin import admin_page, admin_users_page, toggle_user_page, admin_simulations_page, admin_quiz_manager_page, admin_quiz_questions_api, admin_quiz_create_api, admin_quiz_update_api, admin_quiz_delete_api, admin_quiz_toggle_api, admin_community_page, admin_comments_page, admin_community_posts_api, admin_toggle_post_api, admin_toggle_comment_api
     from .routes.auth import (
         firebase_login,
         login_page,
@@ -110,12 +110,14 @@ def create_app():
     from .routes.leaderboard import leaderboard_page
     from .routes.collection import collection_page, set_namecard_page
     from .routes.modules import modules_category_page, modules_page
+    from .routes.community import forum_page, forum_like_api, forum_comment_api, forum_delete_api, forum_edit_comment_api, forum_delete_comment_api
     from .routes.profile import profile_page
     from .routes.quizzes import quizzes_page
     from .routes.simulations import (
         adware_pop_up_page,
         evil_twin_page,
         phishing_fake_email_page,
+        phishing_fake_website_page,
         simulation_complete_page,
         simulation_easy_complete_page,
         simulation_easy_page,
@@ -142,6 +144,7 @@ def create_app():
     app.add_url_rule("/modules/category/<category_id>", endpoint="modules_category_page", view_func=modules_category_page)
     app.add_url_rule("/simulations", endpoint="simulations_page", view_func=simulations_page)
     app.add_url_rule("/phishing_fake_email", endpoint="phishing_fake_email_page", view_func=phishing_fake_email_page)
+    app.add_url_rule("/phishing_fake_website", endpoint="phishing_fake_website_page", view_func=phishing_fake_website_page)
     app.add_url_rule("/adware_pop_up", endpoint="adware_pop_up_page", view_func=adware_pop_up_page)
     app.add_url_rule("/evil_twin", endpoint="evil_twin_page", view_func=evil_twin_page)
     app.add_url_rule("/simulations/<attack_id>", endpoint="simulation_overview_page", view_func=simulation_overview_page)
@@ -159,6 +162,12 @@ def create_app():
     app.add_url_rule("/simulations/<attack_id>/quiz", endpoint="simulation_quiz_page", view_func=simulation_quiz_page)
     app.add_url_rule("/simulations/<attack_id>/quiz/submit", methods=["POST"], endpoint="simulation_quiz_submit_page", view_func=simulation_quiz_submit_page)
     app.add_url_rule("/quizzes", endpoint="quizzes_page", view_func=quizzes_page)
+    app.add_url_rule("/community", methods=["GET", "POST"], endpoint="forum_page", view_func=forum_page)
+    app.add_url_rule("/community/like/<post_id>", methods=["POST"], endpoint="forum_like_api", view_func=forum_like_api)
+    app.add_url_rule("/community/comment/<post_id>", methods=["POST"], endpoint="forum_comment_api", view_func=forum_comment_api)
+    app.add_url_rule("/community/post/<post_id>", methods=["DELETE"], endpoint="forum_delete_api", view_func=forum_delete_api)
+    app.add_url_rule("/community/comment/<post_id>/<int:comment_index>", methods=["PATCH"], endpoint="forum_edit_comment_api", view_func=forum_edit_comment_api)
+    app.add_url_rule("/community/comment/<post_id>/<int:comment_index>", methods=["DELETE"], endpoint="forum_delete_comment_api", view_func=forum_delete_comment_api)
     app.add_url_rule("/admin", endpoint="admin_page", view_func=admin_page)
     app.add_url_rule("/admin/users", endpoint="admin_users_page", view_func=admin_users_page)
     app.add_url_rule("/admin/toggle-user", methods=["POST"], endpoint="toggle_user_page", view_func=toggle_user_page)
@@ -169,6 +178,11 @@ def create_app():
     app.add_url_rule("/admin/quiz/<question_id>",      methods=["PATCH"],  endpoint="admin_quiz_update_api",   view_func=admin_quiz_update_api)
     app.add_url_rule("/admin/quiz/<question_id>",      methods=["DELETE"], endpoint="admin_quiz_delete_api",   view_func=admin_quiz_delete_api)
     app.add_url_rule("/admin/quiz/<question_id>/toggle", methods=["POST"], endpoint="admin_quiz_toggle_api",   view_func=admin_quiz_toggle_api)
+    app.add_url_rule("/admin/community",               endpoint="admin_community_page",          view_func=admin_community_page)
+    app.add_url_rule("/admin/community/comments",      endpoint="admin_comments_page",           view_func=admin_comments_page)
+    app.add_url_rule("/admin/community/posts",         endpoint="admin_community_posts_api",     view_func=admin_community_posts_api)
+    app.add_url_rule("/admin/community/post/<post_id>/toggle", methods=["POST"], endpoint="admin_toggle_post_api", view_func=admin_toggle_post_api)
+    app.add_url_rule("/admin/community/post/<post_id>/comment/<int:comment_index>/toggle", methods=["POST"], endpoint="admin_toggle_comment_api", view_func=admin_toggle_comment_api)
     app.add_url_rule("/logout", methods=["POST"], endpoint="logout_page", view_func=logout_page)
 
     from firebase_auth import get_firebase_web_config

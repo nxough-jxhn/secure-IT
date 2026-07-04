@@ -1,296 +1,147 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ══════════════════════════════════════════
+   Adware Easy Simulation — 3-Column Layout
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body.adware-sim {
-  font-family: 'Roboto', sans-serif;
-  background: #101114;
-  color: #f4f4f4;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0a0a0a;
+  color: #e0e0e0;
   overflow: hidden;
 }
 
+/* ── Layout ── */
 .adware-sim__layout {
   display: grid;
-  grid-template-columns: 280px 1fr 320px;
+  grid-template-columns: 280px 1fr 340px;
   height: 100vh;
 }
 
-.adware-sidebar,
-.adware-indicators {
-  background: #0f1115;
+/* ══ LEFT SIDEBAR ══ */
+.adware-sidebar {
+  background: #0f0f0f;
   border-right: 1px solid rgba(255,255,255,0.08);
-  padding: 24px 20px;
+  padding: 32px 24px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
 }
 
-.adware-sidebar__label,
-.adware-sidebar__section-title,
-.adware-indicators__title {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #7f8796;
-}
+.adware-sidebar__header { display: flex; flex-direction: column; gap: 8px; }
+.adware-sidebar__label { font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #666; }
+.adware-sidebar__title { font-size: 1.125rem; font-weight: 700; color: #fff; line-height: 1.3; }
+.adware-sidebar__badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .625rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; width: fit-content; }
+.adware-sidebar__badge--beginner { background: rgba(255,184,77,.12); border: 1px solid rgba(255,184,77,.25); color: #ffb84d; }
+.adware-sidebar__section { display: flex; flex-direction: column; gap: 10px; }
+.adware-sidebar__section-title { font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #5f6368; }
+.adware-sidebar__text { font-size: .875rem; line-height: 1.6; color: #bbb; }
+.adware-sidebar__timer { font-family: 'Courier New', monospace; font-size: 1.75rem; font-weight: 700; color: #ffb84d; }
+.adware-sidebar__list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.adware-sidebar__list li { font-size: .8125rem; line-height: 1.5; color: #bbb; padding-left: 20px; position: relative; }
+.adware-sidebar__list li::before { content: '•'; position: absolute; left: 6px; color: #ffb84d; }
+.adware-sidebar__report { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; border-radius: 10px; border: 1px solid rgba(239,68,68,.35); background: rgba(239,68,68,.1); text-decoration: none; color: #f87171; font-size: .9375rem; font-weight: 700; margin-top: auto; transition: border-color .2s, background .2s, transform .2s; }
+.adware-sidebar__report:hover { border-color: rgba(239,68,68,.55); background: rgba(239,68,68,.16); transform: translateY(-1px); }
 
-.adware-sidebar__title {
-  margin-top: 8px;
-  font-size: 1.1rem;
-}
+/* ══ CENTER — Browser popup ══ */
+.adware-screen { background: #141414; display: flex; flex-direction: column; overflow: hidden; }
+.adware-screen__header { display: flex; align-items: center; gap: 10px; padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); background: #0f0f0f; }
+.adware-screen__icon { font-size: 1.25rem; }
+.adware-screen__label { font-size: .875rem; font-weight: 600; color: #fff; }
 
-.adware-sidebar__badge {
-  display: inline-block;
-  width: fit-content;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 166, 0, 0.15);
-  border: 1px solid rgba(255, 166, 0, 0.25);
-  color: #ffb84d;
-  font-size: 0.7rem;
-  margin-top: 8px;
-}
+.adware-window { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+.adware-window__chrome { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #eef2f7; border-bottom: 1px solid #e5e7eb; }
+.adware-window__dots { display: flex; gap: 6px; }
+.adware-window__dots span { width: 12px; height: 12px; border-radius: 50%; background: #d0d0d0; }
+.adware-window__dots span:nth-child(1) { background: #fc6058; }
+.adware-window__dots span:nth-child(2) { background: #ffc130; }
+.adware-window__dots span:nth-child(3) { background: #27c93f; }
+.adware-window__address { flex: 1; text-align: center; font-size: .875rem; color: #4b5563; background: #fff; padding: 4px 12px; border-radius: 6px; border: 1px solid #e5e7eb; }
 
-.adware-sidebar__text,
-.adware-sidebar__list li,
-.adware-indicators__count,
-.adware-verdict__subtitle {
-  color: #b9c0cc;
-  line-height: 1.5;
-}
+.adware-popup { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 40px 24px; background: #f8f9fa; overflow-y: auto; }
+.adware-popup__inner { width: min(480px, 100%); background: #fff; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.15); overflow: hidden; border: 1px solid #e5e7eb; color: #1a1a1a; }
+.adware-popup__header-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #1e3a5f; }
+.adware-popup__header-bar-icon { font-size: 1rem; }
+.adware-popup__header-bar-text { font-size: .75rem; font-weight: 700; color: #fff; letter-spacing: .06em; text-transform: uppercase; }
+.adware-popup__body { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.adware-popup__title-btn { background: transparent; border: none; color: #1a1a1a; font: inherit; text-align: left; cursor: pointer; padding: 8px 10px; border-radius: 6px; display: flex; align-items: flex-start; gap: 10px; width: 100%; transition: background .2s; }
+.adware-popup__title-btn:hover { background: rgba(255,184,77,.08); }
+.adware-popup__title-text { font-size: 1.15rem; font-weight: 700; color: #1a1a1a; line-height: 1.3; }
+.adware-popup__text-btn, .adware-popup__meta-btn { background: transparent; border: none; color: #333; font: inherit; text-align: left; cursor: pointer; padding: 6px 10px; border-radius: 6px; display: flex; align-items: flex-start; gap: 10px; width: 100%; transition: background .2s; }
+.adware-popup__text-btn:hover, .adware-popup__meta-btn:hover { background: rgba(0,0,0,.04); }
+.adware-popup__body-text { font-size: .9375rem; line-height: 1.6; color: #1a1a1a; }
+.adware-popup__meta-text { font-size: .8125rem; color: #4b5563; }
+.adware-popup__cta-row { display: flex; flex-direction: column; gap: 8px; }
+.adware-popup__cta { background: transparent; border: none; color: #1a1a1a; font: inherit; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 10px; }
+.adware-popup__cta-btn { display: block; width: 100%; padding: 12px 20px; border-radius: 8px; background: #ff6b35; color: #fff; font-size: .9375rem; font-weight: 700; text-align: center; cursor: pointer; transition: filter .2s; }
+.adware-popup__cta:hover .adware-popup__cta-btn { filter: brightness(1.1); }
+.adware-popup__link { background: transparent; border: none; font: inherit; cursor: pointer; padding: 6px 10px; border-radius: 6px; display: flex; align-items: center; gap: 10px; transition: background .2s; }
+.adware-popup__link:hover { background: rgba(0,0,0,.04); }
+.adware-popup__link-text { color: #1a73e8; font-size: .8125rem; text-decoration: underline; word-break: break-all; }
 
-.adware-sidebar__list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* Numbered flag badges */
+.adware-flag-num { display: inline-flex; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: rgba(239,68,68,.2); border: 1px solid rgba(239,68,68,.5); color: #f87171; font-size: .6875rem; font-weight: 700; align-items: center; justify-content: center; pointer-events: none; vertical-align: middle; }
+.adware-hotspot.is-reviewed .adware-flag-num { background: rgba(0,255,159,.15); border-color: rgba(0,255,159,.4); color: #00ff9f; }
+.adware-hotspot:not(.is-reviewed) { outline: 1px solid rgba(239,68,68,.35); border-radius: 6px; }
+.adware-hotspot.is-reviewed { outline: 1px solid rgba(0,255,159,.3); }
 
-.adware-sidebar__report,
-.adware-hint__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 166, 0, 0.25);
-  background: rgba(255, 166, 0, 0.12);
-  color: #ffb84d;
-  text-decoration: none;
-  font-weight: 600;
-}
+/* Hint bar */
+.adware-hint { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #e6f4ea; border-top: 1px solid #c3e6cb; flex-shrink: 0; }
+.adware-hint__icon { font-size: 1.25rem; }
+.adware-hint__text { font-weight: 700; color: #0d8a4f; font-size: .875rem; }
+.adware-hint__desc { font-size: .8125rem; color: #3c4043; flex: 1; }
+.adware-hint__btn { padding: 10px 20px; border-radius: 8px; border: none; background: #00c97c; color: #fff; font-weight: 700; font-size: .875rem; cursor: pointer; transition: filter .2s, transform .2s; }
+.adware-hint__btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.adware-hint__btn:disabled { background: #c8d6cd; color: #8a948e; cursor: not-allowed; }
 
-.adware-screen {
-  background: #1a1d24;
-  display: flex;
-  flex-direction: column;
-}
+/* ══ RIGHT SIDEBAR — Indicators ══ */
+.adware-indicators { background: #0f0f0f; border-left: 1px solid rgba(255,255,255,0.08); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.adware-indicators__header { display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.adware-indicators__icon { font-size: 1.5rem; }
+.adware-indicators__title { font-size: 1rem; font-weight: 700; color: #fff; }
+.adware-indicators__count { font-size: .75rem; color: #ffb84d; font-weight: 600; }
+.adware-indicators__list { display: flex; flex-direction: column; gap: 12px; }
 
-.adware-screen__header {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #16181d;
-}
+.adware-indicator { padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); display: flex; align-items: flex-start; gap: 12px; transition: border-color .2s, background .2s; }
+.adware-indicator.is-reviewed { border-color: rgba(0,255,159,.25); background: rgba(0,255,159,.04); }
+.adware-indicator__number { flex: 0 0 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.08); display: grid; place-items: center; font-size: .75rem; font-weight: 700; color: #5f6368; }
+.adware-indicator.is-reviewed .adware-indicator__number { background: #00ff9f; color: #0a0a0a; }
+.adware-indicator__content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.adware-indicator__title { font-size: .8125rem; font-weight: 600; color: #fff; line-height: 1.3; }
+.adware-indicator__desc { font-size: .75rem; line-height: 1.5; color: #5f6368; }
 
-.adware-window {
-  flex: 1;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* Verdict */
+.adware-verdict { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 12px; }
+.adware-verdict__title { font-size: .9375rem; font-weight: 700; color: #fff; }
+.adware-verdict__subtitle { font-size: .8125rem; color: #5f6368; line-height: 1.5; }
+.adware-verdict__buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.adware-verdict__btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 8px; border: 1px solid; font-weight: 700; font-size: .875rem; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.adware-verdict__btn--safe { background: rgba(0,255,159,.08); border-color: rgba(0,255,159,.25); color: #00ff9f; }
+.adware-verdict__btn--safe:hover { background: rgba(0,255,159,.12); transform: translateY(-2px); }
+.adware-verdict__btn--danger { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.25); color: #f87171; }
+.adware-verdict__btn--danger:hover { background: rgba(239,68,68,.12); transform: translateY(-2px); }
 
-.adware-window__chrome {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #fff;
-  color: #111;
-  border-radius: 8px 8px 0 0;
-}
-
-.adware-window__dots {
-  display: flex;
-  gap: 6px;
-}
-
-.adware-window__dots span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #d0d0d0;
-}
-
-.adware-window__address {
-  flex: 1;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-.adware-popup {
-  background: #ffffff;
-  color: #111;
-  border-radius: 0 0 10px 10px;
-  padding: 24px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
-}
-
-.adware-popup__header {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  color: #7f8796;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px;
-}
-
-.adware-popup__title,
-.adware-popup__text,
-.adware-popup__meta,
-.adware-popup__footer,
-.adware-popup__cta {
-  margin-bottom: 12px;
-}
-
-.adware-hotspot {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  text-align: left;
-  padding: 0;
-}
-
-.adware-flag-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #ffb84d;
-  color: #111;
-  font-size: 0.78rem;
-  font-weight: 700;
-  margin-right: 8px;
-}
-
-.adware-popup__cta {
-  background: #ffb84d;
-  color: #111;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.adware-hint {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-}
-
-.adware-indicators__header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.adware-indicator {
-  display: flex;
-  gap: 10px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.adware-indicator.is-reviewed {
-  opacity: 0.7;
-}
-
-.adware-verdict {
-  margin-top: auto;
-}
-
-.adware-verdict__buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.adware-verdict__btn {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.adware-verdict__btn--safe {
-  background: #1e3a2f;
-  color: #5edb97;
-}
-
-.adware-verdict__btn--danger {
-  background: #4c2222;
-  color: #ff8d8d;
-}
-
-.adware-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-}
-
-.adware-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-}
-
-.adware-modal__dialog {
-  position: relative;
-  margin: 80px auto;
-  width: min(560px, calc(100% - 24px));
-  background: #fff;
-  color: #111;
-  border-radius: 12px;
-  padding: 24px;
-}
-
-.adware-modal__close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  border: none;
-  background: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-
-.adware-modal__compare {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.adware-modal__box {
-  padding: 12px;
-  border-radius: 8px;
-  background: #f4f4f4;
-}
-
-.adware-modal__box--correct {
-  border: 1px solid rgba(255, 166, 0, 0.2);
-}
+/* ══ MODAL ══ */
+.adware-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; pointer-events: none; }
+.adware-modal[hidden] { display: none; }
+.adware-modal:not([hidden]) { pointer-events: auto; }
+.adware-modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.85); backdrop-filter: blur(4px); pointer-events: auto; }
+.adware-modal__dialog { position: relative; width: min(600px, 100%); max-height: 90vh; background: #1a1a1a; border-radius: 20px; border: 1px solid rgba(255,255,255,.1); padding: 36px 40px; overflow-y: auto; animation: adwareModalIn .3s ease; }
+@keyframes adwareModalIn { from { opacity:0; transform: translateY(20px) scale(.96); } to { opacity:1; transform: none; } }
+.adware-modal__close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #5f6368; font-size: 1.25rem; cursor: pointer; display: grid; place-items: center; transition: background .2s, color .2s; }
+.adware-modal__close:hover { background: rgba(239,68,68,.15); color: #f87171; }
+.adware-modal__content { display: flex; flex-direction: column; gap: 20px; }
+.adware-modal__badge { display: inline-flex; padding: 6px 14px; border-radius: 999px; background: rgba(255,184,77,.1); border: 1px solid rgba(255,184,77,.25); color: #ffb84d; font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; width: fit-content; }
+.adware-modal__title { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.3; margin: 0; }
+.adware-modal__desc { font-size: .9375rem; line-height: 1.7; color: #bbb; margin: 0; }
+.adware-modal__compare { display: flex; gap: 16px; }
+.adware-modal__box { flex: 1; padding: 16px; border-radius: 12px; border: 1px solid; }
+.adware-modal__box--wrong { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.28); }
+.adware-modal__box--correct { background: rgba(0,255,159,.08); border-color: rgba(0,255,159,.28); }
+.adware-modal__label { display: block; font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.adware-modal__box--wrong .adware-modal__label { color: #fca5a5; }
+.adware-modal__box--correct .adware-modal__label { color: #5eead4; }
+.adware-modal__text { font-size: .9375rem; font-weight: 500; line-height: 1.65; color: #f5f5f5; margin: 0; }
+.adware-modal__tip { display: flex; gap: 12px; padding: 16px; border-radius: 12px; background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.2); }
+.adware-modal__tip-icon { font-size: 1.25rem; color: #4285f4; }
+.adware-modal__tip-text { font-size: .875rem; line-height: 1.6; color: #ccc; }

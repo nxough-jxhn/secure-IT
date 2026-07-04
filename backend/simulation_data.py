@@ -203,6 +203,212 @@ PHISHING_EMAIL_QUIZ = [
     },
 ]
 
+PHISHING_WEBSITE_STEPS = [
+    {
+        "title": "Fake Portal Verification",
+        "narrative": (
+            "You receive a message telling you to verify your account on a campus portal. The link opens a login page that looks official, but you need to check the URL and the page behavior carefully before entering anything."
+        ),
+        "interface_type": "email",
+        "interface": {
+            "from_name": "UP Portal Security",
+            "from": "security@up-portal-verify.net",
+            "subject": "Action Required: Verify your campus portal access",
+            "greeting": "Dear student,",
+            "body": "Your campus account must be verified immediately to avoid service interruption. Click the link below to open the portal and log in.",
+            "signoff": "Regards,\nUP Portal Support",
+            "highlight": "up-portal-verify.net/login",
+            "link_actual": "https://up-portal-verify.net/login",
+            "footer_label": "University Portal Access",
+        },
+        "choices": [
+            _choice(
+                "open",
+                "Open the link and log in immediately",
+                "You entered credentials into a fake portal and handed them to the attacker.",
+                "Cloned login pages are designed to harvest usernames and passwords.",
+                0,
+            ),
+            _choice(
+                "verify",
+                "Verify the portal through the official university website",
+                "You avoided the fake portal and confirmed the real website through a trusted source.",
+                "The safest response is to navigate to the official site yourself instead of trusting the email link.",
+                100,
+                is_best=True,
+            ),
+            _choice(
+                "reply",
+                "Reply and ask the sender to confirm",
+                "The attacker received more information and could continue the scam.",
+                "Never use the suspicious email thread to verify identity.",
+                40,
+            ),
+        ],
+    }
+]
+
+PHISHING_WEBSITE_QUIZ = [
+    {
+        "question": "What is the safest way to verify a portal verification email?",
+        "options": [
+            "Click the link in the email and sign in",
+            "Open the official website yourself and check notices there",
+            "Reply to the sender asking if the link is real",
+            "Forward the message to everyone in your class",
+        ],
+        "correct": 1,
+        "explanation": "Typing the official website yourself or using a trusted bookmark avoids cloned login pages.",
+    },
+    {
+        "question": "Which detail most strongly suggests a fake website?",
+        "options": [
+            "A page that uses the school logo",
+            "A domain name with extra words like verify or security",
+            "A login page that asks for your username",
+            "A page that loads quickly",
+        ],
+        "correct": 1,
+        "explanation": "Attackers often register look-alike domains that sound official but are not the real university site.",
+    },
+]
+
+PHISHING_WEBSITE_EASY, PHISHING_WEBSITE_HARD = _simulation_block(
+    PHISHING_WEBSITE_STEPS,
+    indicators=[
+        {
+            "element": "sender_domain",
+            "title": "Look-alike sender domain",
+            "description": "The sender uses a domain that looks official at first glance but is not the real campus domain.",
+            "wrong": "security@up-portal-verify.net",
+            "correct": "Official university notices should come from a trusted university domain you already know.",
+        },
+        {
+            "element": "urgent_subject",
+            "title": "Urgent subject line",
+            "description": "The message pushes you to act immediately before you have time to verify the website.",
+            "wrong": "Action Required: Verify your campus portal access",
+            "correct": "Legitimate notices do not pressure you into clicking a link without verification.",
+        },
+        {
+            "element": "link_url",
+            "title": "Suspicious login URL",
+            "description": "The link points to a look-alike portal that is not the official university site.",
+            "wrong": "https://up-portal-verify.net/login",
+            "correct": "Always open the portal through the official university homepage or a trusted bookmark.",
+        },
+        {
+            "element": "generic_greeting",
+            "title": "Generic greeting",
+            "description": "The email does not address you by name, which is common in bulk phishing campaigns.",
+            "wrong": "Dear student,",
+            "correct": "Personalized messages should match your actual account details and official records.",
+        },
+    ],
+    signs=[
+        {"id": "lookalike_domain", "label": "Look-alike sender domain"},
+        {"id": "urgent_language", "label": "Urgent language"},
+        {"id": "suspicious_url", "label": "Suspicious login URL"},
+        {"id": "generic_greeting", "label": "Generic greeting"},
+    ],
+)
+
+KEYLOGGER_STEPS = [
+    {
+        "title": "Keyboard Helper Installer",
+        "narrative": "A free keyboard utility promises faster typing and asks for full access to capture keystrokes for 'productivity analytics'.",
+        "interface_type": "popup",
+        "interface": {
+            "title": "Enable Keyboard Assistant",
+            "body": "This tool needs access to all key presses so it can provide shortcuts, auto-fill, and productivity analytics.",
+            "publisher": "QuickKeys Studio",
+            "cta": "Allow keyboard access",
+            "url": "https://quickkeys-helper.example/install",
+        },
+        "choices": [
+            _choice(
+                "allow",
+                "Allow the keyboard access request",
+                "The utility could record every keystroke, including passwords and private messages.",
+                "Full keyboard access is a classic keylogger warning sign.",
+                0,
+            ),
+            _choice(
+                "deny",
+                "Deny the request and uninstall the utility",
+                "You blocked a potentially malicious tool before it could capture your input.",
+                "Unknown utilities should never receive full keyboard permissions without a clear, trusted need.",
+                100,
+                is_best=True,
+            ),
+            _choice(
+                "later",
+                "Click allow later and keep using it",
+                "The program continued running and could still monitor your typing.",
+                "Delaying the decision does not remove the risk.",
+                25,
+            ),
+        ],
+    }
+]
+
+KEYLOGGER_QUIZ = [
+    {
+        "question": "What is the strongest sign that an app may be a keylogger?",
+        "options": [
+            "It has a dark theme",
+            "It requests full keyboard access or keystroke monitoring",
+            "It opens quickly",
+            "It shows a logo on the installer",
+        ],
+        "correct": 1,
+        "explanation": "Keyloggers need access to your keystrokes, so permission prompts are a major red flag.",
+    },
+    {
+        "question": "What should you do before installing an unknown keyboard utility?",
+        "options": [
+            "Allow full access first so you can test it",
+            "Verify the publisher and install only from a trusted source",
+            "Use it once and remove it later",
+            "Share your password to check whether it logs correctly",
+        ],
+        "correct": 1,
+        "explanation": "Trusted publishers and official download sources reduce the chance of installing a keylogger.",
+    },
+]
+
+KEYLOGGER_EASY, KEYLOGGER_HARD = _simulation_block(
+    KEYLOGGER_STEPS,
+    indicators=[
+        {
+            "element": "publisher",
+            "title": "Unknown publisher",
+            "description": "The tool comes from a publisher you do not recognize.",
+            "wrong": "QuickKeys Studio",
+            "correct": "Only install software from publishers you trust and can verify.",
+        },
+        {
+            "element": "access_request",
+            "title": "Full keyboard access request",
+            "description": "The app wants permission to capture keystrokes, which is unnecessary for most legitimate utilities.",
+            "wrong": "Allow keyboard access",
+            "correct": "Legitimate tools should request only the minimum permissions they need.",
+        },
+        {
+            "element": "source_url",
+            "title": "Suspicious download source",
+            "description": "The download page is not the official vendor site.",
+            "wrong": "https://quickkeys-helper.example/install",
+            "correct": "Use an official store or the vendor's verified site instead of a look-alike domain.",
+        },
+    ],
+    signs=[
+        {"id": "unknown_publisher", "label": "Unknown publisher"},
+        {"id": "full_keyboard_access", "label": "Full keyboard access request"},
+        {"id": "lookalike_site", "label": "Look-alike download site"},
+    ],
+)
+
 PHISHING_EMAIL_EASY, PHISHING_EMAIL_HARD = _simulation_block(
     PHISHING_EMAIL_STEPS,
     indicators=[
@@ -327,9 +533,34 @@ RANSOMWARE_STEPS = [
 RANSOMWARE_EASY, RANSOMWARE_HARD = _simulation_block(
     RANSOMWARE_STEPS,
     indicators=[
-        {"element": "untrusted_source", "hint": "The file came from an unverified source."},
-        {"element": "suspicious_extension", "hint": "Executable extensions disguised as documents are risky."},
-        {"element": "no_publisher", "hint": "No verified publisher or digital signature was shown."},
+        {
+            "element": "ransom_headline",
+            "title": "Threatening ransom headline",
+            "description": "The screen uses alarming language to pressure you into paying immediately.",
+            "wrong": "YOUR FILES HAVE BEEN ENCRYPTED",
+            "correct": "Legitimate system notices do not threaten you with file encryption.",
+        },
+        {
+            "element": "payment_demand",
+            "title": "Cryptocurrency payment demand",
+            "description": "Attackers demand payment in Bitcoin or other cryptocurrency to restore access.",
+            "wrong": "Pay 0.5 BTC to recover your documents",
+            "correct": "Never pay ransoms without consulting IT. Payment does not guarantee recovery.",
+        },
+        {
+            "element": "timer_pressure",
+            "title": "Countdown timer pressure",
+            "description": "A ticking timer is used to rush you into paying before you can get help.",
+            "wrong": "Timer: 47:59:12 remaining",
+            "correct": "Urgent countdowns are a common ransomware tactic to prevent calm incident response.",
+        },
+        {
+            "element": "file_encryption",
+            "title": "Changed file extensions",
+            "description": "Your documents now have strange extensions like .locked, meaning they were encrypted.",
+            "wrong": "report.docx.locked, presentation.pptx.locked",
+            "correct": "Sudden mass file extension changes are a strong sign of active ransomware.",
+        },
     ],
     signs=[
         {"id": "untrusted_source", "label": "File from an unverified website"},
@@ -379,9 +610,34 @@ SPYWARE_STEPS = [
 SPYWARE_EASY, SPYWARE_HARD = _simulation_block(
     SPYWARE_STEPS,
     indicators=[
-        {"element": "background_process", "hint": "An unknown process is consuming resources."},
-        {"element": "network_activity", "hint": "Data is being sent even when you are not browsing."},
-        {"element": "unknown_app", "hint": "A recently installed unknown application appeared."},
+        {
+            "element": "unknown_publisher",
+            "title": "Unknown extension publisher",
+            "description": "The extension comes from a publisher you do not recognize or cannot verify.",
+            "wrong": "UltraCapture Free",
+            "correct": "Install extensions only from trusted publishers in the official browser store.",
+        },
+        {
+            "element": "excessive_permissions",
+            "title": "Excessive permission requests",
+            "description": "The extension wants access to all websites, clipboard, and downloads — far more than it needs.",
+            "wrong": "Read all data on all websites, Access clipboard, Manage downloads",
+            "correct": "Legitimate tools request only the minimum permissions required for their function.",
+        },
+        {
+            "element": "negative_reviews",
+            "title": "Suspicious user reviews",
+            "description": "Other users report account theft or suspicious behavior after installing this extension.",
+            "wrong": "Mixed — some users report account theft",
+            "correct": "Check reviews and reports before granting broad access to your browser data.",
+        },
+        {
+            "element": "broad_access",
+            "title": "Full permission install prompt",
+            "description": "The install button asks you to grant all permissions at once without a limited option.",
+            "wrong": "Add extension with full permissions",
+            "correct": "Decline extensions that require sweeping access to sensitive data.",
+        },
     ],
     signs=[
         {"id": "unknown_process", "label": "Unknown process in task manager"},
@@ -927,6 +1183,16 @@ ATTACKS: dict[str, dict[str, Any]] = {
         "hard_simulation": PHISHING_EMAIL_HARD,
         "quiz": PHISHING_EMAIL_QUIZ,
         "info_page": {
+            "media": {
+                "folder": "phishing",
+                "spotlight": [
+                    "image1_phishing.jpg",
+                    "image2_phishing.png",
+                    "image3_phishing.png",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/AsnaqTCA95o",
+            },
             "spotlight": [
                 {
                     "key": "about",
@@ -960,16 +1226,136 @@ ATTACKS: dict[str, dict[str, Any]] = {
             ],
         },
     },
-    "phishing_fake_website": _placeholder_module(
-        "phishing_fake_website",
-        "Phishing: Fake Website",
-        "🌐",
-        "Beginner",
-        "Learn to identify cloned login pages and suspicious URLs before entering credentials.",
-        "social_based",
-        "Social-Based Attacks",
-        image="img/modules/phishing-website/module_phishing_website.jpg",
-    ),
+    "phishing_fake_website": {
+        "id": "phishing_fake_website",
+        "name": "Phishing: Fake Website",
+        "icon": "🌐",
+        "image": "img/modules/phishing/module_phishing.jpg",
+        "difficulty": "Beginner",
+        "short_description": "Learn to spot cloned login pages and suspicious URLs before entering credentials.",
+        "category": "social_based",
+        "category_label": "Social-Based Attacks",
+        "overview": {
+            "explanation": "Phishing: fake website attacks use a cloned login page or look-alike portal to steal credentials by making you think you are on the real site.",
+            "why_used": "Attackers use fake websites because they look legitimate long enough for victims to type usernames, passwords, and one-time codes.",
+            "how_encountered": "You may encounter fake websites through urgent links, sponsored search results, QR codes, or cloned login pages shared in chat.",
+            "how_it_happens": [
+                "Attacker copies a real portal and places it on a look-alike domain.",
+                "Victim opens the site and sees familiar branding and urgency.",
+                "Victim types credentials into the fake form.",
+                "Attacker captures the data and uses it to access the real account.",
+            ],
+            "warning_signs": [
+                "Look-alike domains with extra words or misspellings",
+                "Urgent messages demanding immediate verification",
+                "Fake login pages that ask for full credentials",
+                "Unexpected redirects from links in emails or messages",
+            ],
+            "prevention_tips": [
+                "Open important portals by typing the address yourself",
+                "Check the domain carefully before entering credentials",
+                "Use multi-factor authentication on school accounts",
+                "Report suspicious links to IT or security staff",
+            ],
+        },
+        "easy_simulation": {
+            "steps": [
+                {
+                    "title": "Portal verification page",
+                    "narrative": "A campus portal asks you to verify your account after a security update. Check the page carefully before logging in.",
+                    "interface_type": "login_form",
+                    "interface": {
+                        "site_name": "UP Portal Verification",
+                        "url": "https://up-portal-verify.net/login",
+                        "banner": "Security update required",
+                        "username_label": "University email",
+                        "password_label": "Password",
+                        "submit_label": "Verify account",
+                        "cta": "Access the official portal",
+                    },
+                }
+            ],
+            "indicators": [
+                {
+                    "element": "lookalike_domain",
+                    "title": "Look-alike domain",
+                    "description": "The portal uses a domain that mimics the real university site but is not the official domain.",
+                    "wrong": "https://up-portal-verify.net/login",
+                    "correct": "Open the portal through the official university website or a trusted bookmark.",
+                },
+                {
+                    "element": "urgent_banner",
+                    "title": "Urgent security banner",
+                    "description": "The page creates pressure to act immediately before you have time to verify the site.",
+                    "wrong": "Security update required",
+                    "correct": "Real portals do not force you into a login page through panic language.",
+                },
+                {
+                    "element": "missing_security",
+                    "title": "Missing expected security cues",
+                    "description": "The page lacks the usual university portal URL and verified branding details you would expect.",
+                    "wrong": "No verified university URL shown",
+                    "correct": "Always confirm the exact domain and portal branding before entering credentials.",
+                },
+                {
+                    "element": "credential_request",
+                    "title": "Credential request on first visit",
+                    "description": "The site asks for your full credentials before any account context or warning explanation.",
+                    "wrong": "University email and password",
+                    "correct": "Unexpected credential prompts are a major phishing warning sign.",
+                },
+            ],
+        },
+        "hard_simulation": {
+            "steps": [
+                {
+                    "title": "Cloned Campus Login",
+                    "narrative": "A cloned campus portal is asking you to sign in after a supposed account verification alert. Inspect it closely and decide whether it is safe.",
+                    "interface_type": "login_form",
+                    "interface": {
+                        "site_name": "UP Campus Portal",
+                        "url": "https://up-portal-verify.net/login",
+                        "banner": "Account verification required",
+                        "username_label": "University email",
+                        "password_label": "Password",
+                        "submit_label": "Sign in",
+                        "cta": "Proceed to login",
+                    },
+                }
+            ],
+            "signs": [
+                {"id": "lookalike_domain", "label": "Look-alike domain"},
+                {"id": "urgent_banner", "label": "Urgent security banner"},
+                {"id": "missing_security", "label": "Missing expected security cues"},
+                {"id": "credential_request", "label": "Credential request on first visit"},
+            ],
+        },
+        "quiz": PHISHING_WEBSITE_QUIZ,
+        "info_page": {
+            "media": {
+                "folder": "phishing-website",
+                "spotlight": [
+                    "image1_phishing_web.jpg",
+                    "image2_phishing_web.jpg",
+                    "image3_phishing_web.png",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/-kB5r4Jlclk",
+            },
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": "Phishing fake websites clone a real login portal and trap users into entering credentials on a look-alike domain.",
+                },
+                {
+                    "key": "origin",
+                    "heading": "How It Works",
+                    "text": "Attackers pair a convincing alert with a cloned site that looks like the official portal but sends data to the attacker.",
+                },
+            ],
+        },
+    },
     "social_engineering": {
         "id": "social_engineering",
         "name": "Social Engineering",
@@ -1082,10 +1468,11 @@ ATTACKS: dict[str, dict[str, Any]] = {
                 "folder": "social-engineering",
                 "spotlight": [
                     "image1_social.jpg",
-                    "image2_social.jpg",
-                    "image3_social.jpg",
+                    "image2_social.png",
+                    "image3_social.png",
                 ],
                 "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/L8169DHNeQ0",
             },
             "spotlight": [
                 {
@@ -1130,16 +1517,76 @@ ATTACKS: dict[str, dict[str, Any]] = {
             ],
         },
     },
-    "keylogger": _placeholder_module(
-        "keylogger",
-        "Keylogger",
-        "⌨️",
-        "Intermediate",
-        "Understand how keyloggers capture keystrokes and how to spot them before typing sensitive data.",
-        "malware_based",
-        "Malware-Based Attacks",
-        image="img/modules/keylogger/module_keylogger.jpg",
-    ),
+    "keylogger": {
+        "id": "keylogger",
+        "name": "Keylogger",
+        "icon": "⌨️",
+        "image": "img/modules/keylogger/module_keylogger.jpg",
+        "difficulty": "Intermediate",
+        "short_description": "Understand how keyloggers capture keystrokes and how to spot them before typing sensitive data.",
+        "category": "malware_based",
+        "category_label": "Malware-Based Attacks",
+        "overview": {
+            "explanation": "A keylogger is malware or a malicious utility that records what you type, including passwords, messages, and OTPs.",
+            "why_used": "Attackers use keyloggers to steal credentials, session tokens, and private data with minimal visible activity.",
+            "how_encountered": "You may encounter keyloggers through fake utilities, malicious downloads, or software that requests excessive input permissions.",
+            "how_it_happens": [
+                "Victim installs a utility that appears useful or trustworthy.",
+                "The program requests keyboard or input-monitoring permissions.",
+                "Keystrokes are logged silently in the background.",
+                "Attacker collects passwords, messages, and account details.",
+            ],
+            "warning_signs": [
+                "Unknown publisher asking for keyboard access",
+                "Unexpected permissions related to input monitoring",
+                "Background processes that stay active while idle",
+                "Performance slowdowns after installing a utility",
+            ],
+            "prevention_tips": [
+                "Install software only from trusted publishers",
+                "Review permissions before allowing access",
+                "Avoid unknown utilities that claim to improve typing or shortcuts",
+                "Use endpoint protection and keep systems updated",
+            ],
+        },
+        "easy_simulation": KEYLOGGER_EASY,
+        "hard_simulation": KEYLOGGER_HARD,
+        "quiz": KEYLOGGER_QUIZ,
+        "info_page": {
+            "media": {
+                "folder": "keylogger",
+                "spotlight": [
+                    "image1_keylogger.png",
+                    "image2_keylogger.jpeg",
+                    "image3_keylogger.png",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/L8169DHNeQ0",
+            },
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": "Keyloggers capture keystrokes so attackers can steal passwords, messages, and sensitive notes.",
+                },
+                {
+                    "key": "origin",
+                    "heading": "How It Works",
+                    "text": "They often hide inside fake tools or utilities that request more access than they actually need.",
+                },
+                {
+                    "key": "real_world",
+                    "heading": "Example in Real World",
+                    "text": "A malicious browser extension or fake utility can quietly record keystrokes until a victim notices suspicious account activity or stolen credentials.",
+                },
+            ],
+            "real_world_examples": [
+                "Fake password managers that silently record everything you type",
+                "Malicious browser add-ons that capture OTPs and logins",
+                "Trojanized utilities bundled with free downloads",
+            ],
+        },
+    },
     "adware_pop_up": {
         "id": "adware_pop_up",
         "name": "Adware: Pop-up Installer",
@@ -1175,6 +1622,16 @@ ATTACKS: dict[str, dict[str, Any]] = {
         "hard_simulation": ADWARE_POP_UP_HARD,
         "quiz": ADWARE_POP_UP_QUIZ,
         "info_page": {
+            "media": {
+                "folder": "adware",
+                "spotlight": [
+                    "image1_adware.jpg",
+                    "image2_adware.jfif",
+                    "image3_adware.jpg",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/xt6QYHLrW_M",
+            },
             "spotlight": [
                 {
                     "key": "about",
@@ -1238,6 +1695,40 @@ ATTACKS: dict[str, dict[str, Any]] = {
                 "explanation": "Reliable backups let organizations recover without paying criminals.",
             },
         ],
+        "info_page": {
+            "media": {
+                "folder": "ransomware",
+                "spotlight": [
+                    "image1_ransomware.jfif",
+                    "image2_ransomware.jpeg",
+                    "image3_ransomware.png",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/-KL9APUjj3E",
+            },
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": "Ransomware encrypts files or locks devices, then demands payment to restore access.",
+                },
+                {
+                    "key": "origin",
+                    "heading": "How It Works",
+                    "text": "It usually enters through phishing, exposed services, or unpatched software, then spreads before the victim can react.",
+                },
+                {
+                    "key": "real_world",
+                    "heading": "Example in Real World",
+                    "text": "Organizations often discover ransomware only after shared drives, backups, or entire endpoints suddenly become unreadable.",
+                },
+            ],
+            "real_world_examples": [
+                "Enterprises hit by encrypted file shares and ransom notes",
+                "Hospitals and schools forced offline during active encryption",
+                "Criminal groups demanding cryptocurrency for decryption keys",
+            ],
+        },
     },
     "spyware": {
         "id": "spyware",
@@ -1281,6 +1772,40 @@ ATTACKS: dict[str, dict[str, Any]] = {
                 "explanation": "Spyware operates covertly to capture sensitive information.",
             },
         ],
+        "info_page": {
+            "media": {
+                "folder": "spyware",
+                "spotlight": [
+                    "image1_spyware.png",
+                    "image2_spyware.jfif",
+                    "image3_spyware.png",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/-Z3pp14oUiA",
+            },
+            "spotlight": [
+                {
+                    "key": "about",
+                    "heading": "About",
+                    "text": "Spyware secretly monitors user activity and sends sensitive data to attackers.",
+                },
+                {
+                    "key": "origin",
+                    "heading": "How It Works",
+                    "text": "It often hides inside bundled installers, extensions, or free tools that request too much access.",
+                },
+                {
+                    "key": "real_world",
+                    "heading": "Example in Real World",
+                    "text": "Spyware can capture browsing history, credentials, screenshots, and messages long before the victim notices unusual account activity.",
+                },
+            ],
+            "real_world_examples": [
+                "Browser extensions that silently harvest login tokens",
+                "Free screen recorders bundled with spyware payloads",
+                "Mobile apps that access microphone and location without clear need",
+            ],
+        },
     },
     "mitm": {
         "id": "mitm",
@@ -1644,6 +2169,16 @@ ATTACKS: dict[str, dict[str, Any]] = {
             },
         ],
         "info_page": {
+            "media": {
+                "folder": "evil-twin",
+                "spotlight": [
+                    "image1_eviltwin.jpg",
+                    "image2_eviltwin.png",
+                    "image3_eviltwin.png",
+                ],
+                "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/FCplxKNpxJ8",
+            },
             "spotlight": [
                 {
                     "key": "about",
@@ -1712,6 +2247,7 @@ ATTACKS: dict[str, dict[str, Any]] = {
                     "image3_sql.jpg",
                 ],
                 "video_poster": "video-poster.svg",
+                "video": "https://www.youtube.com/embed/wcaiKgQU6VE",
             },
             "spotlight": [
                 {

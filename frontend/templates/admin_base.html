@@ -61,27 +61,27 @@
             Quiz Manager
           </a>
 
-          <a href="{{ url_for('dashboard_page') }}" class="av2-nav__link">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-            User Dashboard
+          <a href="{{ url_for('admin_community_page') }}"
+             class="av2-nav__link {% if active_page == 'admin_community' %}is-active{% endif %}">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            Post Management
+          </a>
+
+          <a href="{{ url_for('admin_comments_page') }}"
+             class="av2-nav__link {% if active_page == 'admin_comments' %}is-active{% endif %}">
+            <svg viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M15 3H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            Comment Manager
           </a>
         </nav>
 
-        <!-- Support section -->
+        <!-- Community + Logout section -->
         <nav class="av2-nav av2-nav--support">
-          <span class="av2-nav__section-label">Support</span>
+          <span class="av2-nav__section-label">Community</span>
 
-          <span class="av2-nav__link av2-nav__link--muted">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-            Settings
-            <span class="av2-nav__soon">soon</span>
-          </span>
-
-          <span class="av2-nav__link av2-nav__link--muted">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            Support &amp; Ticket
-            <span class="av2-nav__soon">soon</span>
-          </span>
+          <a href="{{ url_for('forum_page') }}" class="av2-nav__link">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            Community Forum
+          </a>
 
           <form action="{{ url_for('logout_page') }}" method="post" style="margin:0;">
             <button type="submit" class="av2-nav__link av2-nav__link--logout">
@@ -128,6 +128,41 @@
         <div class="av2-content">
           {% block content %}{% endblock %}
         </div>
+
+        <!-- Footer -->
+        <footer style="position:relative;width:100%;background:#0a0a0a;border-top:1px solid rgba(0,255,159,0.18);padding:40px clamp(20px,4vw,56px) 28px;margin-top:auto;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:2fr 1fr 1.2fr;gap:40px;align-items:start;position:relative;z-index:1;">
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <svg viewBox="0 0 28 28" fill="none" style="width:24px;height:24px;flex-shrink:0;"><path d="M4 22L14 4L24 22H4Z" stroke="#00ff9f" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 22L14 12L19 22H9Z" fill="#00ff9f" opacity="0.5"/></svg>
+                <span style="font-size:1rem;font-weight:800;color:#fff;">Secure-IT Admin</span>
+              </div>
+              <p style="font-size:0.8125rem;color:#d1d5db;line-height:1.75;max-width:380px;margin:0 0 10px;">Secure-IT is a gamified cybersecurity awareness platform. This admin console provides tools to monitor learner activity, manage content, and review community engagement.</p>
+              <p style="font-size:0.75rem;font-weight:700;color:#00ff9f;margin:0;">For authorized administrators only.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="font-size:0.625rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#00ff9f;margin-bottom:2px;">Quick Links</div>
+              <a href="{{ url_for('admin_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Analytics</a>
+              <a href="{{ url_for('admin_users_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Users</a>
+              <a href="{{ url_for('admin_community_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Post Management</a>
+              <a href="{{ url_for('forum_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Community Forum</a>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="font-size:0.625rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#00ff9f;margin-bottom:2px;">Contact</div>
+              <p style="font-size:0.8125rem;color:#e2e8f0;margin:0;display:flex;align-items:flex-start;gap:8px;line-height:1.6;">
+                <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px;flex-shrink:0;margin-top:2px;color:#00ff9f;"><path d="M2 4l6 5 6-5M2 4h12v8H2V4z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                secureit.system@gmail.org
+              </p>
+              <p style="font-size:0.8125rem;color:#e2e8f0;margin:0;display:flex;align-items:flex-start;gap:8px;line-height:1.6;">
+                <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px;flex-shrink:0;margin-top:2px;color:#00ff9f;"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM8 4v5l3 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Available to all willing to learn online safety and understand cyber security.
+              </p>
+              <div style="width:100%;height:1px;background:rgba(0,255,159,0.12);margin:4px 0;"></div>
+              <p style="font-size:0.75rem;color:#9ca3af;margin:0;">&copy; {{ year }} Secure-IT. All rights reserved.</p>
+              <p style="font-size:0.75rem;color:#9ca3af;margin:0;">Built for cybersecurity education and awareness.</p>
+            </div>
+          </div>
+        </footer>
 
       </div>
     </div>
@@ -377,10 +412,13 @@
 
         if (sections.includes('community')) {
           nextSection('Community Posts');
+          const posts = (analytics.recent_posts || []).slice(0, 50);
           drawTable(
-            ['#','User','Post','Likes','Date'],
-            [['—','—','Community feature launching soon — no data yet.','—','—']],
-            'Community posts and peer discussions will populate this section once the Community feature is live.'
+            ['#', 'Author', 'Title', 'Likes', 'Comments', 'Date'],
+            posts.length
+              ? posts.map((p, i) => [i + 1, p.user || '—', (p.title || p.text || '').slice(0, 60), p.likes ?? 0, p.comments ?? 0, (p.time || '').slice(0, 10)])
+              : [['—', '—', 'No community posts yet.', '—', '—', '—']],
+            'Community posts submitted by learners. Includes post title, author, engagement metrics (likes and comments), and submission date.'
           );
         }
 

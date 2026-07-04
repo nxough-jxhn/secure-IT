@@ -13,7 +13,8 @@
 {% set default_imgs = ['image1_phishing.jpg', 'image2_phishing.png', 'image3_phishing.png'] %}
 {% set spotlight_files = media.get('spotlight', default_imgs) %}
 {% set video_poster = media.get('video_poster', 'video-poster.svg') %}
-{% set video_src = media.get('video', 'videos/phishing-fake-email-intro.mp4' if media_folder == 'phishing' else none) %}
+{% set video_src = media.get('video', none) %}
+{% set video_embed = media.get('video_embed') %}
 
 <div class="ai-page">
 
@@ -97,8 +98,22 @@
     <div class="ai-video-box">
       <div class="ai-box-label">🎬 Educational Video</div>
       <div class="ai-video-wrap">
-        {% if video_src and ('youtube.com' in video_src or 'youtu.be' in video_src) %}
-        <iframe src="{{ video_src }}" title="Educational Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border: 0; min-height: 220px; width: 100%; height: 100%; display: block; background: #000;"></iframe>
+        {% if video_embed %}
+        <iframe
+          src="{{ video_embed if video_embed.startswith('http') else url_for('static', filename=video_embed) }}"
+          title="Educational video"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen></iframe>
+        {% elif video_src and ('youtube.com' in video_src or 'youtu.be' in video_src) %}
+        <iframe
+          src="{{ video_src }}"
+          title="Educational Video"
+          loading="lazy"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          style="border:0; width:100%; height:100%; min-height:220px; display:block; background:#000;"></iframe>
         {% else %}
         <video controls preload="metadata"
           poster="{{ url_for('static', filename='img/modules/' ~ media_folder ~ '/' ~ video_poster) }}">

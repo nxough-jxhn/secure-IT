@@ -1,39 +1,144 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body.evil-twin-sim { font-family: 'Roboto', sans-serif; background: #0f1115; color: #f4f4f4; overflow: hidden; }
-.evil-twin-layout { display: grid; grid-template-columns: 280px 1fr 320px; height: 100vh; }
-.evil-twin-sidebar, .evil-twin-indicators { background: #0f1115; border-right: 1px solid rgba(255,255,255,0.08); padding: 24px 20px; display:flex; flex-direction:column; gap:20px; }
-.evil-twin-sidebar__label, .evil-twin-sidebar__section-title, .evil-twin-indicators__title { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.14em; color:#7f8796; }
-.evil-twin-sidebar__title { margin-top:8px; font-size:1.08rem; }
-.evil-twin-sidebar__badge { display:inline-block; margin-top:8px; padding:4px 10px; border-radius:999px; background:rgba(73, 176, 255, 0.15); color:#59b5ff; font-size:0.72rem; }
-.evil-twin-sidebar__text, .evil-twin-sidebar__list li, .evil-twin-indicators__count { color:#b9c0cc; line-height:1.5; }
-.evil-twin-sidebar__list { list-style:none; display:flex; flex-direction:column; gap:8px; }
-.evil-twin-sidebar__exit, .evil-twin-hint__btn { display:inline-flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:8px; border:1px solid rgba(73,176,255,0.25); background:rgba(73,176,255,0.12); color:#59b5ff; text-decoration:none; font-weight:600; }
-.evil-twin-main { background:#1a1d24; display:flex; flex-direction:column; }
-.evil-twin-main__header { padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px; background:#16181d; }
-.evil-twin-screen { flex:1; padding:24px; display:flex; flex-direction:column; gap:16px; }
-.evil-twin-screen__topbar { display:flex; align-items:center; justify-content:space-between; color:#c6ccd6; font-size:0.9rem; }
-.evil-twin-network-list { display:grid; gap:12px; }
-.evil-twin-network { background:#fff; color:#111; border:1px solid #e5e7eb; border-radius:10px; padding:14px 16px; text-align:left; cursor:pointer; }
-.evil-twin-network--suspicious { border-color:#ffb84d; box-shadow:0 0 0 1px rgba(255,184,77,0.3); }
-.evil-twin-network__top { display:flex; justify-content:space-between; margin-bottom:6px; }
-.evil-twin-network__signal { color:#4c5563; font-size:0.9rem; }
-.evil-twin-network__meta { color:#6b7280; font-size:0.9rem; }
-.evil-twin-portal { background:#ffffff; color:#111; border-radius:10px; padding:20px; }
-.evil-twin-portal__title { font-weight:700; margin-bottom:8px; }
-.evil-twin-portal__body { color:#4b5563; margin-bottom:12px; }
-.evil-twin-portal__button { padding:10px 14px; border:none; border-radius:8px; background:#59b5ff; color:#fff; cursor:pointer; }
-.evil-twin-hint { display:flex; align-items:center; gap:10px; padding:12px 16px; background:rgba(255,255,255,0.05); border-radius:10px; }
-.evil-twin-indicators__header { display:flex; align-items:center; gap:10px; }
-.evil-twin-indicator { display:flex; gap:10px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
-.evil-twin-indicator.is-reviewed { opacity:0.7; }
-.evil-twin-verdict { margin-top:auto; }
-.evil-twin-verdict__buttons { display:flex; gap:10px; margin-top:10px; }
-.evil-twin-verdict__btn { flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
-.evil-twin-verdict__btn--safe { background:#1e3a2f; color:#5edb97; }
-.evil-twin-verdict__btn--danger { background:#4c2222; color:#ff8d8d; }
-.evil-twin-modal { position:fixed; inset:0; z-index:20; }
-.evil-twin-modal__backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
-.evil-twin-modal__dialog { position:relative; margin:80px auto; width:min(560px, calc(100% - 24px)); background:#fff; color:#111; border-radius:12px; padding:24px; }
-.evil-twin-modal__close { position:absolute; top:12px; right:12px; border:none; background:none; font-size:1.3rem; cursor:pointer; }
-.evil-twin-modal__compare { display:grid; gap:12px; margin-top:16px; }
-.evil-twin-modal__box { padding:12px; border-radius:8px; background:#f4f4f4; }
+/* ══════════════════════════════════════════
+   Evil Twin Easy Simulation — 3-Column Layout
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.evil-twin-sim {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+.evil-twin-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  height: 100vh;
+}
+
+/* ══ LEFT SIDEBAR ══ */
+.evil-twin-sidebar { background: #0f0f0f; border-right: 1px solid rgba(255,255,255,.08); padding: 32px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
+.evil-twin-sidebar__header { display: flex; flex-direction: column; gap: 8px; }
+.evil-twin-sidebar__label { font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #666; }
+.evil-twin-sidebar__title { font-size: 1.125rem; font-weight: 700; color: #fff; line-height: 1.3; }
+.evil-twin-sidebar__badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .625rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; width: fit-content; background: rgba(73,176,255,.12); border: 1px solid rgba(73,176,255,.25); color: #59b5ff; }
+.evil-twin-sidebar__section { display: flex; flex-direction: column; gap: 10px; }
+.evil-twin-sidebar__section-title { font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #5f6368; }
+.evil-twin-sidebar__text { font-size: .875rem; line-height: 1.6; color: #bbb; }
+.evil-twin-sidebar__timer { font-family: 'Courier New', monospace; font-size: 1.75rem; font-weight: 700; color: #59b5ff; }
+.evil-twin-sidebar__list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.evil-twin-sidebar__list li { font-size: .8125rem; line-height: 1.5; color: #bbb; padding-left: 20px; position: relative; }
+.evil-twin-sidebar__list li::before { content: '•'; position: absolute; left: 6px; color: #59b5ff; }
+.evil-twin-sidebar__exit { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; border-radius: 10px; border: 1px solid rgba(239,68,68,.35); background: rgba(239,68,68,.1); text-decoration: none; color: #f87171; font-size: .9375rem; font-weight: 700; margin-top: auto; transition: border-color .2s, background .2s, transform .2s; }
+.evil-twin-sidebar__exit:hover { border-color: rgba(239,68,68,.55); background: rgba(239,68,68,.16); transform: translateY(-1px); }
+
+/* ══ CENTER — Wi-Fi selection ══ */
+.evil-twin-main { background: #141414; display: flex; flex-direction: column; overflow: hidden; }
+.evil-twin-main__header { display: flex; align-items: center; gap: 10px; padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,.08); background: #0f0f0f; }
+.evil-twin-main__icon { font-size: 1.25rem; }
+.evil-twin-main__label { font-size: .875rem; font-weight: 600; color: #fff; }
+
+.evil-twin-screen { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+
+/* Phone-like status bar */
+.evil-twin-screen__topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: #1a202c; color: #e2e8f0; font-size: .75rem; font-weight: 600; flex-shrink: 0; }
+.evil-twin-screen__status { display: flex; align-items: center; gap: 8px; }
+.evil-twin-screen__signal { display: flex; align-items: center; gap: 4px; }
+
+/* Network list */
+.evil-twin-network-list { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
+
+.evil-twin-network {
+  display: flex; flex-direction: column; gap: 4px;
+  width: 100%; text-align: left;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  position: relative;
+}
+.evil-twin-network:not(.is-reviewed) { outline: 1px solid rgba(59,130,246,.3); }
+.evil-twin-network.is-reviewed { outline: 1px solid rgba(0,255,159,.3); }
+.evil-twin-network--suspicious:not(.is-reviewed) { border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.2); }
+
+.evil-twin-network__top { display: flex; align-items: center; justify-content: space-between; }
+.evil-twin-network__name-wrap { display: flex; align-items: center; gap: 10px; }
+.evil-twin-network__name { font-size: .9375rem; font-weight: 700; color: #111; }
+.evil-twin-network__signal { font-size: .8125rem; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+.evil-twin-network__meta { font-size: .8125rem; color: #6b7280; display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.evil-twin-network--suspicious .evil-twin-network__security-badge { background: rgba(251,191,36,.15); color: #d97706; border: 1px solid rgba(251,191,36,.3); }
+.evil-twin-network:not(.evil-twin-network--suspicious) .evil-twin-network__security-badge { background: rgba(0,255,159,.1); color: #059669; border: 1px solid rgba(0,255,159,.25); }
+
+/* Flag number */
+.evil-twin-flag-num { display: inline-flex; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: rgba(239,68,68,.2); border: 1px solid rgba(239,68,68,.5); color: #f87171; font-size: .6875rem; font-weight: 700; align-items: center; justify-content: center; pointer-events: none; }
+.evil-twin-hotspot.is-reviewed .evil-twin-flag-num { background: rgba(0,255,159,.15); border-color: rgba(0,255,159,.4); color: #00ff9f; }
+
+/* Captive portal */
+.evil-twin-portal { flex-shrink: 0; margin: 0 24px 16px; padding: 18px; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; color: #1a1a1a; }
+.evil-twin-portal__title { font-size: .9375rem; font-weight: 700; color: #111; margin-bottom: 6px; }
+.evil-twin-portal__body { font-size: .875rem; color: #4b5563; margin-bottom: 12px; line-height: 1.55; }
+.evil-twin-portal__button { width: 100%; padding: 11px; border: none; border-radius: 8px; background: #3b82f6; color: #fff; font-weight: 700; font-size: .875rem; cursor: pointer; transition: filter .2s; }
+.evil-twin-portal__button:hover { filter: brightness(1.08); }
+
+/* Hint bar */
+.evil-twin-hint { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #e6f4ea; border-top: 1px solid #c3e6cb; flex-shrink: 0; }
+.evil-twin-hint__icon { font-size: 1.25rem; }
+.evil-twin-hint__text { font-size: .8125rem; color: #3c4043; flex: 1; }
+.evil-twin-hint__btn { padding: 10px 20px; border-radius: 8px; border: none; background: #00c97c; color: #fff; font-weight: 700; font-size: .875rem; cursor: pointer; transition: filter .2s, transform .2s; }
+.evil-twin-hint__btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.evil-twin-hint__btn:disabled { background: #c8d6cd; color: #8a948e; cursor: not-allowed; }
+
+/* ══ RIGHT SIDEBAR — Indicators ══ */
+.evil-twin-indicators { background: #0f0f0f; border-left: 1px solid rgba(255,255,255,.08); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.evil-twin-indicators__header { display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.evil-twin-indicators__icon { font-size: 1.5rem; }
+.evil-twin-indicators__title { font-size: 1rem; font-weight: 700; color: #fff; }
+.evil-twin-indicators__count { font-size: .75rem; color: #59b5ff; font-weight: 600; }
+.evil-twin-indicators__list { display: flex; flex-direction: column; gap: 12px; }
+
+.evil-twin-indicator { padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); display: flex; align-items: flex-start; gap: 12px; transition: border-color .2s, background .2s; }
+.evil-twin-indicator.is-reviewed { border-color: rgba(0,255,159,.25); background: rgba(0,255,159,.04); }
+.evil-twin-indicator__number { flex: 0 0 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; font-size: .75rem; font-weight: 700; color: #5f6368; }
+.evil-twin-indicator.is-reviewed .evil-twin-indicator__number { background: #00ff9f; color: #0a0a0a; }
+.evil-twin-indicator__content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.evil-twin-indicator__title { font-size: .8125rem; font-weight: 600; color: #fff; line-height: 1.3; }
+.evil-twin-indicator__desc { font-size: .75rem; line-height: 1.5; color: #5f6368; }
+
+/* Verdict */
+.evil-twin-verdict { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.08); display: flex; flex-direction: column; gap: 12px; }
+.evil-twin-verdict__title { font-size: .9375rem; font-weight: 700; color: #fff; }
+.evil-twin-verdict__subtitle { font-size: .8125rem; color: #5f6368; line-height: 1.5; }
+.evil-twin-verdict__buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.evil-twin-verdict__btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 8px; border: 1px solid; font-weight: 700; font-size: .875rem; cursor: pointer; transition: transform .2s; }
+.evil-twin-verdict__btn--safe { background: rgba(0,255,159,.08); border-color: rgba(0,255,159,.25); color: #00ff9f; }
+.evil-twin-verdict__btn--safe:hover { background: rgba(0,255,159,.12); transform: translateY(-2px); }
+.evil-twin-verdict__btn--danger { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.25); color: #f87171; }
+.evil-twin-verdict__btn--danger:hover { background: rgba(239,68,68,.12); transform: translateY(-2px); }
+
+/* ══ MODAL ══ */
+.evil-twin-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; pointer-events: none; }
+.evil-twin-modal[hidden] { display: none; }
+.evil-twin-modal:not([hidden]) { pointer-events: auto; }
+.evil-twin-modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.85); backdrop-filter: blur(4px); pointer-events: auto; }
+.evil-twin-modal__dialog { position: relative; width: min(600px,100%); max-height: 90vh; background: #1a1a1a; border-radius: 20px; border: 1px solid rgba(255,255,255,.1); padding: 36px 40px; overflow-y: auto; animation: etModalIn .3s ease; }
+@keyframes etModalIn { from { opacity:0; transform: translateY(20px) scale(.96); } to { opacity:1; transform: none; } }
+.evil-twin-modal__close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #5f6368; font-size: 1.25rem; cursor: pointer; display: grid; place-items: center; transition: background .2s, color .2s; }
+.evil-twin-modal__close:hover { background: rgba(239,68,68,.15); color: #f87171; }
+.evil-twin-modal__content { display: flex; flex-direction: column; gap: 20px; }
+.evil-twin-modal__badge { display: inline-flex; padding: 6px 14px; border-radius: 999px; background: rgba(73,176,255,.1); border: 1px solid rgba(73,176,255,.25); color: #59b5ff; font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; width: fit-content; }
+.evil-twin-modal__title { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.3; margin: 0; }
+.evil-twin-modal__desc { font-size: .9375rem; line-height: 1.7; color: #bbb; margin: 0; }
+.evil-twin-modal__compare { display: flex; gap: 16px; }
+.evil-twin-modal__box { flex: 1; padding: 16px; border-radius: 12px; border: 1px solid; }
+.evil-twin-modal__box--wrong { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.28); }
+.evil-twin-modal__box--correct { background: rgba(0,255,159,.08); border-color: rgba(0,255,159,.28); }
+.evil-twin-modal__label { display: block; font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.evil-twin-modal__box--wrong .evil-twin-modal__label { color: #fca5a5; }
+.evil-twin-modal__box--correct .evil-twin-modal__label { color: #5eead4; }
+.evil-twin-modal__text { font-size: .9375rem; font-weight: 500; line-height: 1.65; color: #f5f5f5; margin: 0; }
+.evil-twin-modal__tip { display: flex; gap: 12px; padding: 16px; border-radius: 12px; background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.2); }
+.evil-twin-modal__tip-icon { font-size: 1.25rem; }
+.evil-twin-modal__tip-text { font-size: .875rem; line-height: 1.6; color: #ccc; }

@@ -142,6 +142,9 @@ def get_admin_analytics() -> dict[str, Any]:
     except Exception:
         category_progress = []
 
+    from database import get_community_analytics
+    community_stats = get_community_analytics()
+
     return {
         "total_users":             total_users,
         "active_users":            len(active_emails),
@@ -161,7 +164,11 @@ def get_admin_analytics() -> dict[str, Any]:
         "points_by_day":           points_by_day,
         "points_trend_pct":        points_trend_pct,
         "category_progress":       category_progress,
-        "recent_posts":            [],   # community feature not yet built
+        # Community fields
+        "total_posts":             community_stats["total_posts"],
+        "total_comments":          community_stats["total_comments"],
+        "total_likes":             community_stats["total_likes"],
+        "recent_posts":            community_stats["recent_posts"],
     }
 
 
