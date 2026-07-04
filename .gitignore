@@ -6,6 +6,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 firebase-service-account.json
+firebase-credentials.json
+*credentials*.json
+*firebase-adminsdk*.json
 
 # Co-member working files — excluded from repo
 co-member files/

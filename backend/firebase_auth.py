@@ -51,6 +51,27 @@ def init_firebase() -> bool:
     if firebase_admin is None or credentials is None:
         return False
 
+    # Try loading from the JSON string environment variable first (great for production/Render)
+    service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
+    if service_account_json:
+        import json
+        try:
+            cert_dict = json.loads(service_account_json)
+            firebase_admin.initialize_app(credentials.Certificate(cert_dict))
+            _initialized = True
+            return True
+        except ValueError as exc:
+            try:
+                firebase_admin.get_app()
+                _initialized = True
+                return True
+            except ValueError:
+                if "already exists" not in str(exc).lower():
+                    print(f"[firebase] Failed to initialize Firebase using service account JSON: {exc}")
+        except Exception as exc:
+            print(f"[firebase] Failed to initialize Firebase using service account JSON: {exc}")
+
+    # Fallback to local credential file path
     credential_path = _credentials_path()
     if credential_path is None:
         return False

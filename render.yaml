@@ -48,4 +48,6 @@ services:
         sync: false
       - key: FIREBASE_APP_ID
         sync: false
-      # FIREBASE_CREDENTIALS_PATH is a file path — see note below
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+
