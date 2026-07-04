@@ -28,7 +28,7 @@ services:
 
       # ── MongoDB Atlas ──────────────────────────────────────────
       # Set this in the Render dashboard — do NOT commit the real URI
-      - key: MONGO_URI
+      - key: DB_URI
         sync: false                # marks it as a secret; enter value in dashboard
 
       # ── Cloudinary ─────────────────────────────────────────────
