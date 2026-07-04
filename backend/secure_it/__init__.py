@@ -191,4 +191,10 @@ def create_app():
     def inject_firebase_config():
         return {"firebase_config": get_firebase_web_config()}
 
+    try:
+        from database import ensure_demo_users
+        ensure_demo_users()
+    except Exception as e:
+        app.logger.error(f"Failed to seed demo users at startup: {e}")
+
     return app
