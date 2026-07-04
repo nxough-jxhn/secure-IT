@@ -42,6 +42,8 @@ services:
       # Set this in the Render dashboard — do NOT commit the real URI
       - key: DB_URI
         sync: false                # marks it as a secret; enter value in dashboard
+      - key: DB_NAME
+        sync: false
 
       # ── Cloudinary ─────────────────────────────────────────────
       - key: CLOUDINARY_CLOUD_NAME
