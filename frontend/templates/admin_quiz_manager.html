@@ -29,7 +29,11 @@
          data-attack-name="{{ atk.name }}"
          data-index="{{ loop.index0 }}">
       <div class="as-card__thumb">
+        {% if atk.image %}
+        <img class="as-card__img" src="{{ url_for('static', filename=atk.image) }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />
+        {% else %}
         <div class="as-card__icon">{{ atk.icon }}</div>
+        {% endif %}
       </div>
       <div class="as-card__body">
         <div class="as-card__name">{{ atk.name }}</div>

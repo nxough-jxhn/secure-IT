@@ -89,6 +89,7 @@ def admin_quiz_manager_page():
             "id":         aid,
             "name":       a["name"],
             "icon":       a.get("icon", "🎯"),
+            "image":      a.get("image", ""),
             "category":   a.get("category_label", ""),
             "q_count":    count_active_quiz_questions(aid),
         }
