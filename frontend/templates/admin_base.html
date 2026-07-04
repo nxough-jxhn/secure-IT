@@ -72,6 +72,12 @@
             <svg viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M15 3H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
             Comment Manager
           </a>
+
+          <a href="{{ url_for('collection_page') }}"
+             class="av2-nav__link {% if active_page == 'collection' %}is-active{% endif %}">
+            <svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 7h8M8 11h8M8 15h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Collections
+          </a>
         </nav>
 
         <!-- Community + Logout section -->
@@ -146,6 +152,7 @@
               <a href="{{ url_for('admin_users_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Users</a>
               <a href="{{ url_for('admin_community_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Post Management</a>
               <a href="{{ url_for('forum_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Community Forum</a>
+              <a href="{{ url_for('collection_page') }}" style="font-size:0.875rem;color:#e2e8f0;text-decoration:none;">Collections</a>
             </div>
             <div style="display:flex;flex-direction:column;gap:10px;">
               <div style="font-size:0.625rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#00ff9f;margin-bottom:2px;">Contact</div>
