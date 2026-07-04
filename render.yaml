@@ -26,6 +26,18 @@ services:
       - key: EMAIL_VERIFY_TTL_HOURS
         value: "24"
 
+      # ── Mail Settings ──────────────────────────────────────────
+      - key: MAILTRAP_HOST
+        sync: false
+      - key: MAILTRAP_PORT
+        sync: false
+      - key: MAILTRAP_USER
+        sync: false
+      - key: MAILTRAP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+
       # ── MongoDB Atlas ──────────────────────────────────────────
       # Set this in the Render dashboard — do NOT commit the real URI
       - key: DB_URI
