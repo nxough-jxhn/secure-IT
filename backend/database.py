@@ -57,16 +57,68 @@ DEFAULT_ATTEMPTS = [
 
 DEFAULT_DEMO_USERS = [
     {
+        "name": "Liam O'Connor",
+        "email": "liam@secure-it.local",
+        "password": "student123",
+        "role": "student",
+        "points": 1500,
+        "level": "Expert",
+    },
+    {
+        "name": "Sophia Martinez",
+        "email": "sophia@secure-it.local",
+        "password": "student123",
+        "role": "student",
+        "points": 1250,
+        "level": "Defender",
+    },
+    {
+        "name": "Kenji Tanaka",
+        "email": "kenji@secure-it.local",
+        "password": "student123",
+        "role": "student",
+        "points": 1050,
+        "level": "Guardian",
+    },
+    {
+        "name": "Aisha Bello",
+        "email": "aisha@secure-it.local",
+        "password": "student123",
+        "role": "student",
+        "points": 850,
+        "level": "Novice",
+    },
+    {
+        "name": "Mateo Silva",
+        "email": "mateo@secure-it.local",
+        "password": "student123",
+        "role": "student",
+        "points": 600,
+        "level": "Rookie",
+    },
+    {
+        "name": "Chloe Dubois",
+        "email": "chloe@secure-it.local",
+        "password": "student123",
+        "role": "student",
+        "points": 350,
+        "level": "Rookie",
+    },
+    {
         "name": "Demo Student",
         "email": "student@secure-it.local",
         "password": "student123",
         "role": "student",
+        "points": 0,
+        "level": "Rookie",
     },
     {
         "name": "Demo Admin",
         "email": "admin@secure-it.local",
         "password": "admin123",
         "role": "admin",
+        "points": 0,
+        "level": "Rookie",
     },
 ]
 
@@ -552,7 +604,7 @@ def get_user_dashboard_data(email: str) -> dict[str, Any]:
     sim_scores = [int(h.get("simulation_score", 0)) for h in history if h.get("simulation_score") is not None]
     quiz_scores = [int(h.get("quiz_score", 0)) for h in history if h.get("quiz_score") is not None]
     all_scores = sim_scores + quiz_scores
-    average_score = round(sum(all_scores) / len(all_scores)) if all_scores else metrics.get("average_score", 0)
+    average_score = round(sum(all_scores) / len(all_scores)) if all_scores else 0
 
     module_progress = dict(user.get("module_progress", {})) if user else {}
     simulations_completed = list(progress["simulations_completed"])
@@ -758,6 +810,7 @@ def ensure_demo_users():
     if collection is None:
         return
 
+    inserted_any = False
     for demo_user in DEFAULT_DEMO_USERS:
         if collection.find_one({"email": demo_user["email"]}):
             continue
@@ -769,14 +822,23 @@ def ensure_demo_users():
                     "email": demo_user["email"],
                     "password_hash": generate_password_hash(demo_user["password"]),
                     "role": demo_user["role"],
+                    "points": demo_user.get("points", 0),
+                    "level": demo_user.get("level", "Rookie"),
                     "provider": "local",
                     "email_verified": True,
                     "created_at": _utcnow(),
                     "updated_at": _utcnow(),
                 }
             )
+            inserted_any = True
         except PyMongoError:
             continue
+
+    if inserted_any:
+        try:
+            refresh_leaderboard()
+        except Exception:
+            pass
 
 
 def upsert_firebase_user(
