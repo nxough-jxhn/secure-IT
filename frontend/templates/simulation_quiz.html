@@ -2,6 +2,62 @@
 
 {% block page_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<style>
+  .quiz-warning-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .quiz-warning-modal {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+  .quiz-warning-modal__title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .quiz-warning-modal__text {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  .quiz-warning-modal__btn {
+    background: linear-gradient(90deg, #77f2a2, #46d6ff);
+    color: #020617;
+    font-weight: 800;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 0.875rem;
+    transition: transform 0.2s;
+  }
+  .quiz-warning-modal__btn:hover {
+    transform: scale(1.02);
+  }
+</style>
 {% endblock %}
 
 {% block page_ambient %}{% endblock %}
@@ -159,6 +215,20 @@
   </div>
 
 </div>
+
+{% if quiz_data.already_passed %}
+<div class="quiz-warning-modal-backdrop" id="quiz-warning-modal">
+  <div class="quiz-warning-modal">
+    <h3 class="quiz-warning-modal__title">⚠️ Already Completed</h3>
+    <p class="quiz-warning-modal__text">
+      You have already passed this quiz. You are welcome to retake it for practice, but you will <strong>not earn any additional points</strong>.
+    </p>
+    <button type="button" class="quiz-warning-modal__btn" onclick="document.getElementById('quiz-warning-modal').remove()">
+      Understood, Continue
+    </button>
+  </div>
+</div>
+{% endif %}
 
 <script id="sim-quiz-data" type="application/json">{{ quiz_data | tojson }}</script>
 {% endblock %}

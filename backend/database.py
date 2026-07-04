@@ -344,7 +344,7 @@ MODULE_BADGES: dict[str, dict[str, str]] = {
     "keylogger": {"badge_id": "key_defender", "badge_name": "Key Defender"},
     "ransomware": {"badge_id": "ransomware_survivor", "badge_name": "Ransomware Survivor"},
     "spyware": {"badge_id": "spy_catcher", "badge_name": "Spy Catcher"},
-    "adware": {"badge_id": "ad_blocker", "badge_name": "Ad Blocker"},
+    "adware_pop_up": {"badge_id": "ad_blocker", "badge_name": "Ad Blocker"},
     "mitm": {"badge_id": "mitm_detector", "badge_name": "MITM Detector"},
     "evil_twin": {"badge_id": "signal_guardian", "badge_name": "Signal Guardian"},
     "sql_injection": {"badge_id": "code_breaker", "badge_name": "Code Breaker"},

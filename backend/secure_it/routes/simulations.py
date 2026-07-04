@@ -289,6 +289,13 @@ def simulation_complete_page(attack_id: str):
     if request.method != "POST":
         return redirect(url_for("simulation_play_page", attack_id=attack_id))
 
+    email = session.get("user_email")
+    if email:
+        progress = get_user_progress(email)
+        module_progress = progress.get("module_progress", {}).get(attack_id, {})
+        if bool(module_progress.get("hard_complete")):
+            return jsonify({"success": True, "redirect": url_for("simulation_overview_page", attack_id=attack_id)})
+
     payload = request.get_json(silent=True) or {}
     def _safe_int(value, default=0):
         try:
@@ -459,10 +466,15 @@ def simulation_quiz_page(attack_id: str):
     )
 
     mission = _require_mission(attack_id)
-    if not session.get(f"sim_result_{attack_id}"):
-        return redirect(url_for("simulation_overview_page", attack_id=attack_id))
-
     email = session.get("user_email", "")
+
+    # Allow quiz access if they just finished the simulation OR if they have already completed the hard simulation previously
+    progress = get_user_progress(email) if email else {}
+    module_progress = progress.get("module_progress", {}).get(attack_id, {})
+    has_completed_hard = bool(module_progress.get("hard_complete"))
+
+    if not session.get(f"sim_result_{attack_id}") and not has_completed_hard:
+        return redirect(url_for("simulation_overview_page", attack_id=attack_id))
     QUIZ_COUNT = 5
 
     # ── 1. Try fetching questions from DB ──────────────────────
@@ -536,12 +548,29 @@ def simulation_quiz_page(attack_id: str):
         for q in questions_for_session
     ]
 
+    # Check if user has already completed/passed this quiz before
+    already_passed = False
+    from database import _simulation_results_collection, _normalize_email
+    results_col = _simulation_results_collection()
+    if results_col is not None and email:
+        try:
+            existing = results_col.find_one({
+                "email": _normalize_email(email),
+                "attack_id": attack_id,
+                "completion_stage": "quiz"
+            })
+            if existing and int(existing.get("quiz_score", 0) or 0) >= 70:
+                already_passed = True
+        except Exception:
+            pass
+
     quiz_data = {
         "attack_id": mission["attack_id"],
         "name":      mission["name"],
         "questions": frontend_questions,
         "submit_url":     url_for("simulation_quiz_submit_page", attack_id=attack_id),
         "simulations_url": url_for("simulations_page"),
+        "already_passed":  already_passed,
     }
     shell = get_app_shell_context(email)
     return make_layout(

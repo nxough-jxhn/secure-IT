@@ -37,6 +37,13 @@
         {% else %}
         <span class="ai-btn ai-btn--disabled" title="Complete Easy Sim first">Hard Sim</span>
         {% endif %}
+        {% if module_progress.hard_complete %}
+        <a href="{{ url_for('simulation_quiz_page', attack_id=attack_id) }}" class="ai-btn" style="background: linear-gradient(90deg, #77f2a2, #46d6ff); color: #020617; font-weight: 700;">
+          <span>Take Quiz</span>
+        </a>
+        {% else %}
+        <span class="ai-btn ai-btn--disabled" title="Complete Hard Sim first">Take Quiz</span>
+        {% endif %}
       </div>
     </div>
     <p class="ai-lead">{{ attack.short_description }}</p>
