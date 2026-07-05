@@ -137,9 +137,6 @@ body { background: #0a0a0a; overflow: hidden; font-family: 'Manrope', system-ui,
   padding: 5px 8px; border-radius: 6px;
   border: 1px solid rgba(255,255,255,.05); background: rgba(255,255,255,.02);
 }
-.se-log li.good { color: #6effd4; border-color: rgba(0,255,159,.18); }
-.se-log li.bad  { color: #fca5a5; border-color: rgba(239,68,68,.18); }
-.se-log li.warn { color: #fde68a; border-color: rgba(251,191,36,.18); }
 .se-end-btn {
   display: flex; align-items: center; justify-content: center;
   padding: 12px; border-radius: 10px; border: 1px solid rgba(251,191,36,.3);

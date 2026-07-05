@@ -151,6 +151,45 @@
 
   const CORRECT_ANSWER = CONVERSATIONS.find(c => c.isLegit).label;
 
+  const REFUSAL_PROMPTS = {
+    legit_name: {
+      prompt: (val) => `To continue verification, we need your full name. Your reply '${val}' does not match the name saved in our database. Please provide your registered full name.`,
+      exit: "Since you cannot verify your name, we cannot proceed with re-enrollment. Terminating verification."
+    },
+    legit_student_id: {
+      prompt: (val) => `Verification requires your student ID. Your reply '${val}' does not match the ID format in our database. Please provide your correct student ID (e.g. TUPT-21-4892).`,
+      exit: "We cannot verify your record without a student ID. Ending verification."
+    },
+    legit_school_email: {
+      prompt: (val) => `To finalize enrollment, we need your registered school email. Your reply '${val}' is incorrect. Please provide your official school email.`,
+      exit: "Without a verified school email, we cannot complete re-enrollment. Goodbye."
+    },
+    fake_name: {
+      prompt: (val) => `To continue with your enrollment assistance, we need your full name. Your reply '${val}' does not match our records. Please verify your complete name.`,
+      exit: "We cannot assist you without your registered name. Terminating assistance."
+    },
+    fake_student_id: {
+      prompt: (val) => `We need your correct student ID to check your files. Your reply '${val}' is invalid. Please share your student ID.`,
+      exit: "Sorry, we cannot continue without your student ID. Goodbye."
+    },
+    fake_course_year: {
+      prompt: (val) => `To update your file, we need your current course and year. Your reply '${val}' is invalid. Please share it.`,
+      exit: "We cannot complete the update without your course details. Terminating chat."
+    },
+    fake_mobile: {
+      prompt: (val) => `Please provide your correct mobile number so we can send your verification PIN. Your reply '${val}' is not a valid contact number.`,
+      exit: "We cannot proceed without a verified contact number. Terminating chat."
+    },
+    fake_shs_name: {
+      prompt: (val) => `Your senior high school name is required to verify your transcript records. Your reply '${val}' does not match. Please provide it.`,
+      exit: "We cannot release the slip without this record. Goodbye."
+    },
+    fake_guardian_name: {
+      prompt: (val) => `We need your primary emergency contact's name for database confirmation. Your reply '${val}' is invalid. Please share it.`,
+      exit: "Emergency contact is required to finalize. Ending conversation."
+    }
+  };
+
   /* ══ State ══ */
   let score = 0;
   const MAX_SCORE = 50;
@@ -163,6 +202,7 @@
   let currentStepIndex = 0;
   let waitingForReply = false;
   let convDone = [false, false];
+  let hasRefusedCurrentStep = false;
 
   /* Predefined student identity used in scoring */
   const STUDENT_ID = {
@@ -201,6 +241,10 @@
   const finalModal    = document.getElementById('se-final-modal');
   const revealOverlay = document.getElementById('se-reveal-overlay');
   const revealContent = document.getElementById('se-reveal-content');
+  const transitionModal = document.getElementById('se-transition-modal');
+  const transitionTitle = document.getElementById('se-trans-title');
+  const transitionDesc  = document.getElementById('se-trans-desc');
+  const transitionBtn   = document.getElementById('se-trans-btn');
 
   /* ══ Helpers ══ */
   function logAction(a, d) { actionsLog.push({ action: a, detail: d, at: new Date().toISOString() }); }
@@ -260,6 +304,7 @@
     currentConvIndex = idx;
     currentStepIndex = 0;
     waitingForReply = false;
+    hasRefusedCurrentStep = false;
     const conv = CONVERSATIONS[idx];
 
     // Update sidebar progress
@@ -388,6 +433,29 @@
   });
   sendBtn.addEventListener('click', handleSend);
 
+  function verifyDetail(key, text) {
+    if (!text) return false;
+    const t = text.toLowerCase().trim();
+    switch (key) {
+      case 'name':
+        return t.includes('juan') || t.includes('dela') || t.includes('cruz');
+      case 'student_id':
+        return t.includes('4892') || t.includes('21-4892');
+      case 'school_email':
+        return t.includes('juan') && (t.includes('tup') || t.includes('delacruz'));
+      case 'course_year':
+        return t.includes('bsit') || t.includes('2nd') || t.includes('second');
+      case 'mobile':
+        return t.includes('0917') || t.includes('1234567') || t.includes('4567');
+      case 'shs_name':
+        return t.includes('taguig') || t.includes('national');
+      case 'guardian_name':
+        return t.includes('maria');
+      default:
+        return true;
+    }
+  }
+
   function handleSend() {
     if (!waitingForReply) return;
     const text = replyInput.value.trim();
@@ -403,41 +471,99 @@
     const conv = CONVERSATIONS[currentConvIndex];
     const step = conv.script[currentStepIndex];
 
-    // Score the reply — now uses predefined STUDENT_ID values for clean evaluation
     if (step.replyKey) {
-      const key = `${conv.id}_${step.replyKey}`;
-      sharedData[key] = text;
-      logAction('reply', { conv: conv.label, key: step.replyKey, value: text });
+      const isValid = verifyDetail(step.replyKey, text);
+      const key = `${conv.sender.id}_${step.replyKey}`;
+      const refusalMeta = REFUSAL_PROMPTS[key];
 
-      // A refusal is any response that doesn't contain a real-looking answer
-      // (short text, or explicit refusal words)
-      const REFUSAL_PATTERN = /\b(no|nope|refuse|why|what for|not sharing|don't|won't|wont|none|skip|pass)\b/i;
-      const isRefusal = REFUSAL_PATTERN.test(text) || text.trim().length <= 2;
+      if (!isValid) {
+        // Verification failed (explicit refusal, short response, or incorrect/fake data)
+        const displayReply = text.length > 25 ? text.substring(0, 25) + '...' : text;
+        
+        if (!hasRefusedCurrentStep && refusalMeta) {
+          // First refusal: show follow-up prompt, do NOT advance step index
+          hasRefusedCurrentStep = true;
+          logAction('refusal_first', { conv: conv.label, key: step.replyKey, value: text });
+          pushLog(`Refused: ${step.replyKey}`, '');
 
-      if (!conv.isLegit && step.deduct) {
-        // Fake convo asking unnecessary data
-        if (isRefusal) {
-          score += 5; // Bonus: pushed back on unnecessary question
-          goodDecisions.push(`Refused unnecessary question: ${step.replyKey}`);
-          pushFeed('Good — you questioned an unnecessary request.', 'good');
-          pushLog(`✓ Refused: ${step.replyKey}`, 'good');
+          setTimeout(() => {
+            const typingEl = document.createElement('div');
+            typingEl.className = 'se-typing';
+            typingEl.innerHTML = `
+              <span class="se-typing__dot"></span>
+              <span class="se-typing__dot"></span>
+              <span class="se-typing__dot"></span>`;
+            chat.appendChild(typingEl);
+            scrollChat();
+
+            setTimeout(() => {
+              typingEl.remove();
+              appendReceivedBubble(refusalMeta.prompt(displayReply), conv.sender);
+              scrollChat();
+
+              waitingForReply = true;
+              replyInput.disabled = false;
+              replyInput.focus();
+            }, 1000);
+          }, 600);
+          return;
         } else {
-          // They gave data (could be the predefined value or anything non-trivial)
+          // Second refusal/failure: exit/end conversation immediately
+          logAction('refusal_second', { conv: conv.label, key: step.replyKey, value: text });
+          pushLog(`Refused: ${step.replyKey}`, '');
+
+          // Attaker flow: award refusal bonus points on second refusal
+          if (!conv.isLegit && step.deduct) {
+            score += 5;
+            goodDecisions.push(`Refused unnecessary question: ${step.replyKey}`);
+          }
+
+          setTimeout(() => {
+            const typingEl = document.createElement('div');
+            typingEl.className = 'se-typing';
+            typingEl.innerHTML = `
+              <span class="se-typing__dot"></span>
+              <span class="se-typing__dot"></span>
+              <span class="se-typing__dot"></span>`;
+            chat.appendChild(typingEl);
+            scrollChat();
+
+            setTimeout(() => {
+              typingEl.remove();
+              appendReceivedBubble(refusalMeta ? refusalMeta.exit : "Ending conversation.", conv.sender);
+              scrollChat();
+
+              convDone[currentConvIndex] = true;
+              onConversationEnd();
+            }, 1000);
+          }, 600);
+          return;
+        }
+      } else {
+        // Correct details provided!
+        hasRefusedCurrentStep = false;
+        sharedData[`${conv.id}_${step.replyKey}`] = text;
+        logAction('reply', { conv: conv.label, key: step.replyKey, value: text });
+
+        if (!conv.isLegit && step.deduct) {
+          // Shared unnecessary data with attacker
           score = Math.max(0, score - step.deduct);
           mistakes.push(`Shared ${step.replyKey} with attacker`);
-          pushLog(`Shared: ${step.replyKey}`, 'bad');
-        }
-      } else if (conv.isLegit) {
-        // Legit convo — earn points for providing the correct data
-        const earns = { name: 5, student_id: 8, school_email: 7 };
-        const earned = earns[step.replyKey] || 0;
-        if (earned > 0 && !isRefusal) {
-          score = Math.min(MAX_SCORE - FINAL_ID_POINTS, score + earned);
-          goodDecisions.push(`Provided ${step.replyKey} to legitimate staff`);
-          pushLog(`✓ Provided: ${step.replyKey}`, 'good');
+          pushLog(`Shared: ${step.replyKey}`, '');
+        } else if (conv.isLegit) {
+          // Provided to legit registrar
+          const earns = { name: 5, student_id: 8, school_email: 7 };
+          const earned = earns[step.replyKey] || 0;
+          if (earned > 0) {
+            score = Math.min(MAX_SCORE - FINAL_ID_POINTS, score + earned);
+            goodDecisions.push(`Provided ${step.replyKey} to legitimate staff`);
+            pushLog(`Shared: ${step.replyKey}`, '');
+          }
+        } else {
+          // name / student_id given to fake convo = not penalized
+          pushLog(`Shared: ${step.replyKey}`, '');
         }
       }
-      // name / student_id given to fake convo = not penalized (expected normal data)
     }
 
     currentStepIndex++;
@@ -454,17 +580,35 @@
     sendBtn.disabled = true;
 
     if (currentConvIndex === 0) {
-      // Move to conversation 2 after brief pause
       if (progFill) progFill.style.width = '50%';
+      
+      // Update transition modal labels dynamically
+      if (transitionTitle) transitionTitle.textContent = `Conversation ${conv.label} Ended`;
+      if (transitionDesc) transitionDesc.textContent = `You have completed Conversation ${conv.label}. Ready to proceed to Conversation ${CONVERSATIONS[1].label}?`;
+      if (transitionBtn) {
+        transitionBtn.textContent = `Proceed to Convo ${CONVERSATIONS[1].label}`;
+        
+        // Remove old listeners by cloning the button
+        const newBtn = transitionBtn.cloneNode(true);
+        transitionBtn.parentNode.replaceChild(newBtn, transitionBtn);
+        newBtn.addEventListener('click', () => {
+          transitionModal.hidden = true;
+          
+          // Clear chat area for clean transition
+          chat.innerHTML = '';
+          const note = document.createElement('div');
+          note.className = 'se-chat-date';
+          note.textContent = `Starting Conversation ${CONVERSATIONS[1].label}…`;
+          chat.appendChild(note);
+          
+          setTimeout(() => startConversation(1), 1000);
+        }, { once: true });
+      }
+      
+      // Show transition modal
       setTimeout(() => {
-        // Show transition message in chat
-        chat.innerHTML = '';
-        const note = document.createElement('div');
-        note.className = 'se-chat-date';
-        note.textContent = 'Starting Conversation 2…';
-        chat.appendChild(note);
-        setTimeout(() => startConversation(1), 1200);
-      }, 1500);
+        transitionModal.hidden = false;
+      }, 4500);
     } else {
       // Both done — show final question
       if (progFill) progFill.style.width = '80%';

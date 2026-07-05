@@ -233,6 +233,21 @@
   </div>
 </div>
 
+<!-- ══ TRANSITION ALERT POPUP ══ -->
+<div class="se-modal" id="se-transition-modal" hidden>
+  <div class="se-modal__backdrop"></div>
+  <div class="se-modal__dialog" role="dialog" aria-modal="true">
+    <div class="se-modal__content" style="text-align: center; align-items: center;">
+      <div style="font-size: 3rem; margin-bottom: 10px;">📲</div>
+      <h2 class="se-modal__title" id="se-trans-title">Conversation Ended</h2>
+      <p class="se-modal__desc" id="se-trans-desc">Moving to the next conversation...</p>
+      <button type="button" class="se-reveal__btn se-reveal__btn--primary" id="se-trans-btn" style="margin-top: 15px; padding: 12px 30px;">
+        Proceed to Convo B
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ REVEAL OVERLAY ══ -->
 <div class="se-reveal-overlay" id="se-reveal-overlay" hidden>
   <div class="se-reveal" id="se-reveal-content"></div>
