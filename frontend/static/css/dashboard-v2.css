@@ -150,6 +150,7 @@
   transition: border-color 0.2s, background 0.2s;
 }
 .dv2-rec-card:hover { border-color: rgba(0,255,159,0.35); background: rgba(0,255,159,0.03); }
+.dv2-hscroll .dv2-rec-card { flex: 0 0 240px; }
 
 .dv2-rec-card__thumb {
   position: relative;

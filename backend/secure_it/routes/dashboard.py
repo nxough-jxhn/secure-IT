@@ -1,6 +1,6 @@
 from flask import session
 
-from database import get_app_shell_context, get_user_dashboard_data, MODULE_BADGES
+from database import get_app_shell_context, get_user_dashboard_data, MODULE_BADGES, list_forum_posts
 from secure_it import login_required, make_layout
 from simulation_missions import list_mission_summaries
 
@@ -63,6 +63,8 @@ def dashboard_page():
         {"id": "leaderboard", "name": "Leaderboard Certificate", "condition": "Rank in Top 10", "earned": data.get("rank") is not None and data["rank"] <= 10},
     ]
 
+    recent_posts = list_forum_posts(limit=6, viewer_email=email)
+
     return make_layout(
         "dashboard",
         "Learning Dashboard",
@@ -83,4 +85,5 @@ def dashboard_page():
         all_certificates=all_certificates,
         user_points=data["points"],
         user_rank=data.get("rank"),
+        recent_posts=recent_posts,
     )

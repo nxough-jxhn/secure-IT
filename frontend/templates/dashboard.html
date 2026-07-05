@@ -106,7 +106,43 @@
       </div>
     </section>
 
-    <!-- ── Section 3: Recent Activity (community posts placeholder) ── -->
+    <!-- ── Section 3: Recent Community Posts ── -->
+    <section class="dv2-section">
+      <div class="dv2-section__head">
+        <h2 class="dv2-section__title">💬 Recent Community Posts</h2>
+        <a href="{{ url_for('forum_page') }}" class="dv2-view-all">Forum →</a>
+      </div>
+      <div class="dv2-hscroll">
+        {% if recent_posts %}
+          {% for post in recent_posts %}
+          <a href="{{ url_for('forum_page') }}" class="dv2-rec-card">
+            <div class="dv2-rec-card__thumb">
+              {% if post.images and post.images | length > 0 %}
+              <img src="{{ post.images[0] }}" alt="{{ post.title }}" class="dv2-rec-card__img">
+              {% else %}
+              <div style="height: 100%; display: grid; place-items: center; background: rgba(255,255,255,0.02); font-size: 1.5rem; opacity: 0.3;">💬</div>
+              {% endif %}
+              <span class="dv2-rec-card__badge" style="background: rgba(0,255,159,0.12); border: 1px solid rgba(0,255,159,0.3); color: #00ff9f;">{{ post.category }}</span>
+            </div>
+            <div class="dv2-rec-card__body">
+              <div class="dv2-rec-card__name" style="font-weight: 700;">{{ post.title | truncate(35, true, '…') }}</div>
+              <div class="dv2-rec-card__meta">
+                <span>By {{ post.author_name }}</span>
+                <span>❤️ {{ post.likes_count }} &nbsp; 💬 {{ post.comments | length }}</span>
+              </div>
+            </div>
+            <div class="dv2-rec-card__footer">
+              <span class="dv2-rec-card__cta">Read Post</span>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <p class="dv2-empty">No community posts available.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ── Section 4: Recent Activity ── -->
     <section class="dv2-section">
       <div class="dv2-section__head">
         <h2 class="dv2-section__title">🗣 Recent Activity <span class="dv2-section__badge">{{ history | length }}</span></h2>
@@ -116,31 +152,27 @@
         {% if history %}
           {% for entry in history %}
           <div class="dv2-activity-card">
-  <div class="dv2-activity-card__top">
-    <span class="dv2-activity-card__mod">{{ entry.get('attack_id', 'module') | replace('_', ' ') | title }}</span>
-    {% if entry.get('quiz_score') is not none %}
-    <span class="dv2-activity-card__score dv2-score--{% if entry.quiz_score >= 70 %}pass{% else %}fail{% endif %}">
-      Quiz {{ entry.quiz_score }}%
-    </span>
-    {% endif %}
-  </div>
-  <div class="dv2-activity-card__sim">
-    Sim score: <strong>{{ entry.get('simulation_score', '—') }}{% if entry.get('simulation_score') is not none %}%{% endif %}</strong>
-  </div>
-  <div class="dv2-activity-card__bar">
-    <div class="dv2-activity-card__bar-fill" style="width: {{ entry.get('simulation_score', 0) }}%;"></div>
-  </div>
-  <div class="dv2-activity-card__footer">
-    <span class="dv2-activity-card__pts">+{{ entry.get('points_earned', 0) }} pts</span>
-    <span class="dv2-activity-card__date">{{ entry.get('completed_at', '') | string | truncate(10, true, '') }}</span>
-  </div>
-</div>
+            <div class="dv2-activity-card__top">
+              <span class="dv2-activity-card__mod">{{ entry.get('attack_id', 'module') | replace('_', ' ') | title }}</span>
+              {% if entry.get('quiz_score') is not none %}
+              <span class="dv2-activity-card__score dv2-score--{% if entry.quiz_score >= 70 %}pass{% else %}fail{% endif %}">
+                Quiz {{ entry.quiz_score }}%
+              </span>
+              {% endif %}
+            </div>
+            <div class="dv2-activity-card__sim">
+              Sim score: <strong>{{ entry.get('simulation_score', '—') }}{% if entry.get('simulation_score') is not none %}%{% endif %}</strong>
+            </div>
+            <div class="dv2-activity-card__bar">
+              <div class="dv2-activity-card__bar-fill" style="width: {{ entry.get('simulation_score', 0) }}%;"></div>
+            </div>
+            <div class="dv2-activity-card__footer">
+              <span class="dv2-activity-card__pts">+{{ entry.get('points_earned', 0) }} pts</span>
+              <span class="dv2-activity-card__date">{{ entry.get('completed_at', '') | string | truncate(10, true, '') }}</span>
+            </div>
+          </div>
           {% endfor %}
         {% else %}
-          <div class="dv2-activity-card dv2-activity-card--placeholder">
-            <span class="dv2-activity-card__icon">💬</span>
-            <p>Community posts will appear here once the Community feature launches.</p>
-          </div>
           <div class="dv2-activity-card dv2-activity-card--placeholder">
             <span class="dv2-activity-card__icon">🏆</span>
             <p>Complete your first simulation to see your activity history here.</p>
