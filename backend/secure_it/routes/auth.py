@@ -118,7 +118,30 @@ def register_page():
         profile_picture_path = uploaded_image
 
     ensure_demo_users()
-    if get_user_by_email(email):
+    existing_user = get_user_by_email(email)
+    if existing_user:
+        if existing_user.get("provider") == "google":
+            # Upgrade Google account to allow password login
+            from database import _users_collection
+            from werkzeug.security import generate_password_hash
+            col = _users_collection()
+            if col is not None:
+                updates = {
+                    "password_hash": generate_password_hash(password),
+                    "year_level": year_level,
+                    "email_verified": True,
+                    "updated_at": datetime.now(timezone.utc),
+                }
+                if profile_picture_path:
+                    updates["profile_picture"] = profile_picture_path
+                try:
+                    col.update_one({"email": email}, {"$set": updates})
+                except Exception:
+                    return redirect(url_for("login_page", register_error="Could not link password to your Google account.", register_open=1))
+                
+                updated_user = get_user_by_email(email)
+                _start_session(updated_user)
+                return _post_login_redirect()
         return redirect(url_for("login_page", register_error="That email is already registered.", register_open=1))
 
     token = secrets.token_urlsafe(32)
