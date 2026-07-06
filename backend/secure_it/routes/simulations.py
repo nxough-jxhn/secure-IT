@@ -544,6 +544,7 @@ def simulation_quiz_page(attack_id: str):
             "question":    q["question"],
             "options":     q["options"],
             "explanation": q["explanation"],
+            "correct":     q["correct"],
         }
         for q in questions_for_session
     ]
