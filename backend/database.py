@@ -1734,6 +1734,26 @@ def _forum_posts_collection():
     return collection
 
 
+def censor_text(text: str) -> str:
+    if not text:
+        return text
+    import re
+    bad_words_patterns = [
+        r"\bfuck\w*\b", r"\bbitch\w*\b", r"\basshole\w*\b", r"\bshit\w*\b", r"\bbastard\w*\b",
+        r"\bcunt\w*\b", r"\bdick\w*\b", r"\bpussy\w*\b", r"\bwhore\w*\b",
+        r"\bputang\s*ina\b", r"\bgago\w*\b", r"\btanga\w*\b", r"\bgaga\w*\b", r"\bputa\w*\b",
+        r"\bsalsal\w*\b", r"\bkupal\w*\b", r"\bkantot\w*\b", r"\bulol\w*\b", r"\bpuke\w*\b",
+        r"\btite\w*\b", r"\bbobo\w*\b"
+    ]
+    censored = text
+    for pattern in bad_words_patterns:
+        def replace_with_asterisks(match):
+            word = match.group(0)
+            return "*" * len(word)
+        censored = re.sub(pattern, replace_with_asterisks, censored, flags=re.IGNORECASE)
+    return censored
+
+
 def create_forum_post(
     email: str,
     author_name: str,
@@ -1747,6 +1767,8 @@ def create_forum_post(
     if collection is None:
         return None
     try:
+        title = censor_text(title)
+        content = censor_text(content)
         return collection.insert_one(
             {
                 "email": _normalize_email(email),
@@ -1819,6 +1841,7 @@ def update_forum_post(post_id: str, email: str, content: str) -> bool:
     if oid is None:
         return False
     try:
+        content = censor_text(content)
         result = collection.update_one(
             {"_id": oid, "email": _normalize_email(email)},
             {"$set": {"content": content.strip(), "updated_at": _utcnow()}},
@@ -1878,6 +1901,7 @@ def add_forum_post_comment(
     if oid is None:
         return False
     try:
+        content = censor_text(content)
         result = collection.update_one(
             {"_id": oid},
             {
@@ -1927,6 +1951,7 @@ def edit_forum_post_comment(post_id: str, email: str, comment_index: int, new_co
             return False
         if _normalize_email(comments[comment_index].get("email", "")) != user_email:
             return False
+        new_content = censor_text(new_content)
         field = f"comments.{comment_index}.content"
         result = collection.update_one(
             {"_id": oid},

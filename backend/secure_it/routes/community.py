@@ -11,6 +11,7 @@ from database import (
     list_forum_posts,
     toggle_forum_post_like,
     update_forum_post,
+    censor_text,
 )
 from cloudinary_uploader import upload_profile_picture  # reuse for community images
 
@@ -159,7 +160,7 @@ def forum_comment_api(post_id: str):
             "success": True,
             "author_name":     session.get("display_name", "Learner"),
             "profile_picture": session.get("profile_picture", ""),
-            "content":         content,
+            "content":         censor_text(content),
         })
     return jsonify({"error": "Failed to add comment"}), 500
 
